@@ -1,0 +1,16 @@
+{
+  "name": "EduGraph",
+  "version": "0.0.0",
+  "description": "Graph for concepts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "~4.8.6",
+    "body-parser": "~1.6.6",
+    "neo4j": "~1.1.0"
+  }
+}
