@@ -8,22 +8,35 @@ var express = require('express'),
 
 	Concept = require('./app/models/concept.js');
 
+app.use(function(req, res, next) {
+	res.header('Access-Control-Allow-Origin', '*');
+
+	next();
+});
+app.use(express.static('client/dist'));
 app.use(bodyParser.json());
 
 router.route('/concepts')
 	.get(function(req, res) {
-		Concept.all(function(err, data) {
-			res.json(data.map(function(node) {
-				return node.attrs;
+		Concept.all(function(concepts) {
+			res.json(concepts.map(function(concept) {
+				return concept.attrs;
 			}));
 		});
 	})
 	.post(function(req, res) {
-		Concept.create(req.body.concept, function(err, data) {
-			res.json(data[0].attrs);
+		Concept.create(req.body, function(concept) {
+			res.json(concept.attrs);
 		});
 	});
 
+router.route('/concepts/:id')
+	.post(function(req, res) {
+		var concept = new Concept({id: parseInt(req.params.id)});
+		concept.addReqs(req.body.reqs, function() {
+			res.json(concept);
+		});
+	});
 
 app.use('/api', router);
 
