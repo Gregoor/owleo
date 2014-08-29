@@ -16,10 +16,10 @@ Concept.prototype = {
 
 Concept.create = function(concept, callback) {
 	db.query('CREATE (concept:Concept {name: {name}}) RETURN concept', concept, function(err, data) {
-		if (concept.prereqs) {
-			var query = 'MATCH (concept:Concept), (prereq:Concept)' +
-				'WHERE concept.name = {name} AND prereq.name in {prereqs}' +
-				'CREATE (concept)-[:REQUIRES]->(prereq)';
+		if (concept.reqs) {
+			var query = 'MATCH (concept:Concept), (req:Concept)' +
+				'WHERE concept.name = {name} AND req.name in {reqs}' +
+				'CREATE (concept)-[:REQUIRES]->(req)';
 			db.query(query, concept, function() {});
 		}
 		callback(err, data.map(function(nodeData) {
