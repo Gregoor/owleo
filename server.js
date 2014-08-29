@@ -19,7 +19,7 @@ router.route('/concepts')
 		});
 	})
 	.post(function(req, res) {
-		Concept.create(req.body.concept.name, function(err, data) {
+		Concept.create(req.body.concept, function(err, data) {
 			res.json(data[0].attrs);
 		});
 	});
