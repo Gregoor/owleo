@@ -9,7 +9,10 @@ var express = require('express'),
 	Concept = require('./app/models/concept.js');
 
 app.use(function(req, res, next) {
+	// TODO: Check for prod
 	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+	res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE');
 
 	next();
 });
@@ -32,10 +35,31 @@ router.route('/concepts')
 
 router.route('/concepts/:id')
 	.post(function(req, res) {
-		var concept = new Concept({id: parseInt(req.params.id)});
+		var concept = new Concept({id: req.params.id});
 		concept.addReqs(req.body.reqs, function() {
 			res.json(concept);
 		});
+	})
+	.delete(function(req, res) {
+		var concept = new Concept({id: req.params.id});
+		concept.delete(function() {
+			res.status(200).end();
+		});
+	});
+
+router.route('/concepts/:conceptId/reqs/:reqId')
+	.post(function(req, res) {
+		var params = req.params,
+			concept = new Concept({id: params.conceptId});
+
+		concept.addReqs(params.reqId);
+		res.status(200).end();
+	})
+	.delete(function(req, res) {
+		var params = req.params,
+			concept = new Concept({id: params.conceptId});
+		concept.deleteReqs(params.reqId);
+		res.status(200).end();
 	});
 
 app.use('/api', router);
