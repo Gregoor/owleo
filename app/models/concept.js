@@ -1,5 +1,5 @@
 var neo4j = require('neo4j'),
-	db = new neo4j.GraphDatabase('http://localhost:7474'),
+	db = new neo4j.GraphDatabase(process.env.NEO4J_HOST || 'http://localhost:7474'),
 
 	merge = require('merge'),
 	handleErr = function(callback) {
