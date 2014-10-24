@@ -34,6 +34,11 @@ router.route('/concepts')
 	});
 
 router.route('/concepts/:id')
+	.get(function(req, res) {
+		Concept.find(req.params.id, function(concept) {
+			res.json(concept.attrs);
+		});
+	})
 	.post(function(req, res) {
 		var concept = new Concept({id: req.params.id});
 		concept.addReqs(req.body.reqs, function() {

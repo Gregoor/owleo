@@ -1,7 +1,7 @@
 var neo4j = require('neo4j'),
 	db = new neo4j.GraphDatabase(process.env.NEO4J_HOST || 'http://localhost:7474'),
+	_ = require('lodash');
 
-	merge = require('merge'),
 	handleErr = function(callback) {
 		return function(err, data) {
 			if (err) console.error(err);
@@ -65,12 +65,26 @@ Concept.prototype = {
 		db.query(query, {'id': this.get('id')}, handleErr(callback))
 	}
 };
+Concept.find = function(id, callback) {
+	var attrs = {id: id};
+	db.query(
+		'MATCH (concept:Concept) WHERE id(concept) = {id} RETURN concept',
+		{id: parseInt(id)},
+		handleErr(function(data) {
+			callback(new Concept(_.merge(attrs, neo2attr(data[0].concept))));
+		}
+	));
+};
 Concept.create = function(conceptData, callback) {
-	db.query('CREATE (concept:Concept {name: {name}}) RETURN id(concept) AS id', conceptData, handleErr(function(data) {
-		var concept = new Concept(merge(conceptData, {id: data[0].id}));
-		if (conceptData.reqs) concept.addReqs(conceptData.reqs);
-		callback(concept);
-	}));
+	db.query(
+		'CREATE (concept:Concept {name: {name}}) RETURN id(concept) AS id',
+		conceptData,
+		handleErr(function(data) {
+			var concept = new Concept(_.merge(conceptData, {id: data[0].id}));
+			if (conceptData.reqs) concept.addReqs(conceptData.reqs);
+			callback(concept);
+		})
+	);
 };
 Concept.all = function(callback) {
 	var query = 'MATCH (n:Concept)' +
@@ -78,7 +92,12 @@ Concept.all = function(callback) {
 		'RETURN n, id(n) AS id, collect(id(req)) AS reqs';
 	db.query(query, handleErr(function(data) {
 		callback(data.map(function(nodeData) {
-			return new Concept(merge(neo2attr(nodeData.n), {id: nodeData['id'], reqs: nodeData.reqs}));
+			return new Concept(
+				_.merge(
+					neo2attr(nodeData.n),
+					{id: nodeData['id'], reqs: nodeData.reqs}
+				)
+			);
 		}));
 	}));
 };
