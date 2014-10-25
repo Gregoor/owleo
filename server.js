@@ -1,4 +1,5 @@
-var express = require('express'),
+var _ = require('lodash'),
+	express = require('express'),
 	app = express(),
 	router = express.Router(),
 
@@ -21,33 +22,33 @@ app.use(bodyParser.json());
 
 router.route('/concepts')
 	.get(function(req, res) {
-		Concept.all(function(concepts) {
+		Concept.all().then(function(concepts) {
 			res.json(concepts.map(function(concept) {
 				return concept.attrs;
 			}));
 		});
 	})
 	.post(function(req, res) {
-		Concept.create(req.body, function(concept) {
+		Concept.create(req.body.concept).then(function(concept) {
 			res.json(concept.attrs);
 		});
 	});
 
 router.route('/concepts/:id')
 	.get(function(req, res) {
-		Concept.find(req.params.id, function(concept) {
+		Concept.find(req.params.id).then(function(concept) {
 			res.json(concept.attrs);
 		});
 	})
 	.post(function(req, res) {
 		var concept = new Concept({id: req.params.id});
-		concept.addReqs(req.body.reqs, function() {
+		concept.addReqs().then(req.body.reqs, function() {
 			res.json(concept);
 		});
 	})
 	.delete(function(req, res) {
 		var concept = new Concept({id: req.params.id});
-		concept.delete(function() {
+		concept.delete().then(function() {
 			res.status(200).end();
 		});
 	});
@@ -64,6 +65,33 @@ router.route('/concepts/:conceptId/reqs/:reqId')
 		var params = req.params,
 			concept = new Concept({id: params.conceptId});
 		concept.deleteReqs(params.reqId);
+		res.status(200).end();
+	});
+
+router.route('/concepts/:conceptId/materials')
+	.post(function(req, res) {
+		var params = req.params,
+			concept = new Concept({id: params.conceptId});
+
+ 		concept.addMaterial(_.pick(req.body.material, 'title', 'content'))
+		  .then(function(data) {
+				res.json(data);
+			});
+
+	});
+
+router.route('/concepts/:conceptId/materials/:materialId')
+	.post(function(req, res) {
+		var params = req.params,
+			concept = new Concept({id: params.conceptId});
+
+		concept.updateMaterial(params.materialId, req.body.material).then(function(data) {
+			res.json(data);
+		});
+	})
+	.delete(function(req, res) {
+		var params = req.params,
+			concept = new Concept({id: params.conceptId});
 		res.status(200).end();
 	});
 
