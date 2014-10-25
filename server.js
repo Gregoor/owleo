@@ -3,12 +3,16 @@ var _ = require('lodash'),
 	app = express(),
 	router = express.Router(),
 
+	basicAuth = require('basic-auth-connect'),
 	bodyParser = require('body-parser'),
 
 	port = process.env.PORT || 8080,
 
+	basicAuthPw = process.env.SKILLGRAPH_PW,
+
 	Concept = require('./app/models/concept.js');
 
+if (basicAuthPw) app.use(basicAuth('wurzel', basicAuthPw));
 app.use(function(req, res, next) {
 	// TODO: Check for prod
 	res.header('Access-Control-Allow-Origin', '*');
