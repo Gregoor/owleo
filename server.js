@@ -77,7 +77,7 @@ router.route('/concepts/:conceptId/materials')
 		var params = req.params,
 			concept = new Concept({id: params.conceptId});
 
- 		concept.addMaterial(_.pick(req.body.material, 'title', 'content'))
+ 		concept.addMaterial(_.pick(req.body.material, 'content'))
 		  .then(function(data) {
 				res.json(data);
 			});
