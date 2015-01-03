@@ -10,7 +10,7 @@ function asArray(n) {
 module.exports = {
 	'find': function(id) {
 		return query(
-			'MATCH (c:Concept) WHERE id(c) = {id}' +
+			'MATCH (c:Concept) WHERE ID(c) = {id}' +
 			'OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)' +
 			'RETURN ID(c) as id, c.name AS name, c.summary as summary, COLLECT(t.name) as tags',
 			{'id': parseInt(id)}
@@ -20,18 +20,30 @@ module.exports = {
 	},
 	'create': function(data) {
 		return query(
-			'MERGE (concept:Concept {name: {name}}) RETURN ID(concept) AS id', data
+			'CREATE (c:Concept {data})' +
+			'RETURN ID(c) AS id',
+			{'data': data}
 		).then(function(dbData) {
 			return _.merge(dbData[0], data);
 		});
 	},
+	'update': function(id, data) {
+		return query(
+			'MATCH (c:Concept) WHERE ID(c) = {id}' +
+			'SET c = {data}' +
+			'RETURN ID(c) AS id',
+			{'id': parseInt(id), 'data': data}
+		).then(function(dbData) {
+				return _.merge(dbData[0], data);
+			});
+	},
 	'delete': function(id) {
 		return query(
 			'MATCH (c:Concept)' +
-			'WHERE id(c) = {id}' +
+			'WHERE ID(c) = {id}' +
 			'OPTIONAL MATCH c-[r]-()' +
 			'DELETE c, r',
-			{'id': id}
+			{'id': parseInt(id)}
 		);
 	},
 	'all': function() {

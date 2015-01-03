@@ -27,23 +27,20 @@ app.use(bodyParser.json());
 
 router.route('/concepts')
 	.get(function(req, res) {
-		Concept.all().then(function(concepts) {
-			res.json(concepts);
-		});
+		Concept.all().then(res.json.bind(res));
 	})
 	.post(function(req, res) {
-		Concept.create(req.body.concept).then(function(concept) {
-			res.json(concept);
-		});
+		Concept.create(_.pick(req.body.concept, 'name', 'summary'))
+			.then(res.json.bind(res));
 	});
 
 router.route('/concepts/:id')
 	.get(function(req, res) {
-		Concept.find(req.params.id).then(function(concept) {
-			res.json(concept);
-		});
+		Concept.find(req.params.id).then(res.json.bind(res));
 	})
 	.post(function(req, res) {
+		Concept.update(req.params.id, _.pick(req.body.concept, 'name', 'summary'))
+			.then(res.json.bind(res));
 	})
 	.delete(function(req, res) {
 		Concept.delete(req.params.id);
@@ -73,9 +70,7 @@ router.route('/concepts/:conceptId/materials/:materialId')
 	});
 
 router.route('/tags/search').get(function(req, res) {
-	Tag.search(req.query.q).then(function(data) {
-		res.json(data);
-	});
+	Tag.search(req.query.q).then(res.json.bind(res));
 });
 
 app.use('/api', router);
