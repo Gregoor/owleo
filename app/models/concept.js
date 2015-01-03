@@ -1,169 +1,69 @@
-var neo4j = require('neo4j'),
-	db = new neo4j.GraphDatabase(process.env.NEO4J_HOST || 'http://localhost:7474'),
-	_ = require('lodash'),
-	Promise = require('promise'),
+var _ = require('lodash');
+var Promise = require('promise');
 
-	handleErr = function(callback) {
-		return function(err, data) {
-			if (err) console.error(err);
-			else if (callback) callback(data);
-		}
-	},
-	neo2attr = function(neoData) {
-		return neoData._data.data;
-	};
+var query = require('../db/connection.js').query;
 
-var Concept = function(attrs) {
-	if (!(this instanceof Concept)) throw 'Missing new keyword';
-	this.attrs = attrs;
+function asArray(n) {
+	return _.isArray(n) ? n: [n];
+}
 
-	var id = this.get('id');
-	if (id !== undefined) {
-		this.set('id', parseInt(id));
-	}
-};
-
-Concept.prototype = {
-	'get': function(name) {
-		return this.attrs[name];
-	},
-	'set': function(name, value) {
-		this.attrs[name] = value;
-	},
-	'isNew': function() {
-		return this.get('id') === undefined;
-	},
-	'addReqs': function(reqs) {
-		var query = 'MATCH (concept:Concept), (req:Concept)' +
-					'WHERE ID(concept) = {id} AND ID(req) in {reqs}' +
-					'CREATE (concept)-[:REQUIRES]->(req)',
-			params = {
-				id: this.get('id'),
-				reqs: typeof reqs == 'object' ? reqs : [reqs]
-			};
-
-		return new Promise(function(resolve) {
-			db.query(query, params, handleErr(resolve));
-		});
-
-	},
-	'deleteReqs': function(reqs) {
-		var query = 'MATCH (concept:Concept)-[r:REQUIRES]-(req:Concept)' +
-					'WHERE ID(concept) = {id} AND ID(req) in {reqs}' +
-					'DELETE r',
-			params = {
-				id: this.get('id'),
-				reqs: typeof reqs == 'object' ? reqs : [reqs]
-			};
-		return new Promise(function(resolve) {
-			db.query(query, params, handleErr(resolve));
+module.exports = {
+	'find': function(id) {
+		return query(
+			'MATCH (c:Concept) WHERE id(c) = {id}' +
+			'OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)' +
+			'RETURN ID(c) as id, c.name AS name, c.summary as summary, COLLECT(t.name) as tags',
+			{'id': parseInt(id)}
+		).then(function(dbData) {
+				return dbData[0];
 		});
 	},
-	'delete': function() {
-		var self = this,
-				query = 'MATCH (n:Concept)' +
-					'WHERE id(n) = {id}' +
-					'OPTIONAL MATCH n-[r]-()' +
-					'DELETE n, r';
-
-		return new Promise(function(resolve) {
-			db.query(query, {'id': self.get('id')}, handleErr(resolve));
-		});
-
-	},
-	'addMaterial': function(data) {
-		var concept = this,
-				query = 'MATCH (concept:Concept) WHERE id(concept) = {id} ' +
-					'CREATE ' +
-						'(material:Material {data})' +
-						'-[:EXPLAINS]' +
-						'->(concept) ' +
-					'RETURN material, ID(material) AS id';
-
-		return new Promise(function(resolve) {
-			db.query(query, {id: concept.get('id'), data: data}, handleErr(function(dbData) {
-				resolve({material: _.merge(
-					{id: dbData[0].id},
-					neo2attr(dbData[0].material)
-				)});
-			}));
+	'create': function(data) {
+		return query(
+			'MERGE (concept:Concept {name: {name}}) RETURN ID(concept) AS id', data
+		).then(function(dbData) {
+			return _.merge(dbData[0], data);
 		});
 	},
-	'updateMaterial': function(id, data) {
-		var query = 'MATCH (material:Material) WHERE ID(material) = {id}' +
-					'SET material += {data}' +
-					'RETURN material, ID(material) AS id';
-
-		return new Promise(function(resolve) {
-			db.query(query, {
-				id: parseInt(id),
-				data: _.omit(data, 'id')
-			}, handleErr(function(dbData) {
-				resolve({material: _.merge(
-					{id: dbData[0].id},
-					neo2attr(dbData[0].material)
-				)});
-			}));
-		});
-	}
-};
-Concept.find = function(id) {
-	var attrs = {id: id};
-
-	return new Promise(function(resolve) {
-		db.query(
-			'MATCH (concept:Concept) WHERE id(concept) = {id}' +
-				'OPTIONAL MATCH (material:Material)-[:EXPLAINS]->(concept)' +
-				'RETURN concept, COLLECT(ID(material)) AS materialId, COLLECT(material) AS materials',
-			{id: parseInt(id)},
-			handleErr(function(dbData) {
-					var concept, materials = [], dbMaterials = dbData[0].materials;
-
-					for (var i = 0; i < dbMaterials.length; i++) {
-						materials[i] = _.merge(
-							{id: dbData[0].materialId[i]},
-							neo2attr(dbMaterials[i])
-						);
-					}
-					concept = new Concept(_.merge(attrs, neo2attr(dbData[0].concept), {
-						materials: materials
-					}));
-
-					resolve(concept);
-				}
-			));
-	});
-};
-Concept.create = function(data) {
-	return new Promise(function(resolve) {
-		db.query(
-			'CREATE (concept:Concept {name: {name}}) RETURN ID(concept) AS id',
-			data,
-			handleErr(function(dbData) {
-				var concept = new Concept(_.merge(data, {id: dbData[0].id}));
-
-				if (data.reqs) concept.addReqs(data.reqs);
-				resolve(concept);
-			})
+	'delete': function(id) {
+		return query(
+			'MATCH (c:Concept)' +
+			'WHERE id(c) = {id}' +
+			'OPTIONAL MATCH c-[r]-()' +
+			'DELETE c, r',
+			{'id': id}
 		);
-	});
+	},
+	'all': function() {
+		return query(
+			'MATCH (n:Concept)' +
+			'OPTIONAL MATCH (n)-[r:REQUIRES]->(req:Concept)' +
+			'RETURN ID(n) AS id, n.name AS name, n.summary AS summary,' +
+				'COLLECT(ID(req)) AS reqs'
+		);
+	},
+	'addReqs': function(id, reqs) {
+		return query(
+			'MATCH (concept:Concept), (req:Concept)' +
+			'WHERE ID(concept) = {id} AND ID(req) in {reqs}' +
+			'CREATE UNIQUE (concept)-[:REQUIRES]->(req)',
+			{'id': parseInt(id), 'reqs': asArray(reqs)}
+		);
+	},
+	'deleteReqs': function(id, reqs) {
+		return query(
+			'MATCH (concept:Concept)-[r:REQUIRES]-(req:Concept)' +
+			'WHERE ID(concept) = {id} AND ID(req) in {reqs}' +
+			'DELETE r',
+			{'id': parseInt(id), reqs: asArray(reqs)}
+		);
+	},
+	'addTag': function(id, tagName) {
+		return query(
+			'MATCH (concept:Concept) WHERE ID(concept) = {id} ' +
+			'MERGE (tag:Tag {name: {tagName}}) ' +
+			'CREATE UNIQUE (tag)-[r:TAGS]->(concept)',
+			{'id': id, 'tagName': tagName}
+		);
+	}
 };
-Concept.all = function() {
-	var query = 'MATCH (n:Concept)' +
-				'OPTIONAL MATCH (n)-[r:REQUIRES]->(req:Concept)' +
-				'RETURN n, ID(n) AS id, COLLECT(ID(req)) AS reqs';
-	return new Promise(function(resolve) {
-		db.query(query, handleErr(function(data) {
-			resolve(data.map(function(dbData) {
-				return new Concept(
-					_.merge(
-						neo2attr(dbData.n),
-						{id: dbData['id'], reqs: dbData.reqs}
-					)
-				);
-			}));
-		}));
-	});
-};
-
-module.exports = Concept;

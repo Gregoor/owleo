@@ -10,7 +10,8 @@ var _ = require('lodash'),
 
 	basicAuthPw = process.env.SKILLGRAPH_PW,
 
-	Concept = require('./app/models/concept.js');
+	Concept = require('./models/concept.js'),
+	Tag = require('./models/tag.js');
 
 if (basicAuthPw) app.use(basicAuth('wurzel', basicAuthPw));
 app.use(function(req, res, next) {
@@ -27,77 +28,55 @@ app.use(bodyParser.json());
 router.route('/concepts')
 	.get(function(req, res) {
 		Concept.all().then(function(concepts) {
-			res.json(concepts.map(function(concept) {
-				return concept.attrs;
-			}));
+			res.json(concepts);
 		});
 	})
 	.post(function(req, res) {
 		Concept.create(req.body.concept).then(function(concept) {
-			res.json(concept.attrs);
+			res.json(concept);
 		});
 	});
 
 router.route('/concepts/:id')
 	.get(function(req, res) {
 		Concept.find(req.params.id).then(function(concept) {
-			res.json(concept.attrs);
-		});
-	})
-	.post(function(req, res) {
-		var concept = new Concept({id: req.params.id});
-		concept.addReqs().then(req.body.reqs, function() {
 			res.json(concept);
 		});
 	})
+	.post(function(req, res) {
+	})
 	.delete(function(req, res) {
-		var concept = new Concept({id: req.params.id});
-		concept.delete().then(function() {
-			res.status(200).end();
-		});
+		Concept.delete(req.params.id);
+		res.status(200).end();
 	});
 
 router.route('/concepts/:conceptId/reqs/:reqId')
 	.post(function(req, res) {
-		var params = req.params,
-			concept = new Concept({id: params.conceptId});
-
-		concept.addReqs(params.reqId);
+		var params = req.params;
+		Concept.addReqs(params.conceptId, params.reqId);
 		res.status(200).end();
 	})
 	.delete(function(req, res) {
-		var params = req.params,
-			concept = new Concept({id: params.conceptId});
-		concept.deleteReqs(params.reqId);
+		var params = req.params;
+		Concept.deleteReqs(params.conceptId, params.reqId);
 		res.status(200).end();
 	});
 
 router.route('/concepts/:conceptId/materials')
 	.post(function(req, res) {
-		var params = req.params,
-			concept = new Concept({id: params.conceptId});
-
- 		concept.addMaterial(_.pick(req.body.material, 'content'))
-		  .then(function(data) {
-				res.json(data);
-			});
-
 	});
 
 router.route('/concepts/:conceptId/materials/:materialId')
 	.post(function(req, res) {
-		var params = req.params,
-			concept = new Concept({id: params.conceptId});
-
-		concept.updateMaterial(params.materialId, req.body.material).then(function(data) {
-			res.json(data);
-		});
 	})
 	.delete(function(req, res) {
-		var params = req.params,
-			concept = new Concept({id: params.conceptId});
-		res.status(200).end();
 	});
+
+router.route('/tags/search').get(function(req, res) {
+	Tag.search(req.query.q).then(function(data) {
+		res.json(data);
+	});
+});
 
 app.use('/api', router);
 
