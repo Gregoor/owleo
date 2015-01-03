@@ -70,12 +70,21 @@ module.exports = {
 			{'id': parseInt(id), reqs: asArray(reqs)}
 		);
 	},
-	'addTag': function(id, tagName) {
+	'tag': function(id, tagName) {
 		return query(
 			'MATCH (concept:Concept) WHERE ID(concept) = {id} ' +
 			'MERGE (tag:Tag {name: {tagName}}) ' +
 			'CREATE UNIQUE (tag)-[r:TAGS]->(concept)',
-			{'id': id, 'tagName': tagName}
+			{'id': parseInt(id), 'tagName': tagName}
+		);
+	},
+	'untag': function(id, tagName) {
+		console.log({'id': parseInt(id), 'tagName': tagName})
+		return query(
+			'MATCH (t:Tag)-[r:TAGS]->(c:Concept)' +
+			'WHERE ID(c) = {id} AND t.name = {tagName}' +
+			'DELETE r',
+			{'id': parseInt(id), 'tagName': tagName}
 		);
 	}
 };

@@ -59,14 +59,16 @@ router.route('/concepts/:conceptId/reqs/:reqId')
 		res.status(200).end();
 	});
 
-router.route('/concepts/:conceptId/materials')
+router.route('/concepts/:conceptId/tags')
 	.post(function(req, res) {
-	});
-
-router.route('/concepts/:conceptId/materials/:materialId')
-	.post(function(req, res) {
+		var params = req.params;
+		Concept.tag(params.conceptId, req.body.tag.name);
+		res.status(200).end();
 	})
 	.delete(function(req, res) {
+		var params = req.params;
+		Concept.untag(params.conceptId, req.body.tag.name);
+		res.status(200).end();
 	});
 
 router.route('/tags/search').get(function(req, res) {
