@@ -79,7 +79,6 @@ module.exports = {
 		);
 	},
 	'untag': function(id, tagName) {
-		console.log({'id': parseInt(id), 'tagName': tagName})
 		return query(
 			'MATCH (t:Tag)-[r:TAGS]->(c:Concept)' +
 			'WHERE ID(c) = {id} AND t.name = {tagName}' +
