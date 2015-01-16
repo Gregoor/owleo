@@ -15,6 +15,16 @@ var subQuery = {
 };
 
 module.exports = {
+	'search': function(data) {
+		return query(
+			'MATCH (t:Tag)-[:TAGS]->(n:Concept) ' +
+			'WHERE t.name IN {tags} ' +
+			'OPTIONAL MATCH (n)-[r:REQUIRES]->(req:Concept) ' +
+			'RETURN ID(n) AS id, n.name AS name, n.summary AS summary,' +
+				'COLLECT(ID(req)) AS reqs',
+			data
+		);
+	},
 	'find': function(id) {
 		return query(
 			'MATCH (c:Concept) WHERE ID(c) = {id} ' +
