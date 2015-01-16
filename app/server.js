@@ -13,6 +13,10 @@ var _ = require('lodash'),
 	Concept = require('./models/concept.js'),
 	Tag = require('./models/tag.js');
 
+function conceptParams(req) {
+	return _.pick(req.body.concept, 'name', 'summary', 'tags');
+}
+
 if (basicAuthPw) app.use(basicAuth('wurzel', basicAuthPw));
 app.use(function(req, res, next) {
 	// TODO: Check for prod
@@ -30,8 +34,7 @@ router.route('/concepts')
 		Concept.all().then(res.json.bind(res));
 	})
 	.post(function(req, res) {
-		Concept.create(_.pick(req.body.concept, 'name', 'summary'))
-			.then(res.json.bind(res));
+		Concept.create(conceptParams(req)).then(res.json.bind(res));
 	});
 
 router.route('/concepts/:id')
@@ -39,8 +42,7 @@ router.route('/concepts/:id')
 		Concept.find(req.params.id).then(res.json.bind(res));
 	})
 	.post(function(req, res) {
-		Concept.update(req.params.id, _.pick(req.body.concept, 'name', 'summary'))
-			.then(res.json.bind(res));
+		Concept.update(req.params.id, conceptParams(req)).then(res.json.bind(res));
 	})
 	.delete(function(req, res) {
 		Concept.delete(req.params.id);
@@ -56,18 +58,6 @@ router.route('/concepts/:conceptId/reqs/:reqId')
 	.delete(function(req, res) {
 		var params = req.params;
 		Concept.deleteReqs(params.conceptId, params.reqId);
-		res.status(200).end();
-	});
-
-router.route('/concepts/:conceptId/tags')
-	.post(function(req, res) {
-		var params = req.params;
-		Concept.tag(params.conceptId, req.body.tag.name);
-		res.status(200).end();
-	})
-	.delete(function(req, res) {
-		var params = req.params;
-		Concept.untag(params.conceptId, req.body.tag.name);
 		res.status(200).end();
 	});
 
