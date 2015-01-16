@@ -38,7 +38,8 @@ router.route('/concepts')
 	});
 
 router.route('/concepts/search').get(function(req, res) {
-	Concept.search({'tags': req.query.tags.split(',')}).then(res.json.bind(res));
+	Concept.search({'tags': _.compact(req.query.tags.split(','))})
+		.then(res.json.bind(res));
 });
 
 router.route('/concepts/:id')

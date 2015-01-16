@@ -14,8 +14,9 @@ var subQuery = {
 		') '
 };
 
-module.exports = {
+var Concept = module.exports = {
 	'search': function(data) {
+		if (data.tags.length == 0) return Concept.all();
 		return query(
 			'MATCH (t:Tag)-[:TAGS]->(n:Concept) ' +
 			'WHERE t.name IN {tags} ' +
