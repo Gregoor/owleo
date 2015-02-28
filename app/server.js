@@ -66,6 +66,18 @@ router.route('/concepts/:conceptId/reqs/:reqId')
 		res.status(200).end();
 	});
 
+router.route('/concepts/:conceptId/links/:link')
+	.post(function(req, res) {
+		var params = req.params;
+		Concept.addLink(params.conceptId, params.link);
+		res.status(200).end();
+	})
+	.delete(function(req, res) {
+		var params = req.params;
+		Concept.deleteLink(params.conceptId, params.link);
+		res.status(200).end();
+	});
+
 router.route('/tags/search').get(function(req, res) {
 	Tag.search(req.query.q).then(res.json.bind(res));
 });

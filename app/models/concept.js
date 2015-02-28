@@ -30,7 +30,9 @@ var Concept = module.exports = {
 		return query(
 			'MATCH (c:Concept) WHERE ID(c) = {id} ' +
 			'OPTIONAL MATCH (t:Tag)-[:TAGS]->(c) ' +
-			'RETURN ID(c) as id, c.name AS name, c.summary as summary, COLLECT(t.name) as tags ',
+			'OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c) ' +
+			'RETURN ID(c) as id, c.name AS name, c.summary as summary, ' +
+			'COLLECT(t.name) as tags, COLLECT(l.url) as links',
 			{'id': parseInt(id)}
 		).then(function(dbData) {
 				return dbData[0];
@@ -72,9 +74,10 @@ var Concept = module.exports = {
 	'all': function() {
 		return query(
 			'MATCH (n:Concept) ' +
-			'OPTIONAL MATCH (n)-[r:REQUIRES]->(req:Concept) ' +
+			'OPTIONAL MATCH (:Concept)-[r:REQUIRES*..]->(n) ' +
+			'OPTIONAL MATCH (n)-[:REQUIRES]->(req:Concept) ' +
 			'RETURN ID(n) AS id, n.name AS name, n.summary AS summary, ' +
-				'COLLECT(ID(req)) AS reqs'
+				'COLLECT(DISTINCT ID(req)) AS reqs, COUNT(DISTINCT r) as edges'
 		);
 	},
 	'addReqs': function(id, reqs) {
@@ -91,6 +94,22 @@ var Concept = module.exports = {
 			'WHERE ID(concept) = {id} AND ID(req) in {reqs} ' +
 			'DELETE r',
 			{'id': parseInt(id), reqs: asArray(reqs)}
+		);
+	},
+	'addLink': function(id, link) {
+		return query(
+			'MATCH (concept:Concept)' +
+			'WHERE ID(concept) = {id}' +
+			'CREATE UNIQUE (link:Link {url: {url}})-[:EXPLAINS]->(concept)',
+			{'id': parseInt(id), 'url': link}
+		);
+	},
+	'deleteLink': function(id, link) {
+		return query(
+			'MATCH (link:Link)-[r:EXPLAINS]-(concept:Concept) ' +
+			'WHERE ID(concept) = {id} AND link.url = {url} ' +
+			'DELETE link, r',
+			{'id': parseInt(id), 'url': link}
 		);
 	}
 };
