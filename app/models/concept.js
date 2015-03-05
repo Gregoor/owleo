@@ -11,7 +11,11 @@ var subQuery = {
 	'createTags': 'FOREACH (tagName in {tags}| ' +
 			'MERGE (newTag:Tag {name: tagName}) ' +
 			'CREATE UNIQUE (newTag)-[:TAGS]->(c) ' +
-		') '
+		') ',
+	'createLinks': 'FOREACH (link in {links}| ' +
+		'MERGE (newLink:Link {url: link.url}) ' +
+		'CREATE UNIQUE (newLink)-[:EXPLAINS]->(c) ' +
+	') '
 };
 
 var Concept = module.exports = {
@@ -32,7 +36,7 @@ var Concept = module.exports = {
 			'OPTIONAL MATCH (t:Tag)-[:TAGS]->(c) ' +
 			'OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c) ' +
 			'RETURN ID(c) as id, c.name AS name, c.summary as summary, ' +
-			'COLLECT(t.name) as tags, COLLECT(l.url) as links',
+			'COLLECT(DISTINCT t.name) as tags, COLLECT({url: l.url}) as links',
 			{'id': parseInt(id)}
 		).then(function(dbData) {
 				return dbData[0];
@@ -42,8 +46,13 @@ var Concept = module.exports = {
 		return query(
 			'CREATE (c:Concept {data}) ' +
 			subQuery.createTags +
+			subQuery.createLinks +
 			'RETURN ID(c) AS id',
-			{'data': _.omit(data, 'tags'), 'tags': data.tags}
+			{
+				'data': _.omit(data, 'tags', 'links'),
+				'tags': data.tags,
+				'links': data.links
+			}
 		).then(function(dbData) {
 			return _.merge(dbData[0], data);
 		});
@@ -51,13 +60,21 @@ var Concept = module.exports = {
 	'update': function(id, data) {
 		return query(
 			'MATCH (c:Concept) WHERE ID(c) = {id} ' +
-			'OPTIONAL MATCH (oldTag:Tag)-[r:TAGS]->(c) ' +
+			'OPTIONAL MATCH (oldTag:Tag)-[r1:TAGS]->(c) ' +
 			'WHERE NOT(oldTag.name IN ({tags})) ' +
-			'DELETE oldTag, r ' +
+			'OPTIONAL MATCH (oldLink:Link)-[r2:EXPLAINS]->(c) ' +
+			'WHERE NOT(oldLink.url IN ({links})) ' +
+			'DELETE oldTag, oldLink, r1, r2 ' +
 			subQuery.createTags +
+			subQuery.createLinks +
 			'SET c = {data} ' +
 			'RETURN ID(c) AS id',
-			{'id': parseInt(id), 'data': _.omit(data, 'tags'), 'tags': data.tags}
+			{
+				'id': parseInt(id),
+				'data': _.omit(data, 'tags', 'links'),
+				'tags': data.tags,
+				'links': data.links
+			}
 		).then(function(dbData) {
 				return _.merge(dbData[0], data);
 			});
@@ -94,22 +111,6 @@ var Concept = module.exports = {
 			'WHERE ID(concept) = {id} AND ID(req) in {reqs} ' +
 			'DELETE r',
 			{'id': parseInt(id), reqs: asArray(reqs)}
-		);
-	},
-	'addLink': function(id, link) {
-		return query(
-			'MATCH (concept:Concept)' +
-			'WHERE ID(concept) = {id}' +
-			'CREATE UNIQUE (link:Link {url: {url}})-[:EXPLAINS]->(concept)',
-			{'id': parseInt(id), 'url': link}
-		);
-	},
-	'deleteLink': function(id, link) {
-		return query(
-			'MATCH (link:Link)-[r:EXPLAINS]-(concept:Concept) ' +
-			'WHERE ID(concept) = {id} AND link.url = {url} ' +
-			'DELETE link, r',
-			{'id': parseInt(id), 'url': link}
 		);
 	}
 };
