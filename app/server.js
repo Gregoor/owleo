@@ -14,7 +14,7 @@ var _ = require('lodash'),
 	Tag = require('./models/tag.js');
 
 function conceptParams(req) {
-	return _.pick(req.body.concept, 'name', 'summary', 'tags');
+	return _.pick(req.body.concept, 'name', 'summary', 'tags', 'links');
 }
 
 if (basicAuthPw) app.use(basicAuth('wurzel', basicAuthPw));
@@ -63,18 +63,6 @@ router.route('/concepts/:conceptId/reqs/:reqId')
 	.delete(function(req, res) {
 		var params = req.params;
 		Concept.deleteReqs(params.conceptId, params.reqId);
-		res.status(200).end();
-	});
-
-router.route('/concepts/:conceptId/links/:link')
-	.post(function(req, res) {
-		var params = req.params;
-		Concept.addLink(params.conceptId, params.link);
-		res.status(200).end();
-	})
-	.delete(function(req, res) {
-		var params = req.params;
-		Concept.deleteLink(params.conceptId, params.link);
 		res.status(200).end();
 	});
 
