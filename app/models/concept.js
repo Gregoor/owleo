@@ -13,7 +13,7 @@ var subQuery = {
 			'CREATE UNIQUE (newTag)-[:TAGS]->(c) ' +
 		') ',
 	'createLinks': 'FOREACH (link in {links}| ' +
-		'MERGE (newLink:Link {url: link.url}) ' +
+		'MERGE (newLink:Link {url: link.url, paywalled: link.paywalled}) ' +
 		'CREATE UNIQUE (newLink)-[:EXPLAINS]->(c) ' +
 	') '
 };
