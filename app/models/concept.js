@@ -68,7 +68,7 @@ var Concept = module.exports = {
 			'WHERE NOT(oldTag.name IN ({tags})) ' +
 			'OPTIONAL MATCH (oldLink:Link)-[r2:EXPLAINS]->(c) ' +
 			'WHERE NOT(oldLink.url IN ({links})) ' +
-			'DELETE oldTag, oldLink, r1, r2 ' +
+			'DELETE r1, r2 ' +
 			subQuery.createTags +
 			subQuery.createLinks +
 			'SET c = {data} ' +
