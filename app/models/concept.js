@@ -7,6 +7,14 @@ function asArray(n) {
 	return _.isArray(n) ? n: [n];
 }
 
+function attrs(concept) {
+	return {
+		'data': _.omit(concept, 'tags', 'links'),
+		'tags': concept.tags || [],
+		'links': concept.links || []
+	};
+}
+
 var subQuery = {
 	'createTags': 'FOREACH (tagName in {tags}| ' +
 			'MERGE (newTag:Tag {name: tagName}) ' +
@@ -48,11 +56,7 @@ var Concept = module.exports = {
 			subQuery.createTags +
 			subQuery.createLinks +
 			'RETURN ID(c) AS id',
-			{
-				'data': _.omit(data, 'tags', 'links'),
-				'tags': data.tags,
-				'links': data.links
-			}
+			attrs(data)
 		).then(function(dbData) {
 			return _.merge(dbData[0], data);
 		});
@@ -69,12 +73,7 @@ var Concept = module.exports = {
 			subQuery.createLinks +
 			'SET c = {data} ' +
 			'RETURN ID(c) AS id',
-			{
-				'id': parseInt(id),
-				'data': _.omit(data, 'tags', 'links'),
-				'tags': data.tags,
-				'links': data.links
-			}
+			_.extend(attrs(data), {'id': parseInt(id)})
 		).then(function(dbData) {
 				return _.merge(dbData[0], data);
 			});
