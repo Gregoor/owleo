@@ -44,10 +44,13 @@ var Concept = module.exports = {
 			'OPTIONAL MATCH (t:Tag)-[:TAGS]->(c) ' +
 			'OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c) ' +
 			'RETURN ID(c) as id, c.name AS name, c.summary as summary, ' +
-			'COLLECT(DISTINCT t.name) as tags, COLLECT({url: l.url}) as links',
+			'COLLECT(DISTINCT t.name) as tags,' +
+			'COLLECT({url: l.url, paywalled: l.paywalled}) as links',
 			{'id': parseInt(id)}
 		).then(function(dbData) {
-				return dbData[0];
+				var data = dbData[0];
+				if (data.links[0].url == null) data.links = [];
+				return data;
 		});
 	},
 	'create': function(data) {
