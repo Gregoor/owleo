@@ -40,13 +40,13 @@ var Concept = module.exports = {
 	},
 	'find': function(id) {
 		return query(
-			'MATCH (c:Concept) WHERE ID(c) = {id} ' +
+			'MATCH (c:Concept) WHERE ID(c) = {id} OR c.name = {name} ' +
 			'OPTIONAL MATCH (t:Tag)-[:TAGS]->(c) ' +
 			'OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c) ' +
 			'RETURN ID(c) as id, c.name AS name, c.summary as summary, ' +
 			'COLLECT(DISTINCT t.name) as tags,' +
 			'COLLECT({url: l.url, paywalled: l.paywalled}) as links',
-			{'id': parseInt(id)}
+			{'id': parseInt(id), 'name': id}
 		).then(function(dbData) {
 				var data = dbData[0];
 				if (data.links[0].url == null) data.links = [];
