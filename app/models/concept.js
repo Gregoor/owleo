@@ -13,7 +13,7 @@ let asParams = (concept) => ({
 });
 
 let subQuery = {
-	connectNodes(reqs) {
+	connectConcepts(reqs) {
 		if (_.isEmpty(reqs)) return '';
 		return `
 			WITH c
@@ -71,15 +71,16 @@ let Concept = module.exports = {
 		});
 	},
 	create(data) {
+		let params = asParams(data);
 		return query(
 			`
 				CREATE (c:Concept {data})
-				${subQuery.connectConcepts}
+				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
 				${subQuery.createLinks}
 				RETURN ID(c) AS id
 			`,
-			asParams(data)
+			params
 		).then((dbData) =>_.merge(dbData[0], data));
 	},
 	update(id, data) {
@@ -99,7 +100,7 @@ let Concept = module.exports = {
 
 				DELETE r1, r2, r3
 
-				${subQuery.connectNodes(params.reqs)}
+				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
 				${subQuery.createLinks}
 				SET c = {data}
