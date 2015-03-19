@@ -1,9 +1,6 @@
 let _ = require('lodash');
-let Promise = require('promise');
 
 let query = require('../db/connection.js').query;
-
-let asArray = (n) => _.isArray(n) ? n : [n];
 
 let asParams = (concept) => ({
 	'data': _.omit(concept, 'tags', 'links'),
