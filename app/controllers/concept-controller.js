@@ -13,8 +13,10 @@ export default (router) => {
 		});
 
 	router.route('/concepts/search').get((req, res) => {
-		Concept.search({'tags': _.compact(req.query.tags.split(','))})
-			.then(res.json.bind(res));
+		let query = req.query, params = {};
+		if (query.tags) params.tags = _.compact(query.tags.split(','));
+		params.q = query.q;
+		Concept.search(params).then(res.json.bind(res));
 	});
 
 	router.route('/concepts/:id')

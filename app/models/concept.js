@@ -33,19 +33,30 @@ let subQuery = {
 	`
 };
 
-let Concept = module.exports = {
-	search(data) {
-		if (data.tags.length == 0) return Concept.all();
-		return query(
-			`
-				MATCH (t:Tag)-[:TAGS]->(n:Concept)
-				WHERE t.name IN {tags}
-				OPTIONAL MATCH (n)-[r:REQUIRES]->(req:Concept)
-				RETURN ID(n) AS id, n.name AS name,
-					n.summary AS summary,COLLECT(ID(req)) AS reqs
-			`,
-			data
-		);
+export default {
+	search(params) {
+		params = _.defaults({
+			'q': '',
+			'tags': []
+		}, params);
+		let queryString = `MATCH (c:Concept)`;
+
+		if (params.q.length > 0) {
+			params.q = `.*${params.q}.*`;
+			queryString += `WHERE c.name =~ {q}`;
+		}
+
+		if (params.tags.length > 0) queryString += `
+			MATCH (t:Tag)-[:TAGS]->(c)
+			WHERE t.name IN {tags}
+		`;
+
+		queryString += `
+			OPTIONAL MATCH (c)-[r:REQUIRES]->(req:Concept)
+			RETURN c, COLLECT(ID(req)) AS reqs
+			LIMIT 10
+		`;
+		return query(queryString, params);
 	},
 	find(id) {
 		return query(
