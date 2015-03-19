@@ -35,10 +35,10 @@ let subQuery = {
 
 export default {
 	search(params) {
-		params = _.defaults({
+		params = _.defaults(params, {
 			'q': '',
 			'tags': []
-		}, params);
+		});
 		let queryString = `MATCH (c:Concept)`;
 
 		if (params.q.length > 0) {
@@ -52,8 +52,7 @@ export default {
 		`;
 
 		queryString += `
-			OPTIONAL MATCH (c)-[r:REQUIRES]->(req:Concept)
-			RETURN c, COLLECT(ID(req)) AS reqs
+			RETURN ID(c) AS id, c.name AS name, c.summary as summary
 			LIMIT 10
 		`;
 		return query(queryString, params);
