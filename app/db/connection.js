@@ -1,16 +1,14 @@
-var neo4j = require('neo4j');
-var Promise = require('promise');
+let neo4j = require('neo4j');
+let Promise = require('promise');
 
-var connection = {
+let connection = {
 	'db': new neo4j.GraphDatabase(process.env.NEO4J_HOST || 'http://localhost:7474'),
-	'query': function(query, params) {
-		return new Promise(function(resolve) {
-			connection.db.query(query, params, function(err, data) {
-				if (err) console.error(err);
-				else resolve(data);
-			});
-		})
-	}
+	'query': (query, params) => new Promise((resolve) => {
+		connection.db.query(query, params, (err, data) => {
+			if (err) console.error(err);
+			else resolve(data);
+		});
+	})
 };
 
-module.exports = connection;
+export default connection;
