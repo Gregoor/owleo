@@ -1,5 +1,5 @@
 let _ = require('lodash');
-let Concept = require('../models/concept.js');
+let Concept = require('../db/concept');
 
 let conceptParams = (req) => {
 	return _.pick(req.body.concept, 'name', 'summary', 'reqs', 'tags', 'links');
@@ -12,13 +12,6 @@ export default (router) => {
 			Concept.create(conceptParams(req)).then(res.json.bind(res));
 		});
 
-	router.route('/concepts/search').get((req, res) => {
-		let query = req.query, params = {};
-		if (query.tags) params.tags = _.compact(query.tags.split(','));
-		params.q = query.q;
-		Concept.search(params).then(res.json.bind(res));
-	});
-
 	router.route('/concepts/:id')
 		.get((req, res) => {
 			Concept.find(req.params.id).then(res.json.bind(res));
@@ -28,18 +21,6 @@ export default (router) => {
 		})
 		.delete((req, res) => {
 			Concept.delete(req.params.id);
-			res.status(200).end();
-		});
-
-	router.route('/concepts/:conceptId/reqs/:reqId')
-		.post((req, res) => {
-			let params = req.params;
-			Concept.addReqs(params.conceptId, params.reqId);
-			res.status(200).end();
-		})
-		.delete((req, res) => {
-			let params = req.params;
-			Concept.deleteReqs(params.conceptId, params.reqId);
 			res.status(200).end();
 		});
 };

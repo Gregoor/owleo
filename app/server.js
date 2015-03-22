@@ -10,7 +10,7 @@ let port = process.env.PORT || 8080;
 
 let basicAuthPw = process.env.SKILLGRAPH_PW;
 
-let Tag = require('./models/tag.js');
+let Tag = require('./db/tag.js');
 
 if (basicAuthPw) app.use(basicAuth('wurzel', basicAuthPw));
 app.use((req, res, next) => {
@@ -25,6 +25,7 @@ app.use(express.static('../client/dist'));
 app.use(bodyParser.json());
 
 require('./controllers/concept-controller')(router);
+require('./controllers/search-controller')(router);
 
 router.route('/tags/search').get((req, res) => {
 	Tag.search(req.query.q).then(res.json.bind(res));

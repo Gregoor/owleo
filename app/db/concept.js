@@ -1,6 +1,6 @@
 let _ = require('lodash');
 
-let query = require('../db/connection.js').query;
+let query = require('./connection').query;
 
 let asParams = (concept) => ({
 	'data': _.omit(concept, 'tags', 'links'),
@@ -35,27 +35,23 @@ let subQuery = {
 
 export default {
 	search(params) {
-		params = _.defaults(params, {
-			'q': '',
-			'tags': []
-		});
-		let queryString = `MATCH (c:Concept)`;
+		let query = `MATCH (c:Concept)`;
 
 		if (params.q.length > 0) {
 			params.q = `.*${params.q}.*`;
-			queryString += `WHERE c.name =~ {q}`;
+			query += `WHERE c.name =~ {q}`;
 		}
 
-		if (params.tags.length > 0) queryString += `
+		if (params.tags.length > 0) query += `
 			MATCH (t:Tag)-[:TAGS]->(c)
 			WHERE t.name IN {tags}
 		`;
 
-		queryString += `
+		query += `
 			RETURN ID(c) AS id, c.name AS name, c.summary as summary
 			LIMIT 10
 		`;
-		return query(queryString, params);
+		return {query, params};
 	},
 	find(id) {
 		return query(
