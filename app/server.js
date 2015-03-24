@@ -3,16 +3,16 @@ let express = require('express');
 let app = express();
 let router = express.Router();
 
-let basicAuth = require('basic-auth-connect');
-let bodyParser = require('body-parser');
+let config = require('./config');
+try {
+	config = _.defaults(require('./config.custom'), config);
+} catch (e) {
+	if (!(e instanceof Error && e.code === 'MODULE_NOT_FOUND')) throw e;
+}
 
-let port = process.env.PORT || 8080;
+let {auth} = config;
+if (auth) app.use(require('basic-auth-connect')(auth.user, auth.pw));
 
-let basicAuthPw = process.env.SKILLGRAPH_PW;
-
-let Tag = require('./db/tag.js');
-
-if (basicAuthPw) app.use(basicAuth('wurzel', basicAuthPw));
 app.use((req, res, next) => {
 	// TODO: Check for prod
 	res.header('Access-Control-Allow-Origin', '*');
@@ -21,17 +21,12 @@ app.use((req, res, next) => {
 
 	next();
 });
-app.use(express.static('../client/dist'));
-app.use(bodyParser.json());
+app.use(express.static(config.clientDir));
+app.use(require('body-parser').json());
 
 require('./controllers/concept-controller')(router);
 require('./controllers/search-controller')(router);
 
-router.route('/tags/search').get((req, res) => {
-	Tag.search(req.query.q).then(res.json.bind(res));
-});
-
 app.use('/api', router);
 
-app.listen(port);
-console.log('HTTP running on http://localhost:' + port);
+app.listen(config.port);
