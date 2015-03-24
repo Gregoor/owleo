@@ -54,6 +54,10 @@ export default {
 		return {query, params};
 	},
 	find(id) {
+		let name = id;
+		id = parseInt(id);
+		if (isNaN(id)) id = -1;
+		else name = null;
 		return query(
 			`
 				MATCH (c:Concept) WHERE ID(c) = {id} OR c.name = {name}
@@ -65,7 +69,7 @@ export default {
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT({url: l.url, paywalled: l.paywalled}) as links
 			`,
-			{'id': parseInt(id), 'name': id}
+			{id, name}
 		).then((dbData) => {
 				let data = dbData[0];
 				if (data.links[0].url == null) data.links = [];
