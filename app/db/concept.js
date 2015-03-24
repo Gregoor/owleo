@@ -1,6 +1,6 @@
 let _ = require('lodash');
 
-let query = require('./connection').query;
+let {db, query} = require('./connection');
 
 let asParams = (concept) => ({
 	'data': _.omit(concept, 'tags', 'links'),
@@ -84,7 +84,7 @@ export default {
 				RETURN ID(c) AS id
 			`,
 			params
-		).then((dbData) =>_.merge(dbData[0], data));
+		).then((dbData) => this.find(dbData[0].id));
 	},
 	update(id, data) {
 		let params = _.extend(asParams(data), {'id': parseInt(id)});
@@ -107,10 +107,9 @@ export default {
 				${subQuery.createTags}
 				${subQuery.createLinks}
 				SET c = {data}
-				RETURN ID(c) AS id
 			`,
 			params
-		).then((dbData) => _.merge(dbData[0], data));
+		).then(() => this.find(id));
 	},
 	delete(id) {
 		return query(
