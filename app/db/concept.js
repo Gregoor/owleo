@@ -67,7 +67,7 @@ export default {
 				RETURN ID(c) as id, c.name AS name, c.summary as summary,
 					COLLECT(DISTINCT {id: ID(req), name: req.name}) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
-					COLLECT({url: l.url, paywalled: l.paywalled}) as links
+					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links
 			`,
 			{id, name}
 		).then((dbData) => {
@@ -136,5 +136,17 @@ export default {
 					COLLECT(DISTINCT ID(req)) AS reqs, COUNT(DISTINCT r) as edges
 			`
 		);
+	},
+	reposition(nodes) {
+		db.cypher(nodes.map((node) => {
+			return {
+				'query': `
+					MATCH (c:Concept)
+					WHERE c.name = {name}
+					SET c = pos
+				`,
+				'params': _.pick(node, 'name', 'pos')
+			};
+		}), () => _.noop);
 	}
 };
