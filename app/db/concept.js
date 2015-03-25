@@ -15,7 +15,7 @@ let subQuery = {
 		return `
 			WITH c
 			OPTIONAL MATCH (newReq:Concept)
-			WHERE ID(newReq) IN {reqs}
+			WHERE newReq.name IN {reqs}
 			CREATE UNIQUE (c)-[:REQUIRES]->(newReq)
 		`
 	},
@@ -34,6 +34,7 @@ let subQuery = {
 };
 
 export default {
+
 	search(params) {
 		let query = `MATCH (c:Concept)`;
 
@@ -48,35 +49,32 @@ export default {
 		`;
 
 		query += `
-			RETURN ID(c) AS id, c.name AS name, c.summary as summary
+			RETURN c.name AS name, c.summary as summary
 			LIMIT 10
 		`;
 		return {query, params};
 	},
-	find(id) {
-		let name = id;
-		id = parseInt(id);
-		if (isNaN(id)) id = -1;
-		else name = null;
+
+	find(name) {
 		return query(
 			`
-				MATCH (c:Concept) WHERE ID(c) = {id} OR c.name = {name}
+				MATCH (c:Concept) WHERE c.name = {name}
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
-				RETURN ID(c) as id, c.name AS name, c.summary as summary,
-					COLLECT(DISTINCT {id: ID(req), name: req.name}) as reqs,
+				RETURN c.name AS name, c.summary as summary,
+					COLLECT(DISTINCT req.name) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links
 			`,
-			{id, name}
+			{name}
 		).then((dbData) => {
 				let data = dbData[0];
 				if (data.links[0].url == null) data.links = [];
-				if (data.reqs[0].id == null) data.reqs = [];
 				return data;
 		});
 	},
+
 	create(data) {
 		let params = asParams(data);
 		return query(
@@ -85,19 +83,19 @@ export default {
 				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
 				${subQuery.createLinks}
-				RETURN ID(c) AS id
 			`,
 			params
-		).then((dbData) => this.find(dbData[0].id));
+		).then(() => this.find(data.name));
 	},
-	update(id, data) {
-		let params = _.extend(asParams(data), {'id': parseInt(id)});
+
+	update(name, data) {
+		let params = _.extend(asParams(data), {name});
 		return query(
 			`
-				MATCH (c:Concept) WHERE ID(c) = {id}
+				MATCH (c:Concept) WHERE c.name = {name}
 
 				OPTIONAL MATCH (c)-[r1:REQUIRES]->(oldReq:Concept)
-				WHERE NOT(ID(oldReq) IN {reqs})
+				WHERE NOT(oldReq.name IN {reqs})
 
 				OPTIONAL MATCH (oldTag:Tag)-[r2:TAGS]->(c)
 				WHERE NOT(oldTag.name IN {tags})
@@ -113,30 +111,33 @@ export default {
 				SET c = {data}
 			`,
 			params
-		).then(() => this.find(id));
+		).then(() => this.find(name));
 	},
-	delete(id) {
+
+	delete(name) {
 		return query(
 			`
 				MATCH (c:Concept)
-				WHERE ID(c) = {id}
+				WHERE c.name = {name}
 				OPTIONAL MATCH c-[r]-()
 				DELETE c, r
 			`,
-			{'id': parseInt(id)}
+			{name}
 		);
 	},
+
 	all() {
 		return query(
 			`
 				MATCH (n:Concept)
 				OPTIONAL MATCH (:Concept)-[r:REQUIRES*..]->(n)
 				OPTIONAL MATCH (n)-[:REQUIRES]->(req:Concept)
-				RETURN ID(n) AS id, n.name AS name, n.summary AS summary,
-					COLLECT(DISTINCT ID(req)) AS reqs, COUNT(DISTINCT r) as edges
+				RETURN n.name AS name, n.summary AS summary,
+					COLLECT(DISTINCT req.name) AS reqs, COUNT(DISTINCT r) as edges
 			`
 		);
 	},
+
 	reposition(nodes) {
 		db.cypher(nodes.map((node) => {
 			return {
@@ -149,4 +150,5 @@ export default {
 			};
 		}), () => _.noop);
 	}
+
 };

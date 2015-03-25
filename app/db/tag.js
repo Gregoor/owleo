@@ -12,7 +12,7 @@ export default {
 		}
 
 		query += `
-			RETURN ID(t) AS id, t.name AS name
+			RETURN t.name AS name
 			LIMIT 10
 		`;
 		return {query, params};

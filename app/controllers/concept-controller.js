@@ -12,15 +12,15 @@ export default (router) => {
 			Concept.create(conceptParams(req)).then(res.json.bind(res));
 		});
 
-	router.route('/concepts/:id')
+	router.route('/concepts/:name')
 		.get((req, res) => {
-			Concept.find(req.params.id).then(res.json.bind(res));
+			Concept.find(req.params.name).then(res.json.bind(res));
 		})
 		.post((req, res) => {
-			Concept.update(req.params.id, conceptParams(req)).then(res.json.bind(res));
+			Concept.update(req.params.name, conceptParams(req)).then(res.json.bind(res));
 		})
 		.delete((req, res) => {
-			Concept.delete(req.params.id);
+			Concept.delete(req.params.name);
 			res.status(200).end();
 		});
 };
