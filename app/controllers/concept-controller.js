@@ -12,6 +12,11 @@ export default (router) => {
 			Concept.create(conceptParams(req)).then(res.json.bind(res));
 		});
 
+	router.route('/concepts/position')
+		.post((req, res) => {
+			Concept.reposition(req.body.concepts).then(res.json.bind(res));
+		});
+
 	router.route('/concepts/:name')
 		.get((req, res) => {
 			Concept.find(req.params.name).then(res.json.bind(res));

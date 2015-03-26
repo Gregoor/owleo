@@ -129,26 +129,32 @@ export default {
 	all() {
 		return query(
 			`
-				MATCH (n:Concept)
-				OPTIONAL MATCH (:Concept)-[r:REQUIRES*..]->(n)
-				OPTIONAL MATCH (n)-[:REQUIRES]->(req:Concept)
-				RETURN n.name AS name, n.summary AS summary,
+				MATCH (c:Concept) WHERE c.name IS NOT NULL
+				OPTIONAL MATCH (:Concept)-[r:REQUIRES*..]->(c)
+				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
+				RETURN c.name AS name, c.summary AS summary,
+					c.x AS x, c.y AS y,
 					COLLECT(DISTINCT req.name) AS reqs, COUNT(DISTINCT r) as edges
 			`
 		);
 	},
 
-	reposition(nodes) {
-		db.cypher(nodes.map((node) => {
-			return {
-				'query': `
+	reposition(concepts) {
+		return new Promise((resolve) => {
+			db.cypher(concepts.map((concept) => {
+				return {
+					'query': `
 					MATCH (c:Concept)
 					WHERE c.name = {name}
-					SET c = pos
+					SET c += {pos}
 				`,
-				'params': _.pick(node, 'name', 'pos')
-			};
-		}), () => _.noop);
+					'params': _.extend(
+						_.pick(concept, 'name'),
+						{'pos': _.pick(concept.pos, 'x', 'y')}
+					)
+				};
+			}), () => resolve());
+		});
 	}
 
 };
