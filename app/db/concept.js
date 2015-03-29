@@ -111,7 +111,7 @@ export default {
 				SET c = {data}
 			`,
 			params
-		).then(() => this.find(name));
+		).then(() => this.find(data.name || name));
 	},
 
 	delete(name) {
