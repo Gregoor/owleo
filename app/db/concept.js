@@ -153,7 +153,7 @@ export default {
 						{'pos': _.pick(concept.pos, 'x', 'y')}
 					)
 				};
-			}), () => resolve());
+			}), () => this.all().then(resolve));
 		});
 	}
 
