@@ -1,4 +1,5 @@
 let _ = require('lodash');
+let uuid = require('node-uuid');
 
 let {db, query} = require('./connection');
 
@@ -62,7 +63,7 @@ export default {
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
-				RETURN c.name AS name, c.summary as summary,
+				RETURN c.id AS id, c.name AS name, c.summary as summary,
 					COLLECT(DISTINCT req.name) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links
@@ -76,7 +77,7 @@ export default {
 	},
 
 	create(data) {
-		let params = asParams(data);
+		let params = asParams(_.extend({}, data, {'id': uuid.v4()}));
 		return query(
 			`
 				CREATE (c:Concept {data})
