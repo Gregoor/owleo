@@ -56,22 +56,23 @@ export default {
 		return {query, params};
 	},
 
-	find(name) {
+	find(id) {
 		return query(
 			`
-				MATCH (c:Concept) WHERE c.name = {name}
+				MATCH (c:Concept) WHERE c.id = {id}
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
 				RETURN c.id AS id, c.name AS name, c.summary as summary,
-					COLLECT(DISTINCT req.name) as reqs,
+					COLLECT(DISTINCT {id: req.id, name: req.name}) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links
 			`,
-			{name}
+			{id}
 		).then((dbData) => {
 				let data = dbData[0];
 				if (data.links[0].url == null) data.links = [];
+				if (data.reqs[0].id == null) data.reqs = [];
 				return data;
 		});
 	},
@@ -89,11 +90,11 @@ export default {
 		).then(() => this.find(data.name));
 	},
 
-	update(name, data) {
-		let params = _.extend(asParams(data), {name});
+	update(id, data) {
+		let params = _.extend(asParams(data), {id});
 		return query(
 			`
-				MATCH (c:Concept) WHERE c.name = {name}
+				MATCH (c:Concept) WHERE c.id = {id}
 
 				OPTIONAL MATCH (c)-[r1:REQUIRES]->(oldReq:Concept)
 				WHERE NOT(oldReq.name IN {reqs})
@@ -112,18 +113,18 @@ export default {
 				SET c = {data}
 			`,
 			params
-		).then(() => this.find(data.name || name));
+		).then(() => this.find(id));
 	},
 
-	delete(name) {
+	delete(id) {
 		return query(
 			`
 				MATCH (c:Concept)
-				WHERE c.name = {name}
+				WHERE c.id = {id}
 				OPTIONAL MATCH c-[r]-()
 				DELETE c, r
 			`,
-			{name}
+			{id}
 		);
 	},
 
@@ -133,9 +134,9 @@ export default {
 				MATCH (c:Concept) WHERE c.name IS NOT NULL
 				OPTIONAL MATCH (:Concept)-[r:REQUIRES*..]->(c)
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
-				RETURN c.name AS name, c.summary AS summary,
+				RETURN c.id AS id, c.name AS name, c.summary AS summary,
 					c.x AS x, c.y AS y,
-					COLLECT(DISTINCT req.name) AS reqs, COUNT(DISTINCT r) as edges
+					COLLECT(DISTINCT req.id) AS reqs, COUNT(DISTINCT r) as edges
 			`
 		);
 	},
@@ -146,11 +147,11 @@ export default {
 				return {
 					'query': `
 					MATCH (c:Concept)
-					WHERE c.name = {name}
+					WHERE c.id = {id}
 					SET c += {pos}
 				`,
 					'params': _.extend(
-						_.pick(concept, 'name'),
+						_.pick(concept, 'id'),
 						{'pos': _.pick(concept.pos, 'x', 'y')}
 					)
 				};
