@@ -3,7 +3,7 @@ let _ = require('lodash');
 let {db, query} = require('./connection');
 
 let asParams = (concept) => ({
-	'data': _.omit(concept, 'tags', 'links'),
+	'data': _.omit(concept,'reqs', 'tags', 'links'),
 	'reqs': concept.reqs || [],
 	'tags': concept.tags || [],
 	'links': concept.links || []
@@ -62,7 +62,7 @@ export default {
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
-				RETURN c.name AS name, c.summary as summary,
+				RETURN c.name AS name, c.summary AS summary, c.summarySource AS summarySource,
 					COLLECT(DISTINCT req.name) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links

@@ -2,7 +2,7 @@ let _ = require('lodash');
 let Concept = require('../db/concept');
 
 let conceptParams = (req) => {
-	return _.pick(req.body.concept, 'name', 'summary', 'reqs', 'tags', 'links');
+	return _.pick(req.body.concept, 'name', 'summary','summarySource', 'reqs', 'tags', 'links');
 };
 
 export default (router) => {
