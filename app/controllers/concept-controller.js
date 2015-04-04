@@ -17,15 +17,15 @@ export default (router) => {
 			Concept.reposition(req.body.concepts).then(res.json.bind(res));
 		});
 
-	router.route('/concepts/:name')
+	router.route('/concepts/:id')
 		.get((req, res) => {
-			Concept.find(req.params.name).then(res.json.bind(res));
+			Concept.find(req.params.id).then(res.json.bind(res));
 		})
 		.post((req, res) => {
-			Concept.update(req.params.name, conceptParams(req)).then(res.json.bind(res));
+			Concept.update(req.params.id, conceptParams(req)).then(res.json.bind(res));
 		})
 		.delete((req, res) => {
-			Concept.delete(req.params.name);
+			Concept.delete(req.params.id);
 			res.status(200).end();
 		});
 };

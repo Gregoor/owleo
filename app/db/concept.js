@@ -1,9 +1,10 @@
 let _ = require('lodash');
+let uuid = require('node-uuid');
 
 let {db, query} = require('./connection');
 
 let asParams = (concept) => ({
-	'data': _.omit(concept,'reqs', 'tags', 'links'),
+	'data': _.omit(concept, 'id', 'reqs', 'tags', 'links'),
 	'reqs': concept.reqs || [],
 	'tags': concept.tags || [],
 	'links': concept.links || []
@@ -15,7 +16,7 @@ let subQuery = {
 		return `
 			WITH c
 			OPTIONAL MATCH (newReq:Concept)
-			WHERE newReq.name IN {reqs}
+			WHERE newReq.id IN {reqs}
 			CREATE UNIQUE (c)-[:REQUIRES]->(newReq)
 		`
 	},
@@ -49,53 +50,57 @@ export default {
 		`;
 
 		query += `
-			RETURN c.name AS name, c.summary as summary
+			RETURN c.id AS id, c.name AS name, c.summary as summary
 			LIMIT 10
 		`;
+
 		return {query, params};
 	},
 
-	find(name) {
+	find(id) {
 		return query(
 			`
-				MATCH (c:Concept) WHERE c.name = {name}
+				MATCH (c:Concept) WHERE c.id = {id}
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
-				RETURN c.name AS name, c.summary AS summary, c.summarySource AS summarySource,
-					COLLECT(DISTINCT req.name) as reqs,
+				RETURN c.id AS id, c.name AS name, c.summary as summary, c.summarySource AS summarySource,
+					COLLECT(DISTINCT {id: req.id, name: req.name}) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links
 			`,
-			{name}
+			{id}
 		).then((dbData) => {
 				let data = dbData[0];
 				if (data.links[0].url == null) data.links = [];
+				if (data.reqs[0].id == null) data.reqs = [];
 				return data;
 		});
 	},
 
 	create(data) {
-		let params = asParams(data);
+		let params = asParams(_.extend({}, data, {'id': uuid.v4()}));
 		return query(
 			`
 				CREATE (c:Concept {data})
 				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
 				${subQuery.createLinks}
+
+				RETURN c.id AS id
 			`,
 			params
-		).then(() => this.find(data.name));
+		).then((dbData) => this.find(dbData[0].id));
 	},
 
-	update(name, data) {
-		let params = _.extend(asParams(data), {name});
+	update(id, data) {
+		let params = _.extend(asParams(data), {id});
 		return query(
 			`
-				MATCH (c:Concept) WHERE c.name = {name}
+				MATCH (c:Concept) WHERE c.id = {id}
 
 				OPTIONAL MATCH (c)-[r1:REQUIRES]->(oldReq:Concept)
-				WHERE NOT(oldReq.name IN {reqs})
+				WHERE NOT(oldReq.id IN {reqs})
 
 				OPTIONAL MATCH (oldTag:Tag)-[r2:TAGS]->(c)
 				WHERE NOT(oldTag.name IN {tags})
@@ -108,21 +113,21 @@ export default {
 				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
 				${subQuery.createLinks}
-				SET c = {data}
+				SET c += {data}
 			`,
 			params
-		).then(() => this.find(data.name || name));
+		).then(() => this.find(id));
 	},
 
-	delete(name) {
+	delete(id) {
 		return query(
 			`
 				MATCH (c:Concept)
-				WHERE c.name = {name}
+				WHERE c.id = {id}
 				OPTIONAL MATCH c-[r]-()
 				DELETE c, r
 			`,
-			{name}
+			{id}
 		);
 	},
 
@@ -132,9 +137,9 @@ export default {
 				MATCH (c:Concept) WHERE c.name IS NOT NULL
 				OPTIONAL MATCH (:Concept)-[r:REQUIRES*..]->(c)
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
-				RETURN c.name AS name, c.summary AS summary,
+				RETURN c.id AS id, c.name AS name, c.summary AS summary,
 					c.x AS x, c.y AS y,
-					COLLECT(DISTINCT req.name) AS reqs, COUNT(DISTINCT r) as edges
+					COLLECT(DISTINCT req.id) AS reqs, COUNT(DISTINCT r) as edges
 			`
 		);
 	},
@@ -145,11 +150,11 @@ export default {
 				return {
 					'query': `
 					MATCH (c:Concept)
-					WHERE c.name = {name}
+					WHERE c.id = {id}
 					SET c += {pos}
 				`,
 					'params': _.extend(
-						_.pick(concept, 'name'),
+						_.pick(concept, 'id'),
 						{'pos': _.pick(concept.pos, 'x', 'y')}
 					)
 				};
