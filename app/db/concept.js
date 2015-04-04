@@ -50,9 +50,10 @@ export default {
 		`;
 
 		query += `
-			RETURN c.name AS name, c.summary as summary
+			RETURN c.id AS id, c.name AS name, c.summary as summary
 			LIMIT 10
 		`;
+
 		return {query, params};
 	},
 
