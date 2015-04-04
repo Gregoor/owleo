@@ -4,7 +4,7 @@ let uuid = require('node-uuid');
 let {db, query} = require('./connection');
 
 let asParams = (concept) => ({
-	'data': _.omit(concept, 'tags', 'links'),
+	'data': _.omit(concept, 'id', 'reqs', 'tags', 'links'),
 	'reqs': concept.reqs || [],
 	'tags': concept.tags || [],
 	'links': concept.links || []
@@ -16,7 +16,7 @@ let subQuery = {
 		return `
 			WITH c
 			OPTIONAL MATCH (newReq:Concept)
-			WHERE newReq.name IN {reqs}
+			WHERE newReq.id IN {reqs}
 			CREATE UNIQUE (c)-[:REQUIRES]->(newReq)
 		`
 	},
@@ -86,9 +86,11 @@ export default {
 				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
 				${subQuery.createLinks}
+
+				RETURN c.id AS id
 			`,
 			params
-		).then(() => this.find(data.name));
+		).then((dbData) => this.find(dbData[0].id));
 	},
 
 	update(id, data) {
@@ -98,7 +100,7 @@ export default {
 				MATCH (c:Concept) WHERE c.id = {id}
 
 				OPTIONAL MATCH (c)-[r1:REQUIRES]->(oldReq:Concept)
-				WHERE NOT(oldReq.name IN {reqs})
+				WHERE NOT(oldReq.id IN {reqs})
 
 				OPTIONAL MATCH (oldTag:Tag)-[r2:TAGS]->(c)
 				WHERE NOT(oldTag.name IN {tags})
@@ -111,7 +113,7 @@ export default {
 				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
 				${subQuery.createLinks}
-				SET c = {data}
+				SET c += {data}
 			`,
 			params
 		).then(() => this.find(id));
