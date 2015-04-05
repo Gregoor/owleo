@@ -44,7 +44,10 @@ let subQuery = {
 export default {
 
 	search(params) {
-		let query = `MATCH (c:Concept)`;
+		let query = `
+			MATCH (c:Concept)
+
+		`;
 
 		if (params.q.length > 0) {
 			params.q = `.*${params.q}.*`;
@@ -57,7 +60,9 @@ export default {
 		`;
 
 		query += `
-			RETURN c.id AS id, c.name AS name, c.summary as summary
+			OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
+			RETURN c.id AS id, c.name AS name,
+				{id: container.id, name: container.name} AS container
 			LIMIT 10
 		`;
 
