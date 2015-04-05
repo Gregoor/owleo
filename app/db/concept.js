@@ -84,7 +84,10 @@ export default {
 				let concept = dbData[0];
 				if (concept.links[0].url == null) concept.links = [];
 				if (concept.reqs[0].id == null) concept.reqs = [];
-				return this.clearEmptyContainer(concept);
+
+				if (concept.container.id == null) concept.container = {};
+
+				return concept;
 		});
 	},
 
@@ -157,11 +160,11 @@ export default {
 				OPTIONAL MATCH (:Concept)-[r:REQUIRES*..]->(c)
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 				RETURN c.id AS id, c.name AS name, c.summary AS summary,
-					{id: container.id, name: container.name} AS container,
+					container.id AS container,
 					c.x AS x, c.y AS y,
 					COLLECT(DISTINCT req.id) AS reqs, COUNT(DISTINCT r) as edges
 			`
-		).then(concepts => concepts.map(c => this.clearEmptyContainer(c)));
+		);
 	},
 
 	reposition(concepts) {
@@ -180,11 +183,6 @@ export default {
 				};
 			}), () => this.all().then(resolve));
 		});
-	},
-
-	clearEmptyContainer(c) {
-		if (c.container.id == null) c.container = {};
-		return c;
 	}
 
 };
