@@ -73,14 +73,26 @@ export default {
 		return query(
 			`
 				MATCH (c:Concept) WHERE c.id = {id}
+
 				OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
+				OPTIONAL MATCH (container)-[:CONTAINED_BY]->(containerContainer:Concept)
+
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
+				OPTIONAL MATCH (req)-[:CONTAINED_BY]->(reqContainer:Concept)
+
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
+
 				RETURN c.id AS id, c.name AS name, c.summary as summary,
 					c.summarySource AS summarySource,
-					{id: container.id, name: container.name} AS container,
-					COLLECT(DISTINCT {id: req.id, name: req.name}) as reqs,
+					{id: container.id, name: container.name,
+						container: {
+							id: containerContainer.id,
+							name: containerContainer.name
+						}
+					} AS container,
+					COLLECT(DISTINCT {id: req.id, name: req.name,
+						container: {id: container.id, name: container.name}}) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links
 			`,
