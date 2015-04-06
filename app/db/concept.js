@@ -84,7 +84,7 @@ export default {
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
 
 				RETURN c.id AS id, c.name AS name, c.summary as summary,
-					c.summarySource AS summarySource,
+					c.summarySource AS summarySource, c.color AS color,
 					{id: container.id, name: container.name,
 						container: {
 							id: containerContainer.id,

@@ -3,7 +3,7 @@ let Concept = require('../db/concept');
 
 let conceptParams = (req) => {
 	return _.pick(req.body.concept,
-		'name', 'summary','summarySource', 'container', 'reqs', 'tags', 'links'
+		'name', 'summary','summarySource','color', 'container', 'reqs', 'tags', 'links'
 	);
 };
 
