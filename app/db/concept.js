@@ -16,7 +16,8 @@ let subQuery = {
 		return _.isEmpty(reqs) ? '' : `
 			WITH c
 			OPTIONAL MATCH (newReq:Concept)
-			WHERE newReq.id IN {reqs}
+			OPTIONAL MATCH newReq-[cyclicRel:REQUIRES*]->c
+			WHERE COUNT(cyclicRel) = 0 AND newReq.id IN {reqs}
 			CREATE UNIQUE (c)-[:REQUIRES]->(newReq)
 		`
 	},
