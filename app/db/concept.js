@@ -133,7 +133,7 @@ export default {
 			`
 				MATCH (c:Concept) WHERE c.id = {id}
 
-				OPTIONAL MATCH (c)-[containerRel:CONTAINED_BY]-(oldContainer)
+				OPTIONAL MATCH (c)-[containerRel:CONTAINED_BY]->(oldContainer:Concept)
 				WHERE oldContainer.id <> {container}
 
 				OPTIONAL MATCH (c)-[reqRel:REQUIRES]->(oldReq:Concept)
