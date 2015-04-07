@@ -134,7 +134,7 @@ export default {
 				MATCH (c:Concept) WHERE c.id = {id}
 
 				OPTIONAL MATCH (c)-[containerRel:CONTAINED_BY]->(oldContainer:Concept)
-				WHERE oldContainer.id <> {container}
+				WHERE oldContainer.id IS NULL OR oldContainer.id <> {container}
 
 				OPTIONAL MATCH (c)-[reqRel:REQUIRES]->(oldReq:Concept)
 				WHERE NOT(oldReq.id IN {reqs})
@@ -176,16 +176,15 @@ export default {
 				OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
 				OPTIONAL MATCH (c)-[:CONTAINED_BY*0..]->(containerChain:Concept)
 				OPTIONAL MATCH p = (c)<-[:CONTAINED_BY*]-(containeeChain:Concept)
-				OPTIONAL MATCH (:Concept)-[r:REQUIRES*..]->(c)
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 
-				WITH c, container, req, r,
+				WITH c, container,
 					COUNT(DISTINCT containerChain) AS containerCount,
 					HEAD(COLLECT(
-						FIlTER(c in containerChain.color WHERE c IS NOT NULL)
+						DISTINCT FIlTER(c in containerChain.color WHERE c IS NOT NULL)
 					))[0] AS color,
 					COUNT(DISTINCT containeeChain) AS containeeCount,
-					MAX(LENGTH(p)) AS containeeDepth,
+					MAX(DISTINCT LENGTH(p)) AS containeeDepth,
 					COLLECT(DISTINCT req.id) AS reqs
 
 				RETURN c.id AS id, c.name AS name, c.summary AS summary, reqs, color,
