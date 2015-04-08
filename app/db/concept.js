@@ -3,7 +3,7 @@ let uuid = require('node-uuid');
 
 let {db, query} = require('./connection');
 
-let asParams = (concept) => ({
+let asParams = concept => ({
 	'data': _.omit(concept, 'id', 'container', 'reqs', 'tags', 'links'),
 	'container': concept.container || '',
 	'reqs': concept.reqs || [],
@@ -97,11 +97,13 @@ export default {
 					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links
 			`,
 			{id}
-		).then((dbData) => {
+		).then(dbData => {
 				let concept = dbData[0];
+
+				if (!concept) return;
+
 				if (concept.links[0].url == null) concept.links = [];
 				if (concept.reqs[0].id == null) concept.reqs = [];
-
 				if (concept.container.id == null) concept.container = {};
 
 				return concept;
@@ -124,7 +126,7 @@ export default {
 				RETURN c.id AS id
 			`,
 			params
-		).then((dbData) => this.find(dbData[0].id));
+		).then(dbData => this.find(dbData[0].id));
 	},
 
 	update(id, data) {
@@ -198,7 +200,7 @@ export default {
 	},
 
 	reposition(concepts) {
-		return new Promise((resolve) => {
+		return new Promise(resolve => {
 			db.cypher(concepts.map((concept) => {
 				return {
 					'query': `

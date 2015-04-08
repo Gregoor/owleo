@@ -1,7 +1,7 @@
 let _ = require('lodash');
 let express = require('express');
 let app = express();
-let router = express.Router();
+let router = require('./router');
 
 let config = require('./config');
 try {
@@ -23,9 +23,6 @@ app.use((req, res, next) => {
 });
 app.use(express.static(config.clientDir));
 app.use(require('body-parser').json());
-
-require('./controllers/concept-controller')(router);
-require('./controllers/search-controller')(router);
 
 app.use('/api', router);
 
