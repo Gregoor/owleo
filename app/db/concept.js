@@ -176,8 +176,7 @@ export default {
 			`
 				MATCH (c:Concept) WHERE c.name IS NOT NULL
 				OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
-				OPTIONAL MATCH (c)-[:CONTAINED_BY*0..]->(containerChain:Concept)
-				OPTIONAL MATCH p = (c)<-[:CONTAINED_BY*]-(containeeChain:Concept)
+				OPTIONAL MATCH (c)-[:CONTAINED_BY*0..2]->(containerChain:Concept)
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 
 				WITH c, container,
@@ -185,16 +184,11 @@ export default {
 					HEAD(COLLECT(
 						DISTINCT FIlTER(c in containerChain.color WHERE c IS NOT NULL)
 					))[0] AS color,
-					COUNT(DISTINCT containeeChain) AS containeeCount,
-					MAX(DISTINCT LENGTH(p)) AS containeeDepth,
 					COLLECT(DISTINCT req.id) AS reqs
 
 				RETURN c.id AS id, c.name AS name, c.summary AS summary, reqs, color,
 					container.id AS container, containerCount,
-					containeeDepth, containeeCount,
 					c.x AS x, c.y AS y
-
-				ORDER BY containeeCount DESC
 			`
 		);
 	},
