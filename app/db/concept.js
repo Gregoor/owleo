@@ -174,23 +174,15 @@ export default {
 	all() {
 		return query(
 			`
-				MATCH (c:Concept) WHERE c.name IS NOT NULL
+				MATCH (c:Concept)
 				OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
-				OPTIONAL MATCH (c)-[:CONTAINED_BY*0..2]->(containerChain:Concept)
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 
-				WITH c, container,
-					COUNT(DISTINCT containerChain) AS containerCount,
-					HEAD(COLLECT(
-						DISTINCT FIlTER(c in containerChain.color WHERE c IS NOT NULL)
-					))[0] AS color,
+				RETURN c.id AS id, c.name AS name, c.x AS x, c.y AS y,
+					c.color AS color, container.id AS container,
 					COLLECT(DISTINCT req.id) AS reqs
-
-				RETURN c.id AS id, c.name AS name, c.summary AS summary, reqs, color,
-					container.id AS container, containerCount,
-					c.x AS x, c.y AS y
 			`
-		);
+		).then(concepts => concepts.map(concept => [concept.id, concept]));
 	},
 
 	reposition(concepts) {
