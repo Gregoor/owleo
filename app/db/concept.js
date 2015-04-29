@@ -177,21 +177,12 @@ export default {
 				MATCH (c:Concept)
 				OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
-				OPTIONAL MATCH
-					c-[:CONTAINED_BY*0..]->(container1:Concept)-[:CONTAINED_BY]->
-						(commonAncestor:Concept)
-					<-[:CONTAINED_BY]-(container2:Concept)<-[:CONTAINED_BY*0..]-req
 
 				RETURN c.id AS id, c.name AS name, c.x AS x, c.y AS y,
 					c.color AS color, container.id AS container,
-					COLLECT(DISTINCT {
-						id: req.id, siblings: [container1.id, container2.id]
-					}) AS reqs
+					COLLECT(DISTINCT req.id) AS reqs
 			`
-		).then(concepts => concepts.map(concept => {
-            if (!concept.reqs[0].id) concept.reqs = [];
-            return [concept.id, concept];
-        }));
+		).then(concepts => concepts.map(concept => [concept.id, concept]));
 	},
 
 	reposition(concepts) {
