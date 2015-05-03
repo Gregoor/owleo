@@ -179,7 +179,7 @@ export default {
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 
 				RETURN c.id AS id, c.name AS name, c.x AS x, c.y AS y,
-					c.color AS color, container.id AS container,
+					c.r AS r, c.color AS color, container.id AS container,
 					COLLECT(DISTINCT req.id) AS reqs
 			`
 		).then(concepts => concepts.map(concept => [concept.id, concept]));
@@ -196,7 +196,7 @@ export default {
 				`,
 					'params': _.extend(
 						_.pick(concept, 'id'),
-						{'pos': _.pick(concept.pos, 'x', 'y')}
+						{'pos': _.pick(concept, 'x', 'y', 'r')}
 					)
 				};
 			}), () => this.all().then(resolve));
