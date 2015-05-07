@@ -92,7 +92,9 @@ export default {
 						}
 					} AS container,
 					COLLECT(DISTINCT {id: req.id, name: req.name,
-						container: {id: container.id, name: container.name}}) as reqs,
+						container: {
+							id: reqContainer.id, name: reqContainer.name
+							}}) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links
 			`,
