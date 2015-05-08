@@ -1,8 +1,8 @@
-let _ = require('lodash');
+import _ from 'lodash';
 
-let {db} = require('./connection');
-let Concept = require('./concept');
-let Tag = require('./tag');
+import {db} from './connection';
+import Concept from './concept';
+import Tag from './tag';
 
 export default (params) => {
 	params = _.defaults(params, {
@@ -19,10 +19,11 @@ export default (params) => {
 
 	return new Promise((resolve) => db.cypher(queries, (err, results) => {
 		if (err) console.err(results);
-		resolve(results.reduce((all, result, i) => {
+		results = results.reduce((all, result, i) => {
 			let type = params.for[i];
-			result.forEach((n) => n.type = type)
+			result.forEach((n) => n.type = type);
 			return all.concat(result);
-		}, []));
+		}, []);
+        resolve(results);
 	}));
 }

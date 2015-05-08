@@ -1,7 +1,7 @@
-let _ = require('lodash');
-let uuid = require('node-uuid');
+import _ from 'lodash';
+import uuid from 'node-uuid';
 
-let {db, query} = require('./connection');
+import {db, query} from './connection';
 
 let asParams = concept => ({
 	'data': _.omit(concept, 'id', 'container', 'reqs', 'tags', 'links'),

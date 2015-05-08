@@ -1,7 +1,6 @@
-let _ = require('lodash');
-let express = require('express');
-let app = express();
-let router = require('./router');
+import _ from 'lodash';
+import express from 'express';
+import router from './router';
 
 let config = require('./config');
 try {
@@ -9,6 +8,7 @@ try {
 } catch (e) {
 	if (!(e instanceof Error && e.code === 'MODULE_NOT_FOUND')) throw e;
 }
+let app = express();
 
 let {auth} = config;
 if (auth) app.use(require('basic-auth-connect')(auth.user, auth.pw));

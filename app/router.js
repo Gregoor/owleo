@@ -1,7 +1,7 @@
 let router = require('express').Router();
-let _ = require('lodash');
+import _ from 'lodash';
 
-let routes = require('./routes');
+import routes from './routes';
 
 let methods = ['GET', 'POST', 'DELETE'];
 
