@@ -7,7 +7,7 @@ export default {
 		let query = `MATCH (t:Tag)`;
 
 		if (params.q.length > 0) {
-			params.q = `.*${params.q}.*`;
+			params.q = `(?i).*${params.q}.*`;
 			query += `WHERE t.name =~ {q}`;
 		}
 
