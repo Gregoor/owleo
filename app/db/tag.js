@@ -4,7 +4,9 @@ let {query} = require('./connection');
 
 export default {
 	search(params) {
-		let query = `MATCH (t:Tag)`;
+		let query = `
+			MATCH (t:Tag)-[:TAGS]->(:Concept)
+		`;
 
 		if (params.q.length > 0) {
 			params.q = `(?i).*${params.q}.*`;
@@ -12,7 +14,7 @@ export default {
 		}
 
 		query += `
-			RETURN t.name AS name
+			RETURN DISTINCT t.name AS name
 			LIMIT 10
 		`;
 		return {query, params};

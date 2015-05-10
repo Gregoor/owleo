@@ -46,7 +46,6 @@ export default {
 	search(params) {
 		let query = `
 			MATCH (c:Concept)
-
 		`;
 
 		if (params.q.length > 0) {

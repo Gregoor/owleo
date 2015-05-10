@@ -18,7 +18,7 @@ export default (params) => {
 	}
 
 	return new Promise((resolve) => db.cypher(queries, (err, results) => {
-		if (err) console.err(results);
+		if (err) console.error(results);
 		results = results.reduce((all, result, i) => {
 			let type = params.for[i];
 			result.forEach((n) => n.type = type);
