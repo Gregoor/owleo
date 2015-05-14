@@ -15,12 +15,9 @@ let openActions = ['all', 'find'];
 export default class ConceptControler extends Controller {
 
     before(actionName) {
-        if (!_.includes(openActions, actionName)) {
-            return this.user().then(user => {
-                return !!user;
-            });
-        }
-		return Promise.resolve(true);
+        return _.includes(openActions, actionName) ?
+            Promise.resolve(true) :
+            this.user().then(user => user && user.admin);
     }
 
 	all() {

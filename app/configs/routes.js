@@ -2,7 +2,7 @@ export default {
 	'users': {
 		'login': 'POST',
         'register': 'POST',
-        'current': 'POST'
+        'current': 'GET'
 	},
 	'concepts': {
 		'GET': 'all',
