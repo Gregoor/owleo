@@ -26,27 +26,30 @@ export default {
     create(attrs) {
         let {name, password} = attrs;
 
+        return this.find({name}).then(exists => exists ?
+            {'error': ['exists']} :
+            query(
+                `
+                    CREATE (u:User {data})
+                    RETURN u.id AS id
+                `,
+                {'data': {name,
+                    'password_hash': bcrypt.hashSync(password, 10),
+                    'id': uuid.v4()
+                }}
+            ).then(dbData => dbData[0]));
+    },
+
+    find({id, name}) {
         return query(
             `
-                MATCH (u:User {name: {name}})
-                RETURN COUNT(u) > 0 AS exists
+                MATCH (u:User)
+                WHERE u.id = {id} OR u.name = {name}
+                RETURN u.name AS name, u.admin AS admin
+                LIMIT 1
             `,
-            {name}
-        ).then(dbData => {
-                let {exists} = dbData[0];
-            return new Promise(resolve => {
-                resolve(exists ? {'error': ['exists']} : query(
-                    `
-                        CREATE (u:User {data})
-                        RETURN u.id AS id
-                    `,
-                    {'data': {name,
-                        'password_hash': bcrypt.hashSync(password, 10),
-                        'id': uuid.v4()
-                    }}
-                ).then(dbData => dbData[0]));
-            });
-        });
+            {'id': id || null, 'name': name || null}
+        ).then(dbData => dbData[0])
     }
 
 };

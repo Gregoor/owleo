@@ -4,12 +4,23 @@ import Concept from '../db/concept';
 
 let conceptParams = (params) => {
 	return _.pick(params.concept,
-		'name', 'summary','summarySource','color', 'container', 'reqs', 'tags',
-		'links'
+		'name', 'summary', 'summarySource', 'color',
+        'container', 'reqs', 'tags',  'links'
 	);
 };
 
+let openActions = ['all', 'find'];
+
 export default class ConceptControler {
+
+    before(actionName) {
+        if (!_.includes(openActions, actionName)) {
+            return this.loggedIn().then(loggedIn => {
+                return loggedIn;
+            });
+        }
+		return Promise.resolve(true);
+    }
 
 	all() {
 		return Concept.all()

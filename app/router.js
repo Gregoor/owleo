@@ -2,11 +2,32 @@ let router = require('express').Router();
 import _ from 'lodash';
 import statusCodes from 'http-status-codes';
 
+import User from './db/user';
 import routes from './configs/routes';
 
 let methods = ['GET', 'POST', 'DELETE'];
 
 class RoutesConfigError extends Error {}
+
+let attachRoutes = (routes, Controller, path = []) => {
+    for (let [key, value] of Object.entries(routes)) {
+        if (_.includes(methods, key)) {
+            attachToRoute({
+                Controller, 'action': value,
+                path, 'method': key
+            });
+        } else if (!_.isObject(value)) {
+            attachToRoute({
+                Controller, 'action': key,
+                'path': path.concat(key), 'method': value
+            });
+        } else {
+            let SubController = Controller ||
+                require(`./controllers/${key}-controller`);
+            attachRoutes(value, SubController, path.concat(key));
+        }
+    }
+};
 
 let attachToRoute = ({Controller, action, path, method}) => {
 	let joinedPath = '/' + path.join('/');
@@ -18,28 +39,26 @@ let attachToRoute = ({Controller, action, path, method}) => {
 		try {
 			let {query} = req;
 			let params = query.json ? JSON.parse(query.json) : req.body || req.params;
+            let authenticated;
 			let ctrl = new Controller();
-            _.assign(ctrl, {params, 'user': req.user});
-			ctrl[action](req.params.id).then(data => {
-				let {body, status} = data;
-                if (_.isNumber(data)) status = data;
-				else if (!body) body = data;
-
-				if (status !== undefined) res.status(status);
-                if (body === undefined) {
-                    let resp = statusCodes.getStatusText(status);
-                    if (status >= 400) {
-                        resp = {'error': resp};
-                    }
-                    res.json(resp);
-                } else res.json(body);
-			}).catch(error => {
-                console.error(error);
+            _.assign(ctrl, {params, 'user': req.user,
+                'loggedIn': () => new Promise(resolve => {
+                    if (!req.user.id) {
+                        resolve(authenticated = false);
+                    } else if (authenticated === undefined) {
+                        User.find({'id': req.user.id}).then(user => {
+                            resolve(authenticated = !!user);
+                        });
+                    } else resolve(authenticated);
+                })
             });
+            if (ctrl.before) ctrl.before(action).then((allowed) => {
+                if (allowed) callCtrl(ctrl, action, req, res);
+                else respondWith(res, statusCodes.UNAUTHORIZED);
+            }).catch(handleError.bind(null, res));
+            else callCtrl(ctrl, action, req, res);
 		} catch(error) {
-			res.status(statusCodes.INTERNAL_SERVER_ERROR);
-            res.end();
-			console.error(error);
+            handleError(res, error);
 			//if ('dev') {
 			//	let {message, stack} = error;
 			//	res.json({message, 'stack': stack.split('\n')});
@@ -49,24 +68,31 @@ let attachToRoute = ({Controller, action, path, method}) => {
 	});
 };
 
-let attachRoutes = (routes, Controller, path = []) => {
-	for (let [key, value] of Object.entries(routes)) {
-		if (_.includes(methods, key)) {
-			attachToRoute({
-                Controller, 'action': value,
-                path, 'method': key
-            });
-		} else if (!_.isObject(value)) {
-            attachToRoute({
-                Controller, 'action': key,
-                'path': path.concat(key), 'method': value
-            });
-        } else {
-            let SubController = Controller ||
-				require(`./controllers/${key}-controller`);
-			attachRoutes(value, SubController, path.concat(key));
-		}
-	}
+let callCtrl = (ctrl, action, req, res) => {
+    return ctrl[action](req.params.id).then(data => {
+        respondWith(res, data);
+    }).catch(handleError.bind(null, res));
+};
+
+let respondWith = (res, data) => {
+    let {body, status} = data;
+    if (_.isNumber(data)) status = data;
+    else if (!body) body = data;
+
+    if (status !== undefined) res.status(status);
+    if (body === undefined) {
+        let resp = statusCodes.getStatusText(status);
+        if (status >= 400) {
+
+            resp = {'error': resp};
+        }
+        res.json(resp);
+    } else res.json(body);
+};
+
+let handleError = (res, error) => {
+    respondWith(res, statusCodes.INTERNAL_SERVER_ERROR);
+    error.stack.split('\n').forEach(l => console.error(l));
 };
 
 attachRoutes(routes);
