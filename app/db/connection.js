@@ -1,5 +1,5 @@
 import neo4j from 'neo4j';
-import config from '../config.custom';
+import config from '../configs/config.custom';
 
 let connection = {
 	'db': new neo4j.GraphDatabase({

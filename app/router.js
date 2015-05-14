@@ -2,13 +2,13 @@ let router = require('express').Router();
 import _ from 'lodash';
 import statusCodes from 'http-status-codes';
 
-import routes from './routes';
+import routes from './configs/routes';
 
 let methods = ['GET', 'POST', 'DELETE'];
 
 class RoutesConfigError extends Error {}
 
-let attachToRoute = (Controller, action, path, method) => {
+let attachToRoute = ({Controller, action, path, method}) => {
 	let joinedPath = '/' + path.join('/');
 	if (!Controller) {
 		throw new RoutesConfigError(`Missing controller for path: ${joinedPath}.`);
@@ -50,13 +50,21 @@ let attachToRoute = (Controller, action, path, method) => {
 };
 
 let attachRoutes = (routes, Controller, path = []) => {
-	for (let [pathOrMethod, routesOrAction] of Object.entries(routes)) {
-		if (_.includes(methods, pathOrMethod)) {
-			attachToRoute(Controller, routesOrAction, path, pathOrMethod);
-		} else {
-			let SubController = Controller ||
-				require(`./controllers/${pathOrMethod}-controller`);
-			attachRoutes(routesOrAction, SubController, path.concat(pathOrMethod));
+	for (let [key, value] of Object.entries(routes)) {
+		if (_.includes(methods, key)) {
+			attachToRoute({
+                Controller, 'action': value,
+                path, 'method': key
+            });
+		} else if (!_.isObject(value)) {
+            attachToRoute({
+                Controller, 'action': key,
+                'path': path.concat(key), 'method': value
+            });
+        } else {
+            let SubController = Controller ||
+				require(`./controllers/${key}-controller`);
+			attachRoutes(value, SubController, path.concat(key));
 		}
 	}
 };

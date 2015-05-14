@@ -3,9 +3,9 @@ import express from 'express';
 import router from './router';
 import sessions from 'client-sessions';
 
-let config = require('./config');
+let config = require('./configs/config');
 try {
-	config = _.defaults(require('./config.custom'), config);
+	config = _.defaults(require('./configs/config.custom'), config);
 } catch (e) {
 	if (!(e instanceof Error && e.code === 'MODULE_NOT_FOUND')) throw e;
 }
