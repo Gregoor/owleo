@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+import Controller from './controller';
 import Concept from '../db/concept';
 
 let conceptParams = (params) => {
@@ -11,12 +12,12 @@ let conceptParams = (params) => {
 
 let openActions = ['all', 'find'];
 
-export default class ConceptControler {
+export default class ConceptControler extends Controller {
 
     before(actionName) {
         if (!_.includes(openActions, actionName)) {
-            return this.loggedIn().then(loggedIn => {
-                return loggedIn;
+            return this.user().then(user => {
+                return !!user;
             });
         }
 		return Promise.resolve(true);

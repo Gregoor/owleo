@@ -2,7 +2,6 @@ let router = require('express').Router();
 import _ from 'lodash';
 import statusCodes from 'http-status-codes';
 
-import User from './db/user';
 import routes from './configs/routes';
 
 let methods = ['GET', 'POST', 'DELETE'];
@@ -39,19 +38,9 @@ let attachToRoute = ({Controller, action, path, method}) => {
 		try {
 			let {query} = req;
 			let params = query.json ? JSON.parse(query.json) : req.body || req.params;
-            let authenticated;
-			let ctrl = new Controller();
-            _.assign(ctrl, {params, 'user': req.user,
-                'loggedIn': () => new Promise(resolve => {
-                    if (!req.user.id) {
-                        resolve(authenticated = false);
-                    } else if (authenticated === undefined) {
-                        User.find({'id': req.user.id}).then(user => {
-                            resolve(authenticated = !!user);
-                        });
-                    } else resolve(authenticated);
-                })
-            });
+
+			let ctrl = new Controller({params, req});
+
             if (ctrl.before) ctrl.before(action).then((allowed) => {
                 if (allowed) callCtrl(ctrl, action, req, res);
                 else respondWith(res, statusCodes.UNAUTHORIZED);
