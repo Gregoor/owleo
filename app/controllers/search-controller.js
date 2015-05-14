@@ -1,9 +1,8 @@
-let _ = require('lodash');
+import _ from 'lodash';
 
-let Controller = require('./controller');
-let search = require('../db/search');
+import search from '../db/search';
 
-export default class SearchController extends Controller {
+export default class SearchController {
 
 	go() {
 		return search(this.params);

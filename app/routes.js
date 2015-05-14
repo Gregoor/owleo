@@ -1,4 +1,9 @@
 export default {
+	'users': {
+		'login': {'POST': 'login'},
+        'register': {'POST': 'register'},
+        'current': {'GET': 'current'}
+	},
 	'concepts': {
 		'GET': 'all',
 		'POST': 'create',

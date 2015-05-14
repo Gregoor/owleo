@@ -1,5 +1,6 @@
 let router = require('express').Router();
 import _ from 'lodash';
+import statusCodes from 'http-status-codes';
 
 import routes from './routes';
 
@@ -17,21 +18,33 @@ let attachToRoute = (Controller, action, path, method) => {
 		try {
 			let {query} = req;
 			let params = query.json ? JSON.parse(query.json) : req.body || req.params;
-			let ctrl = new Controller(params);
+			let ctrl = new Controller();
+            _.assign(ctrl, {params, 'user': req.user});
 			ctrl[action](req.params.id).then(data => {
 				let {body, status} = data;
-				if (!body) body = data;
+                if (_.isNumber(data)) status = data;
+				else if (!body) body = data;
+
 				if (status !== undefined) res.status(status);
-				res.json(body);
-			});
+                if (body === undefined) {
+                    let resp = statusCodes.getStatusText(status);
+                    if (status >= 400) {
+                        resp = {'error': resp};
+                    }
+                    res.json(resp);
+                } else res.json(body);
+			}).catch(error => {
+                console.error(error);
+            });
 		} catch(error) {
-			res.status(500);
+			res.status(statusCodes.INTERNAL_SERVER_ERROR);
+            res.end();
 			console.error(error);
-			if ('dev') {
-				let {message, stack} = error;
-				res.json({message, 'stack': stack.split('\n')});
-				throw error;
-			}
+			//if ('dev') {
+			//	let {message, stack} = error;
+			//	res.json({message, 'stack': stack.split('\n')});
+			//	throw error;
+			//}
 		}
 	});
 };

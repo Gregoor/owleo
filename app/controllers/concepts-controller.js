@@ -1,7 +1,6 @@
-let _ = require('lodash');
+import _ from 'lodash';
 
-let Controller = require('./controller');
-let Concept = require('../db/concept');
+import Concept from '../db/concept';
 
 let conceptParams = (params) => {
 	return _.pick(params.concept,
@@ -10,7 +9,7 @@ let conceptParams = (params) => {
 	);
 };
 
-export default class ConceptControler extends Controller {
+export default class ConceptControler {
 
 	all() {
 		return Concept.all()

@@ -17,6 +17,9 @@
     "lodash": "~3.6.0",
     "migrate": "git://github.com/Gregoor/node-migrate.git",
     "neo4j": "2.0.0-RC1",
-    "node-uuid": "^1.4.3"
+    "node-uuid": "^1.4.3",
+    "client-sessions": "~0.7.0",
+    "http-status-codes": "~1.0.5",
+    "bcrypt": "~0.8.3"
   }
 }
