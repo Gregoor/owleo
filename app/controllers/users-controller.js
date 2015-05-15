@@ -14,6 +14,12 @@ let registerParams = (params) => {
 
 export default class UserController extends Controller {
 
+    exists() {
+        return User.find({'name': this.params.user.name}).then(user => {
+           return {'exists': Boolean(user)};
+        });
+    }
+
     current() {
         return this.user().then(user => user);
     }

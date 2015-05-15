@@ -37,7 +37,8 @@ let attachToRoute = ({Controller, action, path, method}) => {
 	router.route(joinedPath)[method.toLowerCase()]((req, res) => {
 		try {
 			let {query} = req;
-			let params = query.json ? JSON.parse(query.json) : req.body || req.params;
+			let params = query.json ?
+                JSON.parse(query.json) : _.assign({}, req.body, req.params, req.query);
 
 			let ctrl = new Controller({params, req});
 
