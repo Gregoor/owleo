@@ -64,15 +64,18 @@ let callCtrl = (ctrl, action, req, res) => {
 };
 
 let respondWith = (res, data) => {
-    let {body, status} = data;
-    if (_.isNumber(data)) status = data;
-    else if (!body) body = data;
+    let body, status;
+    if (_.isObject(data)) {
+        body = data.body;
+        status = data.status;
+    } else if (_.isNumber(data)) status = data;
+
+    if (!body) body = data;
 
     if (status !== undefined) res.status(status);
     if (body === undefined) {
         let resp = statusCodes.getStatusText(status);
         if (status >= 400) {
-
             resp = {'error': resp};
         }
         res.json(resp);

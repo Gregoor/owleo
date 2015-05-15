@@ -15,7 +15,7 @@ let registerParams = (params) => {
 export default class UserController extends Controller {
 
     current() {
-        return this.user().then(user => user || statusCodes.NOT_FOUND);
+        return this.user().then(user => user);
     }
 
 	login() {
