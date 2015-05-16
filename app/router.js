@@ -66,12 +66,11 @@ let callCtrl = (ctrl, action, req, res) => {
 
 let respondWith = (res, data) => {
     let body, status;
-    if (_.isObject(data)) {
+    if (_.isObject(data) && data.body && data.status) {
         body = data.body;
         status = data.status;
     } else if (_.isNumber(data)) status = data;
-
-    if (!body) body = data;
+    else body = data;
 
     if (status !== undefined) res.status(status);
     if (body === undefined) {

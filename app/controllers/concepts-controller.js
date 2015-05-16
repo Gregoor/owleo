@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import statusCodes from 'http-status-codes';
 
 import Controller from './controller';
 import Concept from '../db/concept';
@@ -26,11 +27,7 @@ export default class ConceptControler extends Controller {
 
 	find(id) {
 		return new Promise(resolve => Concept.find(id).then(concept => {
-			if (concept) resolve(concept);
-			else resolve({
-				'body': {'error': 'No concept found for that id'},
-				'status': 404
-			});
+			resolve(concept || statusCodes.NOT_FOUND);
 		}));
 	}
 
