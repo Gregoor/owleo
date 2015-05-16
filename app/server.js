@@ -19,16 +19,16 @@ app.use(sessions({
     'secret': 'soon',
     'duration': 1000 * 60 * 60 * 24 * 7,
     'cookie': {
-        'path': '/api',
-        'httpOnly': false
+        'path': '/api'
         //'secureProxy': 'DOME' //TODO: Srsly
     }
 }));
 
 app.use((req, res, next) => {
 	// TODO: Check for prod &
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Credentials', true);
+	res.header('Access-Control-Allow-Origin', 'http://localhost:9000');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
 	res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE');
 
 	next();

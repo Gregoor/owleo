@@ -1,6 +1,7 @@
 export default {
 	'users': {
 		'login': 'POST',
+		'logout': 'POST',
         'register': 'POST',
         'current': 'GET',
 		'exists': 'GET'

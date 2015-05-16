@@ -4,41 +4,45 @@ import statusCodes from 'http-status-codes';
 import Controller from './controller';
 import User from '../db/user';
 
-let loginParams = (params) => {
-    return _.pick(params.user, 'id', 'password');
-};
-
-let registerParams = (params) => {
+let authParams = (params) => {
     return _.pick(params.user, 'name', 'password');
 };
 
 export default class UserController extends Controller {
 
     exists() {
-        return User.find({'name': this.params.user.name}).then(user => {
+        return User.find({'name': this.params.name}).then(user => {
            return {'exists': Boolean(user)};
         });
     }
 
     current() {
-        return this.user().then(user => user);
+        return this.user();
     }
 
 	login() {
-        return User.authenticate(loginParams(this.params))
+        return User.authenticate(authParams(this.params))
             .then(({success, id}) => {
-                let status;
-                if (success) this.user.id = id;
-                else status = statusCodes.UNAUTHORIZED;
-                return {'body': {success}, status};
+                if (success) {
+                    this.setUserId(id);
+                    return this.current();
+                } else return statusCodes.UNAUTHORIZED;
             });
 	}
 
     register() {
-        return User.create(registerParams(this.params)).then(({error, id}) => {
+        return User.create(authParams(this.params)).then(({error, id}) => {
             if (error && _.includes(error, 'exists')) return statusCodes.CONFLICT;
-            else return {id};
+            else {
+                this.setUserId(id);
+                return this.current();
+            }
         });
+    }
+
+    logout() {
+        this.setUserId(null);
+        return Promise.resolve(null);
     }
 
 }

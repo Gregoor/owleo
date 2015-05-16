@@ -17,4 +17,8 @@ export default class Controller {
         }));
     }
 
+    setUserId(id) {
+        this.req.user.id = id;
+    }
+
 }

@@ -7,18 +7,18 @@ import {db, query} from './connection';
 export default {
 
     authenticate(attrs) {
-        let {id, password} = attrs;
+        let {name, password} = attrs;
 
         return query(
             `
-                MATCH (u:User {id: {id}})
-                RETURN u.password_hash AS pwHash
+                MATCH (u:User {name: {name}})
+                RETURN u.password_hash AS pwHash, u.id AS id
                 LIMIT 1
             `,
-            {id}
+            {name}
         ).then(dbData => {
             if (_.isEmpty(dbData)) return {'success': false};
-            let {pwHash} = dbData[0];
+            let {pwHash, id} = dbData[0];
             return {'success': bcrypt.compareSync(password, pwHash), id};
         });
     },
@@ -34,7 +34,7 @@ export default {
                     RETURN u.id AS id
                 `,
                 {'data': {name,
-                    'password_hash': bcrypt.hashSync(password, 10),
+                    'password_hash': bcrypt.hashSync(password, 12),
                     'id': uuid.v4()
                 }}
             ).then(dbData => dbData[0]));
