@@ -25,11 +25,12 @@ app.use(sessions({
 }));
 
 app.use((req, res, next) => {
-	// TODO: Check for prod &
-    res.header('Access-Control-Allow-Credentials', true);
-	res.header('Access-Control-Allow-Origin', req.get('origin'));
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-	res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE');
+	if (config.dev) {
+        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Origin', req.get('origin'));
+        res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE');
+    }
 
 	next();
 });
