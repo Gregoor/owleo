@@ -11,9 +11,6 @@ try {
 }
 let app = express();
 
-let {auth} = config;
-if (auth) app.use(require('basic-auth-connect')(auth.user, auth.pw));
-
 app.use(sessions({
     'cookieName': 'user',
     'secret': 'soon',
@@ -25,7 +22,7 @@ app.use(sessions({
 }));
 
 app.use((req, res, next) => {
-	if (config.dev) {
+    if (config.dev) {
         res.header('Access-Control-Allow-Credentials', true);
         res.header('Access-Control-Allow-Origin', req.get('origin'));
         res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
