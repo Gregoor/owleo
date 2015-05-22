@@ -13,7 +13,16 @@ export default {
 		':id': {
 			'GET': 'find',
 			'POST': 'update',
-			'DELETE': 'delete'
+			'DELETE': 'delete',
+			'#links': {
+				'POST': 'create',
+                ':linkId': {
+                    'votes': {
+                        'POST': 'vote',
+                        'DELETE': 'unvote'
+                    }
+                }
+			}
 		}
 	},
 	'search': {'GET': 'go'}

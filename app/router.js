@@ -21,8 +21,14 @@ let attachRoutes = (routes, Controller, path = []) => {
                 'path': path.concat(key), 'method': value
             });
         } else {
-            let SubController = Controller ||
-                require(`./controllers/${key}-controller`);
+            let newCtrl = false;
+            if (key[0] == '#') {
+                key = key.slice(1);
+                newCtrl = true;
+            }
+            let SubController = newCtrl || !Controller ?
+                require(`./controllers/${key}-controller`) :
+                Controller;
             attachRoutes(value, SubController, path.concat(key));
         }
     }
@@ -30,36 +36,38 @@ let attachRoutes = (routes, Controller, path = []) => {
 
 let attachToRoute = ({Controller, action, path, method}) => {
 	let joinedPath = '/' + path.join('/');
+    let paramNames = _(path)
+        .filter(p => p[0] == ':')
+        .map(p => p.slice(1))
+        .value();
 	if (!Controller) {
-		throw new RoutesConfigError(`Missing controller for path: ${joinedPath}.`);
+		throw new RoutesConfigError(`Missing controller for: ${joinedPath}.`);
 	}
 
 	router.route(joinedPath)[method.toLowerCase()]((req, res) => {
 		try {
 			let {query} = req;
 			let params = query.json ?
-                JSON.parse(query.json) : _.assign({}, req.body, req.params, req.query);
+                JSON.parse(query.json) :
+                _.assign({}, req.body, req.params, query);
 
 			let ctrl = new Controller({params, req});
+            let callCtrlCurried =
+                callCtrl.bind(this, ctrl, action, req, res, paramNames);
 
             if (ctrl.before) ctrl.before(action).then((allowed) => {
-                if (allowed) callCtrl(ctrl, action, req, res);
+                if (allowed) callCtrlCurried();
                 else respondWith(res, statusCodes.UNAUTHORIZED);
             }).catch(handleError.bind(null, res));
-            else callCtrl(ctrl, action, req, res);
+            else callCtrlCurried();
 		} catch(error) {
             handleError(res, error);
-			//if ('dev') {
-			//	let {message, stack} = error;
-			//	res.json({message, 'stack': stack.split('\n')});
-			//	throw error;
-			//}
 		}
 	});
 };
 
-let callCtrl = (ctrl, action, req, res) => {
-    return ctrl[action](req.params.id).then(data => {
+let callCtrl = (ctrl, action, req, res, paramNames) => {
+    return ctrl[action](...paramNames.map(n => req.params[n])).then(data => {
         respondWith(res, data);
     }).catch(handleError.bind(null, res));
 };

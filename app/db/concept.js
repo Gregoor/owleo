@@ -32,12 +32,6 @@ let subQuery = {
 			MERGE (newTag:Tag {name: tagName})
 			CREATE UNIQUE (newTag)-[:TAGS]->(c)
 		)
-	`,
-	'createLinks': `
-		FOREACH (link in {links}|
-			MERGE (newLink:Link {url: link.url, paywalled: link.paywalled})
-			CREATE UNIQUE (newLink)-[:EXPLAINS]->(c)
-		)
 	`
 };
 
@@ -81,6 +75,10 @@ export default {
 
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
+				OPTIONAL MATCH (u:User)-[v:VOTED]->(l)
+
+				WITH c, container, containerContainer, req, reqContainer, t, l, u,
+				    COUNT(DISTINCT v) AS votes
 
 				RETURN c.id AS id, c.name AS name, c.summary as summary,
 					c.summarySource AS summarySource, c.color AS color,
@@ -95,7 +93,13 @@ export default {
 							id: reqContainer.id, name: reqContainer.name
 							}}) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
-					COLLECT(DISTINCT {url: l.url, paywalled: l.paywalled}) as links
+					COLLECT(DISTINCT {
+						id: l.id,
+						name: l.name,
+						url: l.url,
+						paywalled: l.paywalled,
+						votes: votes
+					}) as links
 			`,
 			{id}
 		).then(dbData => {
@@ -122,7 +126,6 @@ export default {
 				${subQuery.containConcept(params.container)}
 				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
-				${subQuery.createLinks}
 
 				RETURN c.id AS id
 			`,
@@ -145,15 +148,11 @@ export default {
 				OPTIONAL MATCH (oldTag:Tag)-[tagRel:TAGS]->(c)
 				WHERE NOT(oldTag.name IN {tags})
 
-				OPTIONAL MATCH (oldLink:Link)-[explainsRel:EXPLAINS]->(c)
-				WHERE NOT(oldLink.url IN {links})
-
 				DELETE containerRel, reqRel, tagRel, explainsRel
 
 				${subQuery.containConcept(params.container)}
 				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
-				${subQuery.createLinks}
 				SET c += {data}
 			`,
 			params

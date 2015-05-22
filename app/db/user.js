@@ -45,7 +45,7 @@ export default {
             `
                 MATCH (u:User)
                 WHERE u.id = {id} OR u.name = {name}
-                RETURN u.name AS name, u.admin AS admin
+                RETURN u.id AS id, u.name AS name, u.admin AS admin
                 LIMIT 1
             `,
             {'id': id || null, 'name': name || null}
