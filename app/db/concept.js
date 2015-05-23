@@ -148,7 +148,7 @@ export default {
 				OPTIONAL MATCH (oldTag:Tag)-[tagRel:TAGS]->(c)
 				WHERE NOT(oldTag.name IN {tags})
 
-				DELETE containerRel, reqRel, tagRel, explainsRel
+				DELETE containerRel, reqRel, tagRel
 
 				${subQuery.containConcept(params.container)}
 				${subQuery.connectConcepts(params.reqs)}
