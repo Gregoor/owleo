@@ -24,7 +24,7 @@ export default {
                 l.paywalled AS paywalled, COUNT(r) AS votes
           `,
           {id}
-      );
+      ).then(r => r[0]);
     },
 
     create(data, conceptId, userId) {
