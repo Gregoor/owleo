@@ -62,7 +62,7 @@ export default {
 		return {query, params};
 	},
 
-	find(id) {
+	find(user, id) {
 		return query(
 			`
 				MATCH (c:Concept) WHERE c.id = {id}
@@ -76,9 +76,10 @@ export default {
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
 				OPTIONAL MATCH (u:User)-[v:VOTED]->(l)
+				OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(l)
 
 				WITH c, container, containerContainer, req, reqContainer, t, l, u,
-				    COUNT(DISTINCT v) AS votes
+				    COUNT(DISTINCT v) AS votes, COUNT(DISTINCT self) AS hasVoted
 
 				RETURN c.id AS id, c.name AS name, c.summary as summary,
 					c.summarySource AS summarySource, c.color AS color,
@@ -98,10 +99,11 @@ export default {
 						name: l.name,
 						url: l.url,
 						paywalled: l.paywalled,
-						votes: votes
+						votes: votes,
+						hasVoted: hasVoted
 					}) as links
 			`,
-			{id}
+			{id, 'userId': user ? user.id : null}
 		).then(dbData => {
 				let concept = dbData[0];
 
