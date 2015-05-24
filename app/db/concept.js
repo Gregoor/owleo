@@ -135,7 +135,7 @@ export default {
 		).then(dbData => this.find(user, dbData[0].id));
 	},
 
-	update(id, data) {
+	update(user, id, data) {
 		let params = _.extend(asParams(data), {id});
 		return query(
 			`
@@ -158,7 +158,7 @@ export default {
 				SET c += {data}
 			`,
 			params
-		).then(() => this.find(id));
+		).then(() => this.find(user, id));
 	},
 
 	delete(id) {

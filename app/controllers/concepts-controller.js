@@ -41,7 +41,9 @@ export default class ConceptControler extends Controller {
 	}
 
 	update(id) {
-		return Concept.update(id, conceptParams(this.params));
+        return this.user().then(user => {
+            return Concept.update(user, id, conceptParams(this.params));
+        });
 	}
 
 	delete(id) {
