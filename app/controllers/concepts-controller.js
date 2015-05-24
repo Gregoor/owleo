@@ -26,9 +26,12 @@ export default class ConceptControler extends Controller {
 	}
 
 	find(id) {
-		return new Promise(resolve => Concept.find(id).then(concept => {
-			resolve(concept || statusCodes.NOT_FOUND);
-		}));
+		return this.user().then(user => {
+			return Concept.find(user, id).then(concept => {
+				return concept || statusCodes.NOT_FOUND;
+			});
+		});
+
 	}
 
 	create() {
