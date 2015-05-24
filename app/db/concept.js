@@ -117,7 +117,7 @@ export default {
 		});
 	},
 
-	create(data) {
+	create(user, data) {
 		let params = asParams(data);
 		params.data.id = uuid.v4();
 
@@ -132,7 +132,7 @@ export default {
 				RETURN c.id AS id
 			`,
 			params
-		).then(dbData => this.find(dbData[0].id));
+		).then(dbData => this.find(user, dbData[0].id));
 	},
 
 	update(id, data) {

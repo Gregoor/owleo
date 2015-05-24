@@ -35,7 +35,9 @@ export default class ConceptControler extends Controller {
 	}
 
 	create() {
-		return Concept.create(conceptParams(this.params));
+		return this.user().then(user => {
+			return Concept.create(user, conceptParams(this.params));
+		});
 	}
 
 	update(id) {
