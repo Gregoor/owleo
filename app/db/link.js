@@ -56,7 +56,7 @@ export default {
                 'query': subQueries.votes,
                 'params': {id}
             }
-        ], (n, r) => resolve(r[1])));
+        ], (n, r) => resolve(r[1][0])));
     },
 
     unvote(id, userId) {
@@ -73,7 +73,7 @@ export default {
                 'query': subQueries.votes,
                 'params': {id}
             }
-        ], (n, r) => resolve(r[1])));
+        ], (n, r) => resolve(r[1][0])));
     }
 
 };
