@@ -3,6 +3,10 @@ import uuid from 'node-uuid';
 
 import {db, query} from './connection';
 
+const ERRORS = {
+    CONTAINER_LOOP: Symbol()
+};
+
 let asParams = concept => ({
 	'data': _.omit(concept, 'id', 'container', 'reqs', 'tags', 'links'),
 	'container': concept.container || '',
@@ -36,6 +40,8 @@ let subQuery = {
 };
 
 export default {
+
+    ERRORS,
 
 	search(params) {
 		let query = `
@@ -137,11 +143,21 @@ export default {
 
 	update(user, id, data) {
 		let params = _.extend(asParams(data), {id});
-		return query(
-			`
+        let {container} = params;
+
+        let promise = container ?
+            this.isContainedBy(container, id) :
+            Promise.resolve(false);
+
+        return promise.then(isContained => {
+            if (isContained) throw ERRORS.CONTAINER_LOOP;
+
+            return query(
+                `
 				MATCH (c:Concept) WHERE c.id = {id}
 
-				OPTIONAL MATCH (c)-[containerRel:CONTAINED_BY]->(oldContainer:Concept)
+				OPTIONAL MATCH (c)-[containerRel:CONTAINED_BY]
+				    ->(oldContainer:Concept)
 				WHERE oldContainer.id IS NULL OR oldContainer.id <> {container}
 
 				OPTIONAL MATCH (c)-[reqRel:REQUIRES]->(oldReq:Concept)
@@ -152,13 +168,14 @@ export default {
 
 				DELETE containerRel, reqRel, tagRel
 
-				${subQuery.containConcept(params.container)}
+				${subQuery.containConcept(container)}
 				${subQuery.connectConcepts(params.reqs)}
 				${subQuery.createTags}
 				SET c += {data}
 			`,
-			params
-		).then(() => this.find(user, id));
+                params
+            ).then(() => this.find(user, id));
+        });
 	},
 
 	delete(id) {
@@ -203,6 +220,19 @@ export default {
 				};
 			}), () => this.all().then(resolve));
 		});
+	},
+
+	isContainedBy(id1, id2) {
+        if (id1 == id2) return Promise.resolve(true);
+		return query(
+            `
+                MATCH (c1:Concept {id: {id1}})
+                MATCH (c2:Concept {id: {id2}})
+                MATCH p=(c1)-[:CONTAINED_BY*]->(c2)
+                RETURN COUNT(RELATIONSHIPS(p)) > 0 AS isContained
+		    `,
+            {id1, id2}
+        ).then(r => r[0].isContained);
 	}
 
 };

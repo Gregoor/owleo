@@ -41,9 +41,18 @@ export default class ConceptControler extends Controller {
 	}
 
 	update(id) {
-        return this.user().then(user => {
-            return Concept.update(user, id, conceptParams(this.params));
-        });
+        return this.user()
+			.then(user => {
+				return Concept.update(user, id, conceptParams(this.params));
+			})
+			.catch(error => {
+				if (error == Concept.ERRORS.CONTAINER_LOOP) {
+					return {
+                        'status': 409,
+                        'body': {'error': 'given container already in the loop'}
+                    };
+				}
+			});
 	}
 
 	delete(id) {
