@@ -52,9 +52,19 @@ export default {
 			WHERE t.name IN {tags}
 		`;
 
+        if (params.reqBy) query += `
+            MATCH (c)-[:REQUIRES]->(req:Concept)
+            WHERE req.id = {reqBy} OR req.name = {reqBy}
+        `;
+
+        if (params.leadsTo) query += `
+            MATCH (followup:Concept)-[:REQUIRES]->(c)
+            WHERE followup.id = {leadsTo} OR followup.name = {leadsTo}
+        `;
+
 		query += `
 			OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
-			RETURN c.id AS id, c.name AS name,
+			RETURN DISTINCT c.id AS id, c.name AS name,
 				{id: container.id, name: container.name} AS container
 			LIMIT 10
 		`;
@@ -68,31 +78,25 @@ export default {
 				MATCH (c:Concept) WHERE c.id = {id}
 
 				OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
-				OPTIONAL MATCH (container)-[:CONTAINED_BY]->(containerContainer:Concept)
 
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
-				OPTIONAL MATCH (req)-[:CONTAINED_BY]->(reqContainer:Concept)
+				OPTIONAL MATCH (followup:Concept)-[:REQUIRES]->(c)
 
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
 				OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
 				OPTIONAL MATCH (u:User)-[v:VOTED]->(l)
 				OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(l)
 
-				WITH c, container, containerContainer, req, reqContainer, t, l, u,
-				    COUNT(DISTINCT v) AS votes, COUNT(DISTINCT self) AS hasVoted
+				WITH c, container, t, l, u,
+				    COUNT(DISTINCT v) AS votes,
+				    COUNT(DISTINCT self) AS hasVoted,
+				    COUNT(DISTINCT followup) AS followupCount,
+				    COUNT(DISTINCT req) AS reqCount
 
 				RETURN c.id AS id, c.name AS name, c.summary as summary,
 					c.summarySource AS summarySource, c.color AS color,
-					{id: container.id, name: container.name,
-						container: {
-							id: containerContainer.id,
-							name: containerContainer.name
-						}
-					} AS container,
-					COLLECT(DISTINCT {id: req.id, name: req.name,
-						container: {
-							id: reqContainer.id, name: reqContainer.name
-							}}) as reqs,
+					{id: container.id, name: container.name} AS container,
+					reqCount, followupCount,
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT(DISTINCT {
 						id: l.id,
@@ -110,7 +114,6 @@ export default {
 				if (!concept) return;
 
 				if (concept.links[0].url == null) concept.links = [];
-				if (concept.reqs[0].id == null) concept.reqs = [];
 				if (concept.container.id == null) concept.container = {};
 
 				return concept;
