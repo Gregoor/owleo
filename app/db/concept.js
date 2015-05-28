@@ -80,6 +80,7 @@ export default {
 				OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
 
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
+				OPTIONAL MATCH (req)-[:CONTAINED_BY]->(reqContainer:Concept)
 				OPTIONAL MATCH (followup:Concept)-[:REQUIRES]->(c)
 
 				OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
@@ -87,7 +88,7 @@ export default {
 				OPTIONAL MATCH (u:User)-[v:VOTED]->(l)
 				OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(l)
 
-				WITH c, container, t, l, u,
+				WITH c, container, t, l, u, req, reqContainer,
 				    COUNT(DISTINCT v) AS votes,
 				    COUNT(DISTINCT self) AS hasVoted,
 				    COUNT(DISTINCT followup) AS followupCount,
@@ -96,7 +97,12 @@ export default {
 				RETURN c.id AS id, c.name AS name, c.summary as summary,
 					c.summarySource AS summarySource, c.color AS color,
 					{id: container.id, name: container.name} AS container,
-					reqCount, followupCount,
+					followupCount,
+					COLLECT(DISTINCT {id: req.id, name: req.name,
+						container: {
+							id: reqContainer.id, name: reqContainer.name
+						}
+					}) as reqs,
 					COLLECT(DISTINCT t.name) as tags,
 					COLLECT(DISTINCT {
 						id: l.id,
@@ -112,7 +118,7 @@ export default {
 				let concept = dbData[0];
 
 				if (!concept) return;
-
+				if (concept.reqs[0].id == null) concept.reqs = [];
 				if (concept.links[0].url == null) concept.links = [];
 				if (concept.container.id == null) concept.container = {};
 
