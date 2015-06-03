@@ -31,7 +31,6 @@ export default class ConceptControler extends Controller {
 				return concept || statusCodes.NOT_FOUND;
 			});
 		});
-
 	}
 
 	create() {
