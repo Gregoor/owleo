@@ -88,8 +88,8 @@ export default {
 				OPTIONAL MATCH (u:User)-[v:VOTED]->(l)
 				OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(l)
 
-				WITH c, container, t, l, u, req, reqContainer,
-				    COUNT(DISTINCT v) AS votes,
+				WITH c, container, t, l, req, reqContainer,
+				    COUNT(DISTINCT u) AS votes,
 				    COUNT(DISTINCT self) AS hasVoted,
 				    COUNT(DISTINCT followup) AS followupCount,
 				    COUNT(DISTINCT req) AS reqCount
