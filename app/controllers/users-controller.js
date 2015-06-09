@@ -5,44 +5,44 @@ import Controller from './controller';
 import User from '../db/user';
 
 let authParams = (params) => {
-    return _.pick(params.user, 'name', 'password');
+  return _.pick(params.user, 'name', 'password');
 };
 
 export default class UserController extends Controller {
 
-    exists() {
-        return User.find({'name': this.params.name}).then(user => {
-           return {'exists': Boolean(user)};
-        });
-    }
+  exists() {
+    return User.find({'name': this.params.name}).then(user => {
+      return {'exists': Boolean(user)};
+    });
+  }
 
-    current() {
-        return this.user().then(u => u ? _.pick(u, 'name', 'admin') : u);
-    }
+  current() {
+    return this.user().then(u => u ? _.pick(u, 'name', 'admin') : u);
+  }
 
-	login() {
-        return User.authenticate(authParams(this.params))
-            .then(({success, id}) => {
-                if (success) {
-                    this.setUserId(id);
-                    return this.current();
-                } else return statusCodes.UNAUTHORIZED;
-            });
-	}
+  login() {
+    return User.authenticate(authParams(this.params))
+      .then(({success, id}) => {
+        if (success) {
+          this.setUserId(id);
+          return this.current();
+        } else return statusCodes.UNAUTHORIZED;
+      });
+  }
 
-    register() {
-        return User.create(authParams(this.params)).then(({error, id}) => {
-            if (error && _.includes(error, 'exists')) return statusCodes.CONFLICT;
-            else {
-                this.setUserId(id);
-                return this.current();
-            }
-        });
-    }
+  register() {
+    return User.create(authParams(this.params)).then(({error, id}) => {
+      if (error && _.includes(error, 'exists')) return statusCodes.CONFLICT;
+      else {
+        this.setUserId(id);
+        return this.current();
+      }
+    });
+  }
 
-    logout() {
-        this.setUserId(null);
-        return Promise.resolve(null);
-    }
+  logout() {
+    this.setUserId(null);
+    return Promise.resolve(null);
+  }
 
 }
