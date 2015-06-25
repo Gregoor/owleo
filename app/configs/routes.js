@@ -14,9 +14,9 @@ export default {
       'GET': 'find',
       'POST': 'update',
       'DELETE': 'delete',
-      '#links': {
+      '#explanations': {
         'POST': 'create',
-        ':linkId': {
+        ':explanationId': {
           'votes': {
             'POST': 'vote',
             'DELETE': 'unvote'

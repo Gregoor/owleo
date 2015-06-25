@@ -2,10 +2,10 @@ import _ from 'lodash';
 import statusCodes from 'http-status-codes';
 
 import Controller from './controller';
-import Link from '../db/link';
+import Explanation from '../db/explanation';
 
-let linkParams = (params) => {
-  return _.pick(params.link, 'paywalled', 'url', 'name');
+let explanationParams = params => {
+  return _.pick(params.explanation, 'paywalled', 'content', 'title');
 };
 
 export default class ConceptControler extends Controller {
@@ -17,21 +17,21 @@ export default class ConceptControler extends Controller {
   create(conceptId) {
     return this.user()
       .then(user => {
-        let data = linkParams(this.params);
-        return Link.create(data, conceptId, user.id);
+        let data = explanationParams(this.params);
+        return Explanation.create(data, conceptId, user.id);
       });
 
   }
 
   vote(conceptId, id) {
     return this.user().then(user => {
-      return Link.vote(id, user.id);
+      return Explanation.vote(id, user.id);
     });
   }
 
   unvote(conceptId, id) {
     return this.user().then(user => {
-      return Link.unvote(id, user.id);
+      return Explanation.unvote(id, user.id);
     });
   }
 

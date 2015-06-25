@@ -5,7 +5,7 @@ import {db, query} from './connection';
 
 let subQueries = {
   'votes': `
-    MATCH (:User)-[v:VOTED]->(l:Link {id: {id}})
+    MATCH (:User)-[v:VOTED]->(l:Explanation {id: {id}})
     RETURN COUNT(v) AS votes
   `
 };
@@ -15,13 +15,13 @@ export default {
   find(id) {
     return query(
       `
-        MATCH (l:Link)
-        WHERE l.id = {id}
+        MATCH (e:Explanation)
+        WHERE e.id = {id}
 
-        OPTIONAL MATCH (:User)-[r:VOTED]->(l)
+        OPTIONAL MATCH (:User)-[r:VOTED]->(e)
 
-        RETURN l.id AS id, l.name AS name, l.url AS url,
-          l.paywalled AS paywalled, COUNT(r) AS votes
+        RETURN e.id AS id, e.content AS content,
+          e.paywalled AS paywalled, COUNT(r) AS votes
       `,
       {id}
     ).then(r => r[0]);
@@ -34,9 +34,9 @@ export default {
         MATCH (u:User {id: {userId}})
         MATCH (c:Concept {id: {conceptId}})
 
-        CREATE (l:Link {data})
+        CREATE (e:Explanation {data})
         CREATE u-[:CREATED]->l
-        CREATE l-[:EXPLAINS]->c
+        CREATE e-[:EXPLAINS]->c
       `,
       {data, conceptId, userId}
     ).then(() => this.find(id));
@@ -46,9 +46,9 @@ export default {
     return new Promise(resolve => db.cypher([
       {
         'query': `
-          MATCH (l:Link {id: {id}})
+          MATCH (e:Explanation {id: {id}})
           MATCH (u:User {id: {userId}})
-          MERGE u-[:VOTED]->l
+          MERGE u-[:VOTED]->e
         `,
         'params': {id, userId}
       },
@@ -64,7 +64,7 @@ export default {
       {
         'query': `
           MATCH (u:User {id: {userId}})
-            -[v:VOTED]->(l:Link {id: {id}})
+            -[v:VOTED]->(e:Explanation {id: {id}})
           DELETE v
         `,
         'params': {id, userId}

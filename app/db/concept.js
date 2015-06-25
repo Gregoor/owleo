@@ -8,11 +8,11 @@ const ERRORS = {
 };
 
 let asParams = concept => ({
-  'data': _.omit(concept, 'id', 'container', 'reqs', 'tags', 'links'),
+  'data': _.omit(concept, 'id', 'container', 'reqs', 'tags', 'explanations'),
   'container': concept.container || '',
   'reqs': concept.reqs || [],
   'tags': concept.tags || [],
-  'links': concept.links || []
+  'explanations': concept.explanations || []
 });
 
 let subQuery = {
@@ -90,11 +90,11 @@ export default {
         OPTIONAL MATCH (followup:Concept)-[:REQUIRES]->(c)
 
         OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
-        OPTIONAL MATCH (l:Link)-[:EXPLAINS]->(c)
-        OPTIONAL MATCH (u:User)-[v:VOTED]->(l)
-        OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(l)
+        OPTIONAL MATCH (e:Explanation)-[:EXPLAINS]->(c)
+        OPTIONAL MATCH (u:User)-[v:VOTED]->(e)
+        OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(e)
 
-        WITH c, container, t, l, req, reqContainer,
+        WITH c, container, t, e, req, reqContainer,
           COUNT(DISTINCT u) AS votes,
           COUNT(DISTINCT self) AS hasVoted,
           COUNT(DISTINCT followup) AS followupCount,
@@ -111,13 +111,12 @@ export default {
           }) as reqs,
           COLLECT(DISTINCT t.name) as tags,
           COLLECT(DISTINCT {
-            id: l.id,
-            name: l.name,
-            url: l.url,
-            paywalled: l.paywalled,
+            id: e.id,
+            content: e.content,
+            paywalled: e.paywalled,
             votes: votes,
             hasVoted: hasVoted
-          }) as links
+          }) as explanations
 			`,
       {id, 'userId': user ? user.id : null}
     ).then(dbData => {
@@ -125,7 +124,7 @@ export default {
 
         if (!concept) return;
         if (concept.reqs[0].id == null) concept.reqs = [];
-        if (concept.links[0].url == null) concept.links = [];
+        if (concept.explanations[0].id == null) concept.explanations = [];
         if (concept.container.id == null) concept.container = {};
 
         return concept;
