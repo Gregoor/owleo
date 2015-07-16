@@ -18,7 +18,8 @@ export default class ConceptControler extends Controller {
     return this.user()
       .then(user => {
         let data = explanationParams(this.params);
-        return Explanation.create(data, conceptId, user.id);
+        return Explanation.create(data, conceptId, user.id)
+          .catch(() => 420);
       });
 
   }

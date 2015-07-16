@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import uuid from 'node-uuid';
+import sanitizeHtml from 'sanitize-html';
 
 import {db, query} from './connection';
 
@@ -29,6 +30,10 @@ export default {
 
   create(data, conceptId, userId) {
     let id = data.id = uuid.v4();
+    let sanitizedContent = sanitizeHtml(data.content, {
+      'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u']
+    });
+    if (sanitizedContent != data.content) return Promise.reject('XSS');
     return query(
       `
         MATCH (u:User {id: {userId}})
