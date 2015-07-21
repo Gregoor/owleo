@@ -34,14 +34,13 @@ export default {
       'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u']
     });
     if (sanitizedContent != data.content) return Promise.reject('XSS');
+    data.createdAt = Date.now();
     return query(
       `
         MATCH (u:User {id: {userId}})
         MATCH (c:Concept {id: {conceptId}})
 
-        CREATE (e:Explanation {data})
-        CREATE u-[:CREATED]->l
-        CREATE e-[:EXPLAINS]->c
+        CREATE u-[:CREATED]->(e:Explanation {data})-[:EXPLAINS]->c
       `,
       {data, conceptId, userId}
     ).then(() => this.find(id));

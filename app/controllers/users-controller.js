@@ -17,7 +17,7 @@ export default class UserController extends Controller {
   }
 
   current() {
-    return this.user().then(u => u ? _.pick(u, 'name', 'admin') : u);
+    return this.user().then(u => u ? _.pick(u, 'id', 'name', 'admin') : u);
   }
 
   login() {

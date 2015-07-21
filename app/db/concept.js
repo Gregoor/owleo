@@ -90,11 +90,12 @@ export default {
         OPTIONAL MATCH (followup:Concept)-[:REQUIRES]->(c)
 
         OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
-        OPTIONAL MATCH (e:Explanation)-[:EXPLAINS]->(c)
+        OPTIONAL MATCH (explainer:User)-[:CREATED]->
+          (e:Explanation)-[:EXPLAINS]->(c)
         OPTIONAL MATCH (u:User)-[v:VOTED]->(e)
         OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(e)
 
-        WITH c, container, t, e, req, reqContainer,
+        WITH c, container, t, e, req, reqContainer, explainer,
           COUNT(DISTINCT u) AS votes,
           COUNT(DISTINCT self) AS hasVoted,
           COUNT(DISTINCT followup) AS followupCount,
@@ -115,7 +116,9 @@ export default {
             content: e.content,
             paywalled: e.paywalled,
             votes: votes,
-            hasVoted: hasVoted
+            hasVoted: hasVoted,
+            createdAt: e.createdAt,
+            author: {id: explainer.id, name: explainer.name}
           }) as explanations
 			`,
       {id, 'userId': user ? user.id : null}
