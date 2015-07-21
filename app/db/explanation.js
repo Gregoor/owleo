@@ -13,21 +13,6 @@ let subQueries = {
 
 export default {
 
-  find(id) {
-    return query(
-      `
-        MATCH (e:Explanation)
-        WHERE e.id = {id}
-
-        OPTIONAL MATCH (:User)-[r:VOTED]->(e)
-
-        RETURN e.id AS id, e.content AS content,
-          e.paywalled AS paywalled, COUNT(r) AS votes
-      `,
-      {id}
-    ).then(r => r[0]);
-  },
-
   create(data, conceptId, userId) {
     let id = data.id = uuid.v4();
     let sanitizedContent = sanitizeHtml(data.content, {
@@ -43,7 +28,7 @@ export default {
         CREATE u-[:CREATED]->(e:Explanation {data})-[:EXPLAINS]->c
       `,
       {data, conceptId, userId}
-    ).then(() => this.find(id));
+    );
   },
 
   vote(id, userId) {

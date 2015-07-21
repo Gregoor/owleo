@@ -3,6 +3,7 @@ import statusCodes from 'http-status-codes';
 
 import Controller from './controller';
 import Explanation from '../db/explanation';
+import Concept from '../db/concept';
 
 let explanationParams = params => {
   return _.pick(params.explanation, 'paywalled', 'content', 'title');
@@ -19,6 +20,7 @@ export default class ConceptControler extends Controller {
       .then(user => {
         let data = explanationParams(this.params);
         return Explanation.create(data, conceptId, user.id)
+          .then(() => Concept.find(user, conceptId))
           .catch(() => 420);
       });
 
