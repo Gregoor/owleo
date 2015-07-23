@@ -15,10 +15,9 @@ export default {
 
   create(data, conceptId, userId) {
     let id = data.id = uuid.v4();
-    let sanitizedContent = sanitizeHtml(data.content, {
+    data.content = sanitizeHtml(data.content, {
       'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u']
     });
-    if (sanitizedContent != data.content) return Promise.reject('XSS');
     data.createdAt = Date.now();
     return query(
       `
