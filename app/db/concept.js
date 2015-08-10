@@ -205,12 +205,16 @@ export default {
     return query(
       `
 				MATCH (c:Concept)
+				OPTIONAL MATCH (c)-[:REQUIRES*0..]->(reqs:Concept)
+				OPTIONAL MATCH (c)<-[:CONTAINED_BY*0..]-(containees:Concept)
 				OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
 				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
 
 				RETURN c.id AS id, c.name AS name, c.x AS x, c.y AS y,
 					c.r AS r, c.color AS color, container.id AS container,
-					COLLECT(DISTINCT req.id) AS reqs
+					COLLECT(DISTINCT req.id) AS reqs,
+					COUNT(DISTINCT reqs) AS reqCount,
+					COUNT(DISTINCT containees) AS containeeCount
 			`
     ).then(concepts => concepts.map(concept => [concept.id, concept]));
   },

@@ -8,6 +8,7 @@ export default {
   },
   'concepts': {
     'GET': 'all',
+    'nested': {'GET': 'allNested'},
     'POST': 'create',
     'position': {'POST': 'reposition'},
     ':id': {

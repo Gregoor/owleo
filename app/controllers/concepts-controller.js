@@ -22,7 +22,36 @@ export default class ConceptControler extends Controller {
   }
 
   all() {
-    return Concept.all()
+    return Concept.all();
+  }
+
+  allNested() {
+    return Concept.all().then(concepts => {
+      let stack = concepts;
+      let conceptMap = new Map(concepts);
+      let containerMap = new Map();
+      for (let [id, concept] of concepts) {
+        let {container} = concept;
+        if (containerMap.has(container)) {
+          containerMap.get(container).push(id);
+        } else {
+          containerMap.set(container, [id]);
+        }
+      }
+
+      let fetchContainees = id => {
+        let ids = containerMap.get(id);
+        let containees = [];
+        if (ids) containees = ids.map(containeeId => {
+          let concept = conceptMap.get(containeeId);
+          concept.containees = fetchContainees(containeeId);
+          return concept;
+        });
+        return containees;
+      };
+
+      return fetchContainees(null);
+    });
   }
 
   find(id) {
