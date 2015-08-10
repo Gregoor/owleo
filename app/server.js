@@ -31,7 +31,8 @@ app.use((req, res, next) => {
 
   next();
 });
-app.use(express.static(config.clientDir));
+app.use(express.static('app/landingPage'));
+app.use('/app', express.static(config.clientDir));
 app.use(require('body-parser').json());
 
 app.use('/api', router);
