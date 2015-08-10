@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import express from 'express';
+import compression from 'compression';
 import router from './router';
 import sessions from 'client-sessions';
 
@@ -20,6 +21,8 @@ app.use(sessions({
     //'secureProxy': 'DOME' //TODO: Srsly
   }
 }));
+
+app.use(compression());
 
 app.use((req, res, next) => {
   if (config.dev) {
