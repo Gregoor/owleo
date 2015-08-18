@@ -11,7 +11,7 @@ let conceptParams = (params) => {
   );
 };
 
-let openActions = ['all', 'find'];
+let openActions = ['all', 'allNested', 'find'];
 
 export default class ConceptControler extends Controller {
 
