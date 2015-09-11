@@ -22,7 +22,8 @@ export default class ConceptControler extends Controller {
   }
 
   all() {
-    return Concept.all();
+    return Concept.all()
+      .then(concepts => concepts.map(concept => [concept.id, concept]));
   }
 
   allNested() {

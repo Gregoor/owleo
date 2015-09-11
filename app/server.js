@@ -3,6 +3,8 @@ import express from 'express';
 import compression from 'compression';
 import router from './router';
 import sessions from 'client-sessions';
+import graphqlHTTP from 'express-graphql';
+import cors from 'cors';
 
 let config = require('./configs/config');
 try {
@@ -24,20 +26,12 @@ app.use(sessions({
 
 app.use(compression());
 
-app.use((req, res, next) => {
-  if (config.dev) {
-    res.header('Access-Control-Allow-Credentials', true);
-    res.header('Access-Control-Allow-Origin', req.get('origin'));
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE');
-  }
-
-  next();
-});
+app.use(cors());
 app.use(express.static('app/landingPage'));
 app.use('/app', express.static(config.clientDir));
 app.use(require('body-parser').json());
 
 app.use('/api', router);
+app.use('/graphql', graphqlHTTP({schema: require('./graphql/schema')}));
 
 app.listen(config.port);

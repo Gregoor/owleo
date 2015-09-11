@@ -1,0 +1,15 @@
+type Concept implements Node {
+  id: ID!
+  name: String
+  conceptsCount: Int
+  concepts(id: String): [Concept]
+}
+
+interface Node {
+  id: ID!
+}
+
+type RootQuery {
+  viewer: Concept
+  node(id: ID!): Node
+}

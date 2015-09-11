@@ -2,6 +2,7 @@ import _ from 'lodash';
 import uuid from 'node-uuid';
 
 import {db, query} from './connection';
+import QueryBuilder from './query-builder';
 
 const ERRORS = {
   CONTAINER_LOOP: Symbol()
@@ -78,40 +79,47 @@ export default {
     return {query, params};
   },
 
-  find(user, id) {
-    return query(
-      `
-        MATCH (c:Concept) WHERE c.id = {id}
+  find(args) {
+    let query = new QueryBuilder();
+    query.match('(c:Concept)');
 
-        OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
+    if (args.id) query.where('c.id = {id}');
 
-        OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
-        OPTIONAL MATCH (req)-[:CONTAINED_BY]->(reqContainer:Concept)
-        OPTIONAL MATCH (followup:Concept)-[:REQUIRES]->(c)
+    if (args.userId) {
+      query
+        .optionalMatch('(:User {id: {userId}})-[self:VOTED]->(e)')
+        .with('COUNT(DISTINCT self) AS hasVoted')
+    } else {
+      query.with('0 AS hasVoted');
+    }
 
-        OPTIONAL MATCH (t:Tag)-[:TAGS]->(c)
-        OPTIONAL MATCH (explainer:User)-[:CREATED]->
-          (e:Explanation)-[:EXPLAINS]->(c)
-        OPTIONAL MATCH (u:User)-[v:VOTED]->(e)
-        OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(e)
+    if (_.isString(args.container)) {
+      if (args.container.length) {
+        query.match('(c)-[:CONTAINED_BY]->(:Concept {id: {container}})');
+      } else {
+        query.where('NOT (c)-[:CONTAINED_BY]->()');
+      }
+    }
 
-        WITH c, container, t, e, req, reqContainer, explainer,
-          COUNT(DISTINCT u) AS votes,
-          COUNT(DISTINCT self) AS hasVoted,
-          COUNT(DISTINCT followup) AS followupCount,
-          COUNT(DISTINCT req) AS reqCount
-
-        RETURN c.id AS id, c.name AS name, c.summary as summary,
-          c.summarySource AS summarySource, c.color AS color,
-          {id: container.id, name: container.name} AS container,
-          followupCount,
-          COLLECT(DISTINCT {id: req.id, name: req.name,
-            container: {
-              id: reqContainer.id, name: reqContainer.name
-            }
-          }) as reqs,
-          COLLECT(DISTINCT t.name) as tags,
-          COLLECT(DISTINCT {
+    return query.optionalMatch(
+        '(c)-[:CONTAINED_BY]->(container:Concept)',
+        '(c)<-[:CONTAINED_BY]-(containees:Concept)',
+        '(c)-[:REQUIRES]->(req:Concept)',
+        '(followup:Concept)-[:REQUIRES]->(c)',
+        '(explainer:User)-[:CREATED]->(e:Explanation)-[:EXPLAINS]->(c)',
+        '(u:User)-[v:VOTED]->(e)'
+      )
+      .with(
+        'c', 'container', 'containees', 'e', 'req', 'explainer',
+        'COUNT(DISTINCT u) AS votes'
+      )
+      .select({
+        'c.id': 'id', 'c.name': 'name', 'c.summary': 'summary',
+        'c.summarySource': 'summarySource', 'c.color': 'color',
+        'COUNT(DISTINCT containees)': 'conceptsCount',
+        '{id: container.id, name: container.name}': 'container',
+        'COLLECT(DISTINCT req.id)': 'reqs',
+        [`COLLECT(DISTINCT {
             id: e.id,
             content: e.content,
             paywalled: e.paywalled,
@@ -119,18 +127,17 @@ export default {
             hasVoted: hasVoted,
             createdAt: e.createdAt,
             author: {id: explainer.id, name: explainer.name}
-          }) as explanations
-			`,
-      {id, 'userId': user ? user.id : null}
-    ).then(dbData => {
-        let concept = dbData[0];
+          })`]: 'explanations'
+      })
+      .run(args)
+      .then(dbData => {
+        return dbData.map(concept => {
+          if (!concept) return;
+          if (concept.explanations[0].id == null) concept.explanations = [];
+          if (concept.container.id == null) concept.container = null;
 
-        if (!concept) return;
-        if (concept.reqs[0].id == null) concept.reqs = [];
-        if (concept.explanations[0].id == null) concept.explanations = [];
-        if (concept.container.id == null) concept.container = {};
-
-        return concept;
+          return concept;
+        });
       });
   },
 
@@ -216,7 +223,7 @@ export default {
 					COUNT(DISTINCT reqs) AS reqCount,
 					COUNT(DISTINCT containees) AS containeeCount
 			`
-    ).then(concepts => concepts.map(concept => [concept.id, concept]));
+    );
   },
 
   reposition(concepts) {
