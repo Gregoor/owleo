@@ -18,9 +18,9 @@
     "webpack-dev-server": "^1.8.2"
   },
   "dependencies": {
-    "babel-relay-plugin": "^0.2.1",
-    "react": "^0.14.0-beta3",
-    "react-dom": "^0.14.0-beta3",
-    "react-relay": "^0.2.1"
+    "babel-relay-plugin": "^0.2.3",
+    "react": "^0.14.0-rc",
+    "react-dom": "^0.14.0-rc",
+    "react-relay": "^0.3.1"
   }
 }

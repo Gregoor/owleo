@@ -6,10 +6,12 @@ import ConceptListItem from './concept-list-item';
 class ConceptList extends Component {
 
   render() {
-    let {concepts} = this.props.concept;
+    let {concept, selectedId, onSelect} = this.props;
+    let {concepts} = concept;
 
     let subListsHTML = concepts ? concepts.map(concept => (
-      <ConceptListItem key={concept.id} concept={concept}/>
+      <ConceptListItem key={concept.id} concept={concept}
+                       selectedId={selectedId} onSelect={onSelect}/>
     )) : '';
 
     return <ul>{subListsHTML}</ul>;

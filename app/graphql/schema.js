@@ -26,7 +26,7 @@ import Concept from '../db/concept';
 
 let {nodeInterface, nodeField} = nodeDefinitions(
   (globalId) => {
-    var {type, id} = fromGlobalId(globalId);
+    let {type, id} = fromGlobalId(globalId);
     return type == 'Concept' ? Concept.find({id}).then(arr => arr[0]) : null;
   },
   (obj) => {
@@ -39,6 +39,9 @@ let conceptType = new GraphQLObjectType({
   fields: () => ({
     id: globalIdField('Concept'),
     name: {
+      type: GraphQLString
+    },
+    summary: {
       type: GraphQLString
     },
     conceptsCount: {
@@ -60,13 +63,35 @@ let conceptType = new GraphQLObjectType({
   interfaces: [nodeInterface]
 });
 
+let userType = new GraphQLObjectType({
+  name: 'User',
+  fields: () => ({
+    conceptRoot: {
+      type: conceptType,
+      resolve: () => ({})
+    },
+    concept: {
+      type: conceptType,
+      args: {
+        id: {
+          type: GraphQLString
+        }
+      },
+      resolve: (root, args) => {
+        let {id} = fromGlobalId(args.id);
+        return Concept.find({id}).then(arr => arr[0]);
+      }
+    }
+  })
+});
+
 export default new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'RootQuery',
     fields: {
       viewer: {
-        type: conceptType,
-        resolve: () => ({})
+        type: userType,
+        resolve:  () => ({})
       },
       node: nodeField
     }

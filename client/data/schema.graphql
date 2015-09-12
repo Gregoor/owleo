@@ -1,6 +1,7 @@
 type Concept implements Node {
   id: ID!
   name: String
+  summary: String
   conceptsCount: Int
   concepts(id: String): [Concept]
 }
@@ -10,6 +11,11 @@ interface Node {
 }
 
 type RootQuery {
-  viewer: Concept
+  viewer: User
   node(id: ID!): Node
+}
+
+type User {
+  conceptRoot: Concept
+  concept(id: String): Concept
 }
