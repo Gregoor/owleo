@@ -6,8 +6,8 @@ class ConceptInfo extends Component {
   render() {
     let {name, summary} = this.props.concept;
     return (
-      <div>
-        <h1>{name}</h1>
+      <div style={{maxWidth: '600px', margin: '0 auto', border: '1px solid black', padding: '15px'}}>
+        <h1 style={{marginTop: 0}}>{name}</h1>
         {summary}
       </div>
     );

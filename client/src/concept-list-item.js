@@ -8,34 +8,41 @@ class ConceptListItem extends Component {
   render() {
     let {concept, selectedId, onSelect} = this.props;
 
-    let sublistHTML = '';
+    let sublist = '';
     if (this.props.relay.variables.expanded) {
-      sublistHTML = (
+      sublist = (
         <ConceptList concept={concept} selectedId={selectedId}
-                     onSelect={onSelect}/>
+                     onSelect={onSelect} isRoot={false}/>
       );
     }
 
-    let {name, conceptsCount} = concept;
+    let {id, name, conceptsCount} = concept;
     let headStyle = {
       cursor: 'pointer',
-      fontWeight: selectedId == concept.id ? 600: 'normal'
+      fontWeight: selectedId == id ? 600: 'normal'
     };
     return (
-      <li style={{listStyleType: conceptsCount > 0 ? 'disc' : 'circle'}}>
-        <div onClick={this.onClickHead.bind(this)} style={headStyle}>
-          ({conceptsCount}) {name}
-        </div>
-        {sublistHTML}
+      <li style={{listStyleType: 'none'}}>
+        <button onClick={this.onClickButton.bind(this)} style={conceptsCount == 0 ? {width: '10px', height: '10px', left: '-30px', marginRight: '-20px'} : {}}>
+          {conceptsCount || ''}
+        </button>
+        <span onClick={this.onClickName.bind(this)} style={headStyle}>
+          {name}
+        </span>
+        {sublist}
       </li>
     );
   }
 
-  onClickHead() {
+  onClickName() {
+    this.props.relay.setVariables({expanded: true});
+    this.props.onSelect(this.props.concept.id);
+  }
+
+  onClickButton() {
     this.props.relay.setVariables({
       expanded: !this.props.relay.variables.expanded
     });
-    this.props.onSelect(this.props.concept.id);
   }
 
 }

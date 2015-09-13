@@ -1,12 +1,19 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import Relay from 'react-relay';
 
 import ConceptListItem from './concept-list-item';
 
 class ConceptList extends Component {
 
+  static propTypes = {
+    concept: PropTypes.object.isRequired,
+    selectedId: PropTypes.string,
+    onSelect: PropTypes.func,
+    isRoot: PropTypes.bool
+  };
+
   render() {
-    let {concept, selectedId, onSelect} = this.props;
+    let {concept, selectedId, onSelect, isRoot} = this.props;
     let {concepts} = concept;
 
     let subListsHTML = concepts ? concepts.map(concept => (
@@ -14,10 +21,16 @@ class ConceptList extends Component {
                        selectedId={selectedId} onSelect={onSelect}/>
     )) : '';
 
-    return <ul>{subListsHTML}</ul>;
+    console.log(isRoot);
+    let style = isRoot ? {} : {borderLeft: '1px solid #eee', marginLeft: '-25px'};
+    return <ul style={style}>{subListsHTML}</ul>;
   }
 
 }
+
+ConceptList.defaultProps = {
+  isRoot: true
+};
 
 export default Relay.createContainer(ConceptList, {
 
