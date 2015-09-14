@@ -1,8 +1,10 @@
 type Concept implements Node {
   id: ID!
   name: String
+  path: [String]
   summary: String
   conceptsCount: Int
+  reqs: [Concept]
   concepts(id: String): [Concept]
 }
 
@@ -17,5 +19,5 @@ type RootQuery {
 
 type User {
   conceptRoot: Concept
-  concept(id: String): Concept
+  concept(id: String, path: String): Concept
 }

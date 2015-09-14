@@ -7,21 +7,27 @@ class ConceptList extends Component {
 
   static propTypes = {
     concept: PropTypes.object.isRequired,
-    selectedId: PropTypes.string,
-    onSelect: PropTypes.func,
     isRoot: PropTypes.bool
   };
 
   render() {
-    let {concept, selectedId, onSelect, isRoot} = this.props;
+    let {concept, selectedPath, isRoot} = this.props;
     let {concepts} = concept;
 
-    let subListsHTML = concepts ? concepts.map(concept => (
-      <ConceptListItem key={concept.id} concept={concept}
-                       selectedId={selectedId} onSelect={onSelect}/>
-    )) : '';
+    let topPath;
+    let restPath = [];
+    if (selectedPath) {
+      restPath = selectedPath.slice() ;
+      topPath = restPath.shift();
+    }
+    let subListsHTML = concepts ? concepts.map(concept => {
+      let isOpenProps = topPath == concept.name ?
+        {selectedPath: restPath, expanded: true} : {};
 
-    console.log(isRoot);
+      return <ConceptListItem key={concept.id} concept={concept}
+                              {...isOpenProps}/>
+    }) : '';
+
     let style = isRoot ? {} : {borderLeft: '1px solid #eee', marginLeft: '-25px'};
     return <ul style={style}>{subListsHTML}</ul>;
   }
@@ -39,6 +45,7 @@ export default Relay.createContainer(ConceptList, {
       fragment on Concept {
         concepts {
           id,
+          name,
           ${ConceptListItem.getFragment('concept')}
         }
       }

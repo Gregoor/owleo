@@ -71,7 +71,7 @@ class QueryBuilder {
 
       RETURN ${selections.join(', ')}
     `;
-    //console.log(queryStr);
+    //console.log(queryStr, params);
     return query(queryStr, params);
   }
 

@@ -24,6 +24,8 @@ import {
 
 import Concept from '../db/concept';
 
+let getConcept = args => Concept.find(args).then(arr => arr[0]);
+
 let {nodeInterface, nodeField} = nodeDefinitions(
   (globalId) => {
     let {type, id} = fromGlobalId(globalId);
@@ -41,11 +43,20 @@ let conceptType = new GraphQLObjectType({
     name: {
       type: GraphQLString
     },
+    path: {
+      type: new GraphQLList(GraphQLString)
+    },
     summary: {
       type: GraphQLString
     },
     conceptsCount: {
       type: GraphQLInt
+    },
+    reqs: {
+      type: new GraphQLList(conceptType),
+      resolve: (concept) => {
+        return Promise.all(concept.reqs.map(req => getConcept({id: req})));
+      }
     },
     concepts: {
       type: new GraphQLList(conceptType),
@@ -75,11 +86,17 @@ let userType = new GraphQLObjectType({
       args: {
         id: {
           type: GraphQLString
+        },
+        path: {
+          type: GraphQLString
         }
       },
       resolve: (root, args) => {
-        let {id} = fromGlobalId(args.id);
-        return Concept.find({id}).then(arr => arr[0]);
+        if (args.id) {
+          let {id} = fromGlobalId(args.id);
+          args = {id};
+        }
+        return getConcept(args);
       }
     }
   })

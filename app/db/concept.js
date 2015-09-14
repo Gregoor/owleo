@@ -83,6 +83,19 @@ export default {
     let query = new QueryBuilder();
     query.match('(c:Concept)');
 
+    if (args.path) {
+      let pathParts = args.path.split('/');
+
+      args.name = pathParts.pop();
+      query.where('c.name = {name}');
+
+      if (pathParts.length) query.match(pathParts.map((n, i) => {
+          let pathArg = 'path'+i;
+          args[pathArg] = n;
+          return `(:Concept {name: {${pathArg}}})`;
+      }).concat('(c)').join('<-[:CONTAINED_BY]-'));
+    }
+
     if (args.id) query.where('c.id = {id}');
 
     if (args.userId) {
@@ -102,6 +115,8 @@ export default {
     }
 
     return query.optionalMatch(
+        '(containers:Concept)<-[:CONTAINED_BY*0..]-c' +
+          ' WITH c, COLLECT(DISTINCT containers.name) AS path',
         '(c)-[:CONTAINED_BY]->(container:Concept)',
         '(c)<-[:CONTAINED_BY]-(containees:Concept)',
         '(c)-[:REQUIRES]->(req:Concept)',
@@ -110,12 +125,13 @@ export default {
         '(u:User)-[v:VOTED]->(e)'
       )
       .with(
-        'c', 'container', 'containees', 'e', 'req', 'explainer',
+        'c', 'path', 'container', 'containees', 'e', 'req', 'explainer',
         'COUNT(DISTINCT u) AS votes'
       )
       .select({
         'c.id': 'id', 'c.name': 'name', 'c.summary': 'summary',
         'c.summarySource': 'summarySource', 'c.color': 'color',
+        'path': 'path',
         'COUNT(DISTINCT containees)': 'conceptsCount',
         '{id: container.id, name: container.name}': 'container',
         'COLLECT(DISTINCT req.id)': 'reqs',

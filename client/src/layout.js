@@ -8,6 +8,18 @@ class Layout extends Component {
 
   state = {concept: null};
 
+  componentWillMount() {
+    if (this.props.path) this.setSelectedByPath(this.props.path);
+  }
+
+  componentWillReceiveProps(props) {
+    if (props.path) this.setSelectedByPath(props.path);
+  }
+
+  setSelectedByPath(path) {
+    this.props.relay.setVariables({selectedPath: path});
+  }
+
   render() {
     let {conceptRoot, concept} = this.props.viewer;
 
@@ -17,8 +29,10 @@ class Layout extends Component {
     return (
       <div className="row">
         <div className="col-xs-4">
-          <ConceptList concept={conceptRoot} onSelect={this.onSelect.bind(this)}
-                       selectedId={this.props.relay.variables.selectedId}/>
+          <div style={{border: '1px solid black', height: '99.8%', overflowY: 'scroll'}}>
+            <ConceptList concept={conceptRoot}
+                         selectedPath={this.props.path.split('/')}/>
+          </div>
         </div>
         <div className="col-xs-8">
           {infoHTML}
@@ -27,15 +41,11 @@ class Layout extends Component {
     );
   }
 
-  onSelect(id) {
-    this.props.relay.setVariables({selectedId: id});
-  }
-
 }
 
 export default Relay.createContainer(Layout, {
 
-  initialVariables: {selectedId: 'MUMBLEJUMBLE'},
+  initialVariables: {selectedPath: null},
 
   fragments: {
     viewer: (vars) => Relay.QL`
@@ -43,7 +53,8 @@ export default Relay.createContainer(Layout, {
         conceptRoot {
           ${ConceptList.getFragment('concept')}
         },
-        concept(id: $selectedId) {
+        concept(path: $selectedPath) {
+          id,
           ${ConceptInfo.getFragment('concept')}
         }
       }

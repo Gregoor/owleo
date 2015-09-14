@@ -21,6 +21,7 @@
     "babel-relay-plugin": "^0.2.3",
     "react": "^0.14.0-rc",
     "react-dom": "^0.14.0-rc",
-    "react-relay": "^0.3.1"
+    "react-relay": "^0.3.1",
+    "react-router": "^1.0.0-rc1"
   }
 }
