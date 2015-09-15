@@ -125,7 +125,7 @@ export default {
       ${extendWith('{id: container.id, name: container.name}', 'container')}
 
       OPTIONAL MATCH (c)<-[:CONTAINED_BY]-(containees:Concept)
-      ${extendWith('COUNT(containees)', 'conceptsCount')}
+      ${extendWith('COUNT(DISTINCT containees)', 'conceptsCount')}
 
       OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
       ${extendWith('COLLECT(DISTINCT req.id)', 'reqs')}
