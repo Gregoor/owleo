@@ -121,9 +121,6 @@ export default {
     }
 
     queryStr += `
-      OPTIONAL MATCH (c)-[:CONTAINED_BY*0..]->(containers:Concept)
-      ${extendWith('COLLECT(DISTINCT containers.name)', 'path')}
-
       OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
       ${extendWith('{id: container.id, name: container.name}', 'container')}
 
@@ -145,11 +142,13 @@ export default {
         }
       )`, 'explanations')}
 
+      OPTIONAL MATCH (c)-[:CONTAINED_BY*0..]->(containers:Concept)
+      ${extendWith('COLLECT(DISTINCT containers.name)', 'path')}
+
       RETURN c.id AS id, c.name AS name, c.summary AS summary,
         c.summarySource AS summarySource, c.color AS color, path, reqs,
         container, conceptsCount, explanations
     `;
-
 
     return query(queryStr, args).then(dbData => {
       return dbData.map(concept => {
