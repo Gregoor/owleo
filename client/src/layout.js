@@ -29,7 +29,7 @@ class Layout extends Component {
     return (
       <div className="row">
         <div className="col-xs-4">
-          <div style={{border: '1px solid black', height: '99.8%', overflowY: 'scroll'}}>
+          <div style={{height: '99.8%', overflowY: 'scroll'}}>
             <ConceptList concept={conceptRoot}
                          selectedPath={this.props.path.split('/')}/>
           </div>

@@ -28,7 +28,7 @@ class ConceptList extends Component {
                               {...isOpenProps}/>
     }) : '';
 
-    let style = isRoot ? {} : {borderLeft: '1px solid #eee', marginLeft: '-25px'};
+    let style = isRoot ? {} : {borderLeft: '1px dashed black', marginLeft: '-25px'};
     return <ul style={style}>{subListsHTML}</ul>;
   }
 
