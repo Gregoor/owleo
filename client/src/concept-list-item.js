@@ -19,7 +19,7 @@ class ConceptListItem extends Component {
   }
 
   render() {
-    let {concept, selectedId, selectedPath} = this.props;
+    let {concept, selectedPath} = this.props;
 
     let sublist = '';
     if (this.props.relay.variables.includeSublist) {
