@@ -6,6 +6,14 @@ type Concept implements Node {
   conceptsCount: Int
   reqs: [Concept]
   concepts(id: String): [Concept]
+  explanations: [Explanation]
+}
+
+type Explanation {
+  id: ID!
+  content: String
+  votes: Int
+  author: User
 }
 
 interface Node {
@@ -18,6 +26,7 @@ type RootQuery {
 }
 
 type User {
+  name: String
   conceptRoot: Concept
   concept(id: String, path: String): Concept
 }

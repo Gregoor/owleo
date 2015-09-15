@@ -32,64 +32,63 @@ let {nodeInterface, nodeField} = nodeDefinitions(
     return type == 'Concept' ? Concept.find({id}).then(arr => arr[0]) : null;
   },
   (obj) => {
-    return conceptType;
+    return ConceptType;
   }
 );
 
-let conceptType = new GraphQLObjectType({
+let ExplanationType = new GraphQLObjectType({
+  name: 'Explanation',
+  fields: () => ({
+    id: globalIdField('Explanation'),
+    content: {type: GraphQLString},
+    votes: {type: GraphQLInt},
+    author: {type: UserType}
+  })
+});
+
+let ConceptType = new GraphQLObjectType({
   name: 'Concept',
   fields: () => ({
     id: globalIdField('Concept'),
-    name: {
-      type: GraphQLString
-    },
-    path: {
-      type: new GraphQLList(GraphQLString)
-    },
-    summary: {
-      type: GraphQLString
-    },
-    conceptsCount: {
-      type: GraphQLInt
-    },
+    name: {type: GraphQLString},
+    path: {type: new GraphQLList(GraphQLString)},
+    summary: {type: GraphQLString},
+    conceptsCount: {type: GraphQLInt},
     reqs: {
-      type: new GraphQLList(conceptType),
+      type: new GraphQLList(ConceptType),
       resolve: (concept) => {
         return Promise.all(concept.reqs.map(req => getConcept({id: req})));
       }
     },
     concepts: {
-      type: new GraphQLList(conceptType),
+      type: new GraphQLList(ConceptType),
       args: {
-        id: {
-          type: GraphQLString
-        }
+        id: {type: GraphQLString}
       },
-      resolve: (root, args) => {
+      resolve: (root, args, furf) => {
         args.container = root.id || '';
         return Concept.find(args);
       }
-    }
+    },
+    explanations: {type: new GraphQLList(ExplanationType)}
   }),
   interfaces: [nodeInterface]
 });
 
-let userType = new GraphQLObjectType({
+let UserType = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
+    //id: globalIdField('User'),
+    name: {type: GraphQLString},
     conceptRoot: {
-      type: conceptType,
+      type: ConceptType,
       resolve: () => ({})
     },
     concept: {
-      type: conceptType,
+      type: ConceptType,
       args: {
-        id: {
-          type: GraphQLString
-        },
-        path: {
-          type: GraphQLString
-        }
+        id: {type: GraphQLString},
+        path: {type: GraphQLString}
       },
       resolve: (root, args) => {
         if (args.id) {
@@ -107,7 +106,7 @@ export default new GraphQLSchema({
     name: 'RootQuery',
     fields: {
       viewer: {
-        type: userType,
+        type: UserType,
         resolve:  () => ({})
       },
       node: nodeField
