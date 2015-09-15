@@ -2,7 +2,6 @@ import _ from 'lodash';
 import uuid from 'node-uuid';
 
 import {db, query} from './connection';
-import QueryBuilder from './query-builder';
 
 const ERRORS = {
   CONTAINER_LOOP: Symbol()
@@ -80,81 +79,87 @@ export default {
   },
 
   find(args) {
-    let query = new QueryBuilder();
-    query.match('(c:Concept)');
+    let queryStr = 'MATCH (c:Concept) ';
+    let globalWith = 'c';
+    let extendWith = (expr, alias) => {
+      let entry = alias ? `${expr} AS ${alias}` : alias;
+      let withStr = `WITH ${entry}, ${globalWith}  `;
+      globalWith += ', ' + alias || expr;
+      return withStr;
+    };
 
     if (args.path) {
       let pathParts = args.path.split('/');
 
       args.name = pathParts.pop();
-      query.where('c.name = {name}');
+      queryStr += 'WHERE c.name = {name} ';
 
-      if (pathParts.length) query.match(pathParts.map((n, i) => {
-          let pathArg = 'path'+i;
-          args[pathArg] = n;
-          return `(:Concept {name: {${pathArg}}})`;
+      if (pathParts.length) queryStr += 'MATCH ' + (pathParts.map((n, i) => {
+        let pathArg = 'path'+i;
+        args[pathArg] = n;
+        return `(:Concept {name: {${pathArg}}})`;
       }).concat('(c)').join('<-[:CONTAINED_BY]-'));
     }
 
-    if (args.id) query.where('c.id = {id}');
+    if (args.id) queryStr += 'WHERE c.id = {id} ';
 
     if (args.userId) {
-      query
-        .optionalMatch('(:User {id: {userId}})-[self:VOTED]->(e)')
-        .with('COUNT(DISTINCT self) AS hasVoted')
+      queryStr += `
+        OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(e)
+        ${extendWith('COUNT(DISTINCT self)', 'hasVoted')}
+      `;
     } else {
-      query.with('0 AS hasVoted');
+      queryStr += extendWith('0', 'hasVoted');
     }
 
     if (_.isString(args.container)) {
       if (args.container.length) {
-        query.match('(c)-[:CONTAINED_BY]->(:Concept {id: {container}})');
+        queryStr += 'MATCH (c)-[:CONTAINED_BY]->(:Concept {id: {container}})';
       } else {
-        query.where('NOT (c)-[:CONTAINED_BY]->()');
+        queryStr += 'WHERE NOT (c)-[:CONTAINED_BY]->()';
       }
     }
 
-    return query.optionalMatch(
-        '(containers:Concept)<-[:CONTAINED_BY*0..]-c' +
-          ' WITH c, COLLECT(DISTINCT containers.name) AS path',
-        '(c)-[:CONTAINED_BY]->(container:Concept)',
-        '(c)<-[:CONTAINED_BY]-(containees:Concept)',
-        '(c)-[:REQUIRES]->(req:Concept)',
-        '(followup:Concept)-[:REQUIRES]->(c)',
-        '(explainer:User)-[:CREATED]->(e:Explanation)-[:EXPLAINS]->(c)',
-        '(u:User)-[v:VOTED]->(e)'
-      )
-      .with(
-        'c', 'path', 'container', 'containees', 'e', 'req', 'explainer',
-        'COUNT(DISTINCT u) AS votes'
-      )
-      .select({
-        'c.id': 'id', 'c.name': 'name', 'c.summary': 'summary',
-        'c.summarySource': 'summarySource', 'c.color': 'color',
-        'path': 'path',
-        'COUNT(DISTINCT containees)': 'conceptsCount',
-        '{id: container.id, name: container.name}': 'container',
-        'COLLECT(DISTINCT req.id)': 'reqs',
-        [`COLLECT(DISTINCT {
-            id: e.id,
-            content: e.content,
-            paywalled: e.paywalled,
-            votes: votes,
-            hasVoted: hasVoted,
-            createdAt: e.createdAt,
-            author: {id: explainer.id, name: explainer.name}
-          })`]: 'explanations'
-      })
-      .run(args)
-      .then(dbData => {
-        return dbData.map(concept => {
-          if (!concept) return;
-          if (concept.explanations[0].id == null) concept.explanations = [];
-          if (concept.container.id == null) concept.container = null;
+    queryStr += `
+      OPTIONAL MATCH (c)-[:CONTAINED_BY*0..]->(containers:Concept)
+      ${extendWith('COLLECT(DISTINCT containers.name)', 'path')}
 
-          return concept;
-        });
+      OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
+      ${extendWith('{id: container.id, name: container.name}', 'container')}
+
+      OPTIONAL MATCH (c)<-[:CONTAINED_BY]-(containees:Concept)
+      ${extendWith('COUNT(containees)', 'conceptsCount')}
+
+      OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
+      ${extendWith('COLLECT(DISTINCT req.id)', 'reqs')}
+
+      OPTIONAL MATCH (explainer:User)-[:CREATED]->(e:Explanation)
+        -[:EXPLAINS]->(c)
+      OPTIONAL MATCH (u:User)-[v:VOTED]->(e)
+      WITH COUNT(u) AS votes, e, explainer, ${globalWith}
+      ${extendWith(`COLLECT(
+        {
+          id: e.id, content: e.content, paywalled: e.paywalled, votes: votes,
+          hasVoted: 0, createdAt: e.createdAt,
+          author: {id: explainer.id, name: explainer.name}
+        }
+      )`, 'explanations')}
+
+      RETURN c.id AS id, c.name AS name, c.summary AS summary,
+        c.summarySource AS summarySource, c.color AS color, path, reqs,
+        container, conceptsCount, explanations
+    `;
+
+
+    return query(queryStr, args).then(dbData => {
+      return dbData.map(concept => {
+        if (!concept) return;
+        if (concept.explanations[0].id == null) concept.explanations = [];
+        if (concept.container.id == null) concept.container = null;
+
+        return concept;
       });
+    });
   },
 
   create(user, data) {
