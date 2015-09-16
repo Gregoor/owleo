@@ -12,8 +12,20 @@ class SearchInput extends Component {
 
   render() {
     return (
-      <input type="text" placeholder="Search" style={style} {...this.props}/>
+      <input type="text" ref="input" placeholder="Search" style={style}
+             onChange={this.onChange.bind(this)}
+             onKeyUp={this.onKeyUp.bind(this)}/>
     );
+  }
+
+  onChange(event) {
+    this.props.onChangeValue(event.target.value);
+  }
+
+  onKeyUp(event) {
+    if (event.keyCode == 27/*ESC*/) {
+      this.props.onChangeValue(this.refs.input.value = '');
+    }
   }
 
 }
