@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
-import ConceptList from './concept-list';
-import {pathToUrl} from './helpers';
+import ConceptList from './_list';
+import {pathToUrl} from './../helpers';
 
 class ConceptListItem extends Component {
 

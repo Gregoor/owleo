@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
-import {pathToUrl} from './helpers';
+import {pathToUrl} from './../helpers';
 
 let cardStyle = {
   marginTop: '10px',

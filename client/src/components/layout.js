@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
-import SearchInput from './search-input';
-import SearchResults from './search-results';
-import ConceptList from './concept-list';
-import ConceptInfo from './concept-info';
+import SearchInput from 'search/_input';
+import SearchResults from 'search/_results';
+import ConceptList from 'concept/_list';
+import ConceptInfo from 'concept/_info';
 
 class Layout extends Component {
 

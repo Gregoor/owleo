@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Relay from 'react-relay';
 import {Router, Route} from 'react-router';
 
-import AppHomeRoute from './route-configs/app-home';
+import AppHomeRoute from './../route-configs/app-home';
 import Layout from './layout';
 
 Relay.injectNetworkLayer(
