@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
+import SearchInput from './search-input';
+import SearchResults from './search-results';
 import ConceptList from './concept-list';
 import ConceptInfo from './concept-info';
 
 class Layout extends Component {
 
-  state = {concept: null};
+  state = {concept: null, query: null};
 
   componentWillMount() {
     if (this.props.path) this.setSelectedByPath(this.props.path);
@@ -21,24 +23,41 @@ class Layout extends Component {
   }
 
   render() {
-    let {conceptRoot, concept} = this.props.viewer;
+    let {viewer} = this.props;
+    let {conceptRoot, concept} = viewer;
+    let {query} = this.state;
 
-    let infoHTML = '';
-    if (concept) infoHTML = <ConceptInfo concept={concept}/>;
+    let list = query ?
+      <SearchResults {...{viewer, query}}/> :
+      <ConceptList concept={conceptRoot}
+                   selectedPath={this.props.path.split('/')}/>;
+
+    let conceptInfo = '';
+    if (concept) conceptInfo = <ConceptInfo concept={concept}/>;
 
     return (
       <div className="row">
-        <div className="col-xs-4">
-          <div style={{height: '99.8%', overflowY: 'scroll'}}>
-            <ConceptList concept={conceptRoot}
-                         selectedPath={this.props.path.split('/')}/>
+
+        <div className="col-xs-4" style={{padding: 0, backgroundColor: 'white'}}>
+
+          <div className="col-xs-12" style={{boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)'}}>
+            <SearchInput onChange={this.onSearch.bind(this)}/>
           </div>
+
+          <div className="col-xs-12" style={{height: '100%', marginTop: '5px', overflowY: 'scroll'}}>
+            {list}
+          </div>
+
         </div>
-        <div className="col-xs-8">
-          {infoHTML}
-        </div>
+
+        <div className="col-xs-8">{conceptInfo}</div>
+
       </div>
     );
+  }
+
+  onSearch(event) {
+    this.setState({query: event.target.value});
   }
 
 }
@@ -56,7 +75,8 @@ export default Relay.createContainer(Layout, {
         concept(path: $selectedPath) {
           id,
           ${ConceptInfo.getFragment('concept')}
-        }
+        },
+        ${SearchResults.getFragment('viewer')}
       }
     `
   }

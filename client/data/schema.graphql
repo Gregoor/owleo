@@ -5,7 +5,7 @@ type Concept implements Node {
   summary: String
   conceptsCount: Int
   reqs: [Concept]
-  concepts(id: String): [Concept]
+  concepts: [Concept]
   explanations: [Explanation]
 }
 
@@ -28,5 +28,6 @@ type RootQuery {
 type User {
   name: String
   conceptRoot: Concept
-  concept(id: String, path: String): Concept
+  concept(path: String): Concept
+  concepts(query: String): [Concept]
 }

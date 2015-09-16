@@ -28,8 +28,10 @@ class ConceptListItem extends Component {
 
     let {id, name, conceptsCount} = concept;
     let headStyle = {
-      cursor: 'pointer',
-      fontWeight: selectedPath ? 600: 'normal'
+      display: 'inline-block',
+      width: '100%',
+      fontWeight: selectedPath ? 600: 'normal',
+      cursor: 'pointer'
     };
 
     let buttonStyle = conceptsCount == 0 ?
@@ -43,6 +45,7 @@ class ConceptListItem extends Component {
         <a href={pathToUrl(concept.path)} style={headStyle}>
           {name}
         </a>
+        <hr style={{width: '90%', borderColor: 'rgba(211,211,211,0.3)'}}/>
         {sublist}
       </li>
     );
