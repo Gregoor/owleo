@@ -43,41 +43,6 @@ export default {
 
   ERRORS,
 
-  search(params) {
-    let query = `
-			MATCH (c:Concept)
-		`;
-
-    if (params.q.length > 0) {
-      params.q = `(?i).*${params.q}.*`;
-      query += `WHERE c.name =~ {q}`;
-    }
-
-    if (params.tags.length > 0) query += `
-			MATCH (t:Tag)-[:TAGS]->(c)
-			WHERE t.name IN {tags}
-		`;
-
-    if (params.reqBy) query += `
-      MATCH (c)-[:REQUIRES]->(req:Concept)
-      WHERE req.id = {reqBy} OR req.name = {reqBy}
-    `;
-
-    if (params.leadsTo) query += `
-      MATCH (followup:Concept)-[:REQUIRES]->(c)
-      WHERE followup.id = {leadsTo} OR followup.name = {leadsTo}
-    `;
-
-    query += `
-			OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
-			RETURN DISTINCT c.id AS id, c.name AS name,
-				{id: container.id, name: container.name} AS container
-			LIMIT 10
-		`;
-
-    return {query, params};
-  },
-
   find(args) {
     let queryStr = 'MATCH (c:Concept) ';
     let globalWith = 'c';
@@ -102,6 +67,11 @@ export default {
     }
 
     if (args.id) queryStr += 'WHERE c.id = {id} ';
+
+    if (args.query) {
+      args.query = `.*${args.query}.*`;
+      queryStr += 'WHERE c.name =~ {query} ';
+    }
 
     if (args.userId) {
       queryStr += `
@@ -228,24 +198,6 @@ export default {
     );
   },
 
-  all() {
-    return query(
-      `
-				MATCH (c:Concept)
-				OPTIONAL MATCH (c)-[:REQUIRES*0..]->(reqs:Concept)
-				OPTIONAL MATCH (c)<-[:CONTAINED_BY*0..]-(containees:Concept)
-				OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
-				OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
-
-				RETURN c.id AS id, c.name AS name, c.x AS x, c.y AS y,
-					c.r AS r, c.color AS color, container.id AS container,
-					COLLECT(DISTINCT req.id) AS reqs,
-					COUNT(DISTINCT reqs) AS reqCount,
-					COUNT(DISTINCT containees) AS containeeCount
-			`
-    );
-  },
-
   reposition(concepts) {
     return new Promise(resolve => {
       db.cypher(concepts.map((concept) => {
@@ -262,19 +214,6 @@ export default {
         };
       }), () => this.all().then(resolve));
     });
-  },
-
-  isContainedBy(id1, id2) {
-    if (id1 == id2) return Promise.resolve(true);
-    return query(
-      `
-        MATCH (c1:Concept {id: {id1}})
-        MATCH (c2:Concept {id: {id2}})
-        MATCH p=(c1)-[:CONTAINED_BY*]->(c2)
-        RETURN COUNT(RELATIONSHIPS(p)) > 0 AS isContained
-      `,
-      {id1, id2}
-    ).then(r => r[0].isContained);
   }
 
 };

@@ -56,16 +56,13 @@ let ConceptType = new GraphQLObjectType({
     conceptsCount: {type: GraphQLInt},
     reqs: {
       type: new GraphQLList(ConceptType),
-      resolve: (concept) => {
+      resolve(concept) {
         return Promise.all(concept.reqs.map(req => getConcept({id: req})));
       }
     },
     concepts: {
       type: new GraphQLList(ConceptType),
-      args: {
-        id: {type: GraphQLString}
-      },
-      resolve: (root, args, furf) => {
+      resolve(root, args) {
         args.container = root.id || '';
         return Concept.find(args);
       }
@@ -87,15 +84,23 @@ let UserType = new GraphQLObjectType({
     concept: {
       type: ConceptType,
       args: {
-        id: {type: GraphQLString},
         path: {type: GraphQLString}
       },
-      resolve: (root, args) => {
+      resolve(root, args) {
         if (args.id) {
           let {id} = fromGlobalId(args.id);
           args = {id};
         }
         return getConcept(args);
+      }
+    },
+    concepts: {
+      type: new GraphQLList(ConceptType),
+      args: {
+        query: {type: GraphQLString}
+      },
+      resolve(root, args) {
+        return Concept.find(args);
       }
     }
   })
