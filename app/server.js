@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import express from 'express';
 import compression from 'compression';
-import router from './router';
 import sessions from 'client-sessions';
 import graphqlHTTP from 'express-graphql';
 import cors from 'cors';
@@ -31,7 +30,6 @@ app.use(express.static('app/landingPage'));
 app.use('/app', express.static(config.clientDir));
 app.use(require('body-parser').json());
 
-app.use('/api', router);
 app.use('/graphql', graphqlHTTP({schema: require('./graphql/schema')}));
 
 app.listen(config.port);
