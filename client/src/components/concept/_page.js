@@ -42,21 +42,21 @@ class ConceptPage extends Component {
     if (concept && selectedPath) conceptInfo = <ConceptInfo concept={concept}/>;
 
     return (
-      <div className="row">
+      <div className="mdl-grid" style={{padding: 0}}>
 
-        <div className="col-xs-4" style={{padding: 0, backgroundColor: 'white'}}>
+        <div className="mdl-cell mdl-cell--4-col mdl-cell--stretch" style={{margin: 0, backgroundColor: 'white'}}>
 
-          <div className="col-xs-12" style={{boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)'}}>
+          <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch" style={{boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)'}}>
             <SearchInput onChangeValue={this.onSearch.bind(this)}/>
           </div>
 
-          <div className="col-xs-12" style={{height: '100%', marginTop: '5px', overflowY: 'scroll'}}>
+          <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch" style={{height: '100%', marginTop: '5px', overflowY: 'scroll'}}>
             {list}
           </div>
 
         </div>
 
-        <div className="col-xs-8">{conceptInfo}</div>
+        <div className="mdl-cell mdl-cell--8-col">{conceptInfo}</div>
 
       </div>
     );

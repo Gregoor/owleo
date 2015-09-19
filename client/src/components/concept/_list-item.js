@@ -1,9 +1,17 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
+import classNames from 'classnames';
 
 import ConceptList from './_list';
 import {pathToUrl} from './../helpers';
+
+const buttonSize = '26px';
+const buttonStyle = {
+  marginLeft: '-36px', marginRight: '10px',
+  height: buttonSize, width: buttonSize, minWidth: buttonSize,
+  fontSize: '14px', fontWeight: '600'
+};
 
 class ConceptListItem extends Component {
 
@@ -31,17 +39,17 @@ class ConceptListItem extends Component {
     let headStyle = {
       display: 'inline-block',
       width: '100%',
-      fontWeight: selectedPath ? 600: 'normal',
-      cursor: 'pointer'
+      color: 'black',
+      textDecoration: 'none',
+      fontWeight: selectedPath ? 600: 'normal'
     };
 
-    let buttonStyle = conceptsCount == 0 ?
-      {width: '10px', height: '10px', left: '-30px', marginRight: '-20px'} : {};
-    if (selectedPath) buttonStyle.border = '2px solid black';
     return (
-      <li style={{listStyleType: 'none'}}>
-        <button onClick={this.onClickButton.bind(this)} style={buttonStyle}>
-          {conceptsCount || ''}
+      <li style={{listStyleType: 'none', marginLeft: '10px'}}>
+        <button onClick={this.onClickButton.bind(this)}
+                className={classNames('mdl-button mdl-js-button mdl-button--raised mdl-button--icon',
+                  {'mdl-button--colored': selectedPath})} style={buttonStyle}>
+          {conceptsCount || ' '}
         </button>
         <Link to={pathToUrl(concept.path)} style={headStyle}>
           {name}

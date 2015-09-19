@@ -1,5 +1,6 @@
 import path from 'path';
 import webpack from 'webpack';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 export default {
   devtool: 'eval',
@@ -7,15 +8,6 @@ export default {
     'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
     './src/index'
-  ],
-  output: {
-    path: path.join(__dirname, 'dist'),
-    filename: 'bundle.js',
-    publicPath: '/static/'
-  },
-  plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin()
   ],
   module: {
     loaders: [
@@ -28,11 +20,24 @@ export default {
           plugins: ['./build/babel-relay-plugin']
         }
       },
+      {
+        test: /\.scss$/,
+        loader: ExtractTextPlugin.extract('css?sourceMap!sass?sourceMap')
+      }
       //{
       //  test: /\.js$/,
       //  loader: 'react-hot',
       //  include: path.join(__dirname, 'src')
       //}
     ]
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new ExtractTextPlugin('styles.css')
+  ],
+  output: {
+    path: path.join(__dirname, 'dist'),
+    filename: 'bundle.js',
+    publicPath: '/static/'
   }
 };

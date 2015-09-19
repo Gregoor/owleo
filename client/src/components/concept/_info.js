@@ -2,13 +2,8 @@ import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 
-import {shadowStyle, pathToUrl} from './../helpers';
 
-let cardStyle = Object.assign({
-  marginTop: '10px',
-  padding: '15px',
-  backgroundColor: '#fff'
-}, shadowStyle);
+let cardStyle = {width: 'auto', minHeight: 'auto', marginBottom: '5px'};
 
 class ConceptInfo extends Component {
 
@@ -16,11 +11,15 @@ class ConceptInfo extends Component {
     let {name, summary, reqs} = this.props.concept;
 
     return (
-      <div style={{maxWidth: '600px', margin: '0 auto'}}>
-        <div style={cardStyle}>
-          <h1 style={{marginTop: 0}}>{name}</h1>
-          {this.renderReqs()}
-          <p>{summary}</p>
+      <div style={{maxWidth: '512px'}}>
+        <div className="mdl-card mdl-shadow--2dp" style={cardStyle}>
+          <div className="mdl-card__title">
+            <h2 className="mdl-card__title-text">{name}</h2>
+          </div>
+          <div className="mdl-card__supporting-text">
+            {this.renderReqs()}
+            <p>{summary}</p>
+          </div>
         </div>
         {this.renderExplanations()}
       </div>
@@ -33,7 +32,7 @@ class ConceptInfo extends Component {
       <div>
         {reqs.length ? <em>Requires:</em> : ''}
         {reqs.map(req => (
-          <Link key={req.id} to={pathToUrl(req.path)} style={{padding: '5px'}}>
+          <Link key={req.id} to={pathToUrl(req.path)}>
             {req.name}
           </Link>
         ))}
@@ -44,7 +43,11 @@ class ConceptInfo extends Component {
   renderExplanations() {
     let {explanations} = this.props.concept;
     return explanations.map(explanation => (
-      <div key={explanation.id} style={cardStyle}>{explanation.content}</div>
+      <div className="mdl-card mdl-shadow--2dp" style={cardStyle}>
+        <div className="mdl-card__supporting-text">
+          {explanation.content}
+        </div>
+      </div>
     ));
   }
 

@@ -1,18 +1,21 @@
 import React, {Component} from 'react';
-
-import {shadowStyle} from './helpers';
-
-let headerStyle = Object.assign({
-  height: '64px',
-  backgroundColor: 'rgb(63,81,181)'
-}, shadowStyle);
+import {Link} from 'react-router';
 
 export default (props) => (
-  <div>
-    <div className="row" style={headerStyle}>
-      <div className="col-xs-1">Owleo</div>
-      <div className="col-xs-3 end-xs">Login</div>
-    </div>
-    {props.children}
+  <div className="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header className="mdl-layout__header">
+      <div className="mdl-layout__header-row">
+        <Link to="/concepts" className="mdl-layout-title mdl-navigation__link">
+          owleo
+        </Link>
+        <div className="mdl-layout-spacer"/>
+        <nav className="mdl-navigation">
+          <Link to="/auth" className="mdl-navigation__link">Login/Signup</Link>
+        </nav>
+      </div>
+    </header>
+    <main className="mdl-layout__content">
+      {props.children}
+    </main>
   </div>
 );
