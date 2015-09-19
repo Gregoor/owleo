@@ -5,7 +5,8 @@ import createBrowserHistory from 'history/lib/createBrowserHistory'
 import ReactRouterRelay from 'react-router-relay';
 
 import Layout from './layout';
-import AuthForm from './auth-form';
+import ConceptPage from './concept/_page';
+import AuthPage from './auth-page';
 
 
 Relay.injectNetworkLayer(
@@ -20,11 +21,11 @@ export default () => (
   <Router //history={createBrowserHistory()}
           createElement={ReactRouterRelay.createElement}>
     <Redirect from="/" to="/concepts"/>
-    <Route path="/">
-      <Route path="concepts" component={Layout} queries={ViewerQuery}>
+    <Route path="/" component={Layout}>
+      <Route path="concepts" component={ConceptPage} queries={ViewerQuery}>
         <Route path=":path*"/>
       </Route>
-      <Route path="/auth" component={AuthForm}/>
+      <Route path="/auth" component={AuthPage}/>
     </Route>
   </Router>
 );

@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
+import {Link} from 'react-router';
 import Relay from 'react-relay';
 
-import {pathToUrl} from './../helpers';
+import {shadowStyle, pathToUrl} from './../helpers';
 
-let cardStyle = {
+let cardStyle = Object.assign({
   marginTop: '10px',
   padding: '15px',
-  backgroundColor: '#fff',
-  boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)'
-};
+  backgroundColor: '#fff'
+}, shadowStyle);
 
 class ConceptInfo extends Component {
 
@@ -33,9 +33,9 @@ class ConceptInfo extends Component {
       <div>
         {reqs.length ? <em>Requires:</em> : ''}
         {reqs.map(req => (
-          <a key={req.id} href={pathToUrl(req.path)} style={{padding: '5px'}}>
+          <Link key={req.id} to={pathToUrl(req.path)} style={{padding: '5px'}}>
             {req.name}
-          </a>
+          </Link>
         ))}
       </div>
     );

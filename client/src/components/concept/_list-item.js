@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {Link} from 'react-router';
 import Relay from 'react-relay';
 
 import ConceptList from './_list';
@@ -42,9 +43,9 @@ class ConceptListItem extends Component {
         <button onClick={this.onClickButton.bind(this)} style={buttonStyle}>
           {conceptsCount || ''}
         </button>
-        <a href={pathToUrl(concept.path)} style={headStyle}>
+        <Link to={pathToUrl(concept.path)} style={headStyle}>
           {name}
-        </a>
+        </Link>
         <hr style={{width: '90%', borderColor: 'rgba(211,211,211,0.3)'}}/>
         {sublist}
       </li>
