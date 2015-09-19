@@ -34,7 +34,7 @@ class AuthPage extends Component {
               </label>
             </div>
             <label className="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
-                   for="is-new">
+                   htmlFor="is-new">
               <input type="checkbox" id="is-new"
                      className="mdl-checkbox__input"
                      onChange={this.onChangeNew.bind(this)}/>

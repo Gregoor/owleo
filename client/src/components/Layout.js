@@ -49,15 +49,25 @@ class Layout extends Component {
   }
 
   onSearchChange(event) {
+    this.navigateToConcepts();
     this.setState({query: event.target.value});
   }
 
   onSearchKeyUp(event) {
-    if (event.keyCode == 27/*ESC*/) {
-      this.setState({query: this.refs.search.value = ''});
-      this.refs.searchContainer.classList.remove('is-dirty');
-
+    switch (event.keyCode) {
+      case 13/*ENTER*/:
+        this.navigateToConcepts();
+        break;
+      case 27/*ESC*/:
+        this.setState({query: this.refs.search.value = ''});
+        this.refs.searchContainer.classList.remove('is-dirty');
+        break;
     }
+  }
+
+  navigateToConcepts() {
+    let {history} = this.props;
+    if (!history.isActive('/concepts')) history.pushState({}, '/concepts');
   }
 
 }
