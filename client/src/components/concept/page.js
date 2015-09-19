@@ -1,14 +1,13 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
-import SearchInput from './../search/_input';
-import SearchResults from './../search/_results';
-import ConceptList from './_list';
-import ConceptInfo from './_info';
+import SearchResults from './results';
+import ConceptList from './list';
+import ConceptInfo from './info';
 
 class ConceptPage extends Component {
 
-  state = {concept: null, query: null};
+  state = {concept: null};
 
   componentWillMount() {
     this.setSelectedPath(this.props);
@@ -19,7 +18,7 @@ class ConceptPage extends Component {
   }
 
   setSelectedPath(props) {
-    let {params} = props;
+    let {params, query} = props;
     let {path, splat} = params;
     let selectedPath = path + splat;
     if (!selectedPath || selectedPath == this.state.selectedPath) return;
@@ -28,10 +27,9 @@ class ConceptPage extends Component {
   }
 
   render() {
-    let {viewer, relay} = this.props;
+    let {viewer, relay, query} = this.props;
     let {conceptRoot, concept} = viewer;
     let {selectedPath} = relay.variables;
-    let {query} = this.state;
 
     let list = query ?
       <SearchResults {...{viewer, query}}/> :
@@ -44,26 +42,18 @@ class ConceptPage extends Component {
     return (
       <div className="mdl-grid" style={{padding: 0}}>
 
-        <div className="mdl-cell mdl-cell--4-col mdl-cell--stretch" style={{margin: 0, backgroundColor: 'white'}}>
-
-          <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch" style={{boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)'}}>
-            <SearchInput onChangeValue={this.onSearch.bind(this)}/>
-          </div>
-
-          <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch" style={{height: '100%', marginTop: '5px', overflowY: 'scroll'}}>
+        <div className="mdl-cell mdl-cell--4-col mdl-cell--stretch"
+             style={{margin: 0, backgroundColor: 'white'}}>
+          <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
+               style={{height: '100%', marginTop: '5px', overflowY: 'scroll'}}>
             {list}
           </div>
-
         </div>
 
         <div className="mdl-cell mdl-cell--8-col">{conceptInfo}</div>
 
       </div>
     );
-  }
-
-  onSearch(query) {
-    this.setState({query});
   }
 
 }

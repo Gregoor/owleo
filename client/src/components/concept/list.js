@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import Relay from 'react-relay';
 
-import ConceptListItem from './_list-item';
+import ConceptListItem from './list-item';
 
 class ConceptList extends Component {
 

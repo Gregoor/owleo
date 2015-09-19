@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
-import ConceptListItem from './../concept/_list-item';
+import ConceptListItem from './list-item';
 
 class SearchResults extends Component {
 

@@ -5,7 +5,7 @@ import createBrowserHistory from 'history/lib/createBrowserHistory'
 import ReactRouterRelay from 'react-router-relay';
 
 import Layout from './layout';
-import ConceptPage from './concept/_page';
+import ConceptPage from './concept/page';
 import AuthPage from './auth-page';
 
 

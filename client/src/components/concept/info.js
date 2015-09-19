@@ -11,7 +11,7 @@ class ConceptInfo extends Component {
     let {name, summary, reqs} = this.props.concept;
 
     return (
-      <div style={{maxWidth: '512px'}}>
+      <div style={{maxWidth: '512px', margin: '0 auto'}}>
         <div className="mdl-card mdl-shadow--2dp" style={cardStyle}>
           <div className="mdl-card__title">
             <h2 className="mdl-card__title-text">{name}</h2>

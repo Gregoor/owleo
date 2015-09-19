@@ -3,7 +3,7 @@ import {Link} from 'react-router';
 import Relay from 'react-relay';
 import classNames from 'classnames';
 
-import ConceptList from './_list';
+import ConceptList from './list';
 import {pathToUrl} from './../helpers';
 
 const buttonSize = '26px';
@@ -27,6 +27,10 @@ class ConceptListItem extends Component {
     }
   }
 
+  componentDidUpdate() {
+    window.componentHandler.upgradeDom();
+  }
+
   render() {
     let {concept, selectedPath} = this.props;
 
@@ -46,15 +50,19 @@ class ConceptListItem extends Component {
 
     return (
       <li style={{listStyleType: 'none', marginLeft: '10px'}}>
-        <button onClick={this.onClickButton.bind(this)}
-                className={classNames('mdl-button mdl-js-button mdl-button--raised mdl-button--icon',
-                  {'mdl-button--colored': selectedPath})} style={buttonStyle}>
-          {conceptsCount || ' '}
-        </button>
-        <Link to={pathToUrl(concept.path)} style={headStyle}>
-          {name}
-        </Link>
-        <hr style={{width: '90%', borderColor: 'rgba(211,211,211,0.3)'}}/>
+        <div>
+          <button onClick={this.onClickButton.bind(this)}
+                  className={classNames('mdl-button mdl-js-button ' +
+                    'mdl-button--raised mdl-button--icon',
+                    {'mdl-button--colored': selectedPath})}
+                  style={buttonStyle}>
+            {conceptsCount || ' '}
+          </button>
+          <Link to={pathToUrl(concept.path)} style={headStyle}>
+            {name}
+          </Link>
+          <hr/>
+        </div>
         {sublist}
       </li>
     );
