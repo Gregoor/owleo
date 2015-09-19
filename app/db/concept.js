@@ -118,6 +118,7 @@ export default {
       RETURN c.id AS id, c.name AS name, c.summary AS summary,
         c.summarySource AS summarySource, c.color AS color, path, reqs,
         container, conceptsCount, explanations
+      ORDER BY conceptsCount DESC
     `;
 
     return query(queryStr, args).then(dbData => {
