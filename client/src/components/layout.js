@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
-import SearchInput from 'search/_input';
-import SearchResults from 'search/_results';
-import ConceptList from 'concept/_list';
-import ConceptInfo from 'concept/_info';
+import SearchInput from './search/_input';
+import SearchResults from './search/_results';
+import ConceptList from './concept/_list';
+import ConceptInfo from './concept/_info';
 
 class Layout extends Component {
 
@@ -23,17 +23,20 @@ class Layout extends Component {
   }
 
   render() {
-    let {viewer} = this.props;
+    let {viewer, params} = this.props;
+    let {path, splat} = params;
+    let fullPath = path + splat;
     let {conceptRoot, concept} = viewer;
+
     let {query} = this.state;
 
     let list = query ?
       <SearchResults {...{viewer, query}}/> :
       <ConceptList concept={conceptRoot}
-                   selectedPath={this.props.path.split('/')}/>;
+                   selectedPath={fullPath ? fullPath.split('/') : null}/>;
 
     let conceptInfo = '';
-    if (concept) conceptInfo = <ConceptInfo concept={concept}/>;
+    if (concept && fullPath) conceptInfo = <ConceptInfo concept={concept}/>;
 
     return (
       <div className="row">

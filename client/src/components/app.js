@@ -1,32 +1,30 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
-import {Router, Route} from 'react-router';
+import {Router, Route, Redirect} from 'react-router';
+import createBrowserHistory from 'history/lib/createBrowserHistory'
+import ReactRouterRelay from 'react-router-relay';
 
-import AppHomeRoute from './../route-configs/app-home';
 import Layout from './layout';
+import AuthForm from './auth-form';
+
 
 Relay.injectNetworkLayer(
   new Relay.DefaultNetworkLayer('http://localhost:2323/graphql')
 );
 
-class App extends Component {
-
-  render() {
-    return <Relay.RootContainer route={new AppHomeRoute()} Component={Layout}
-                                renderFetched={this.renderLayout.bind(this)}/>;
-  }
-
-  renderLayout(data) {
-    let {path, splat} = this.props.params;
-    return <Layout path={path + splat} {...data}/>
-  }
-
-}
+const ViewerQuery = {
+  viewer: () => Relay.QL`query RootQuery { viewer }`
+};
 
 export default () => (
-  <Router>
+  <Router //history={createBrowserHistory()}
+          createElement={ReactRouterRelay.createElement}>
+    <Redirect from="/" to="/concepts"/>
     <Route path="/">
-      <Route path=":path*" component={App}/>
+      <Route path="concepts" component={Layout} queries={ViewerQuery}>
+        <Route path=":path*"/>
+      </Route>
+      <Route path="/auth" component={AuthForm}/>
     </Route>
   </Router>
 );
