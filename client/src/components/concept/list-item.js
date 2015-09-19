@@ -32,7 +32,7 @@ class ConceptListItem extends Component {
   }
 
   render() {
-    let {concept, selectedPath} = this.props;
+    let {concept, selectedPath, selectedId} = this.props;
 
     let sublist = '';
     if (this.props.relay.variables.includeSublist) {
@@ -40,12 +40,13 @@ class ConceptListItem extends Component {
     }
 
     let {id, name, conceptsCount} = concept;
+    let isSelected = selectedPath || selectedId == id;
     let headStyle = {
       display: 'inline-block',
       width: '100%',
       color: 'black',
       textDecoration: 'none',
-      fontWeight: selectedPath ? 600: 'normal'
+      fontWeight: isSelected ? 600: 'normal'
     };
 
     return (
@@ -54,7 +55,7 @@ class ConceptListItem extends Component {
           <button onClick={this.onClickButton.bind(this)}
                   className={classNames('mdl-button mdl-js-button ' +
                     'mdl-button--raised mdl-button--icon',
-                    {'mdl-button--colored': selectedPath})}
+                    {'mdl-button--colored': isSelected})}
                   style={buttonStyle}>
             {conceptsCount || ' '}
           </button>

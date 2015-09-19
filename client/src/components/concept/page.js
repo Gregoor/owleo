@@ -32,9 +32,10 @@ class ConceptPage extends Component {
     let {selectedPath} = relay.variables;
 
     let list = query ?
-      <SearchResults {...{viewer, query}}/> :
+      <SearchResults {...{viewer, query}} selectedId={concept.id}/> :
       <ConceptList concept={conceptRoot}
-                   selectedPath={selectedPath ? selectedPath.split('/') : null}/>;
+                   selectedPath={selectedPath ? selectedPath.split('/') : null}
+                   selectedId={concept.id}/>;
 
     let conceptInfo = '';
     if (concept && selectedPath) conceptInfo = <ConceptInfo concept={concept}/>;
