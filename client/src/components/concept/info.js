@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 
+import {pathToUrl} from './../helpers';
 
 let cardStyle = {width: 'auto', minHeight: 'auto', marginBottom: '5px'};
 
@@ -32,7 +33,7 @@ class ConceptInfo extends Component {
       <div>
         {reqs.length ? <em>Requires:</em> : ''}
         {reqs.map(req => (
-          <Link key={req.id} to={pathToUrl(req.path)}>
+          <Link key={req.id} to={pathToUrl(req.path)} style={{padding: '3px'}}>
             {req.name}
           </Link>
         ))}

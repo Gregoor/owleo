@@ -38,7 +38,7 @@ class ConceptPage extends Component {
                    selectedId={concept.id}/>;
 
     let conceptInfo = concept && selectedPath && this.state.selectedPath ?
-      <ConceptInfo {...{concept}}/> :'';
+      <ConceptInfo {...{concept}}/> : '';
 
     return (
       <div className="mdl-grid" style={{padding: 0}}>
