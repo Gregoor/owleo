@@ -21,8 +21,8 @@ class ConceptPage extends Component {
     let {params, query} = props;
     let {path, splat} = params;
     let selectedPath = path + splat;
+    this.setState({selectedPath: selectedPath});
     if (!selectedPath || selectedPath == this.state.selectedPath) return;
-    this.setState({selectedPath});
     this.props.relay.setVariables({selectedPath});
   }
 
@@ -37,8 +37,8 @@ class ConceptPage extends Component {
                    selectedPath={selectedPath ? selectedPath.split('/') : null}
                    selectedId={concept.id}/>;
 
-    let conceptInfo = '';
-    if (concept && selectedPath) conceptInfo = <ConceptInfo concept={concept}/>;
+    let conceptInfo = concept && selectedPath && this.state.selectedPath ?
+      <ConceptInfo {...{concept}}/> :'';
 
     return (
       <div className="mdl-grid" style={{padding: 0}}>
