@@ -11,12 +11,12 @@ class ConceptInfo extends Component {
     return (
       <div>
         <div className="mdl-card mdl-shadow--2dp card-auto-fit">
-          <div className="mdl-card__title">
+          <div className="mdl-card__title" style={{paddingBottom: 0}}>
             <h2 className="mdl-card__title-text">{name}</h2>
           </div>
-          <div className="mdl-card__supporting-text">
+          <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
             {this.renderReqs()}
-            <p>{summary}</p>
+            <p style={{paddingTop: 10}}>{summary}</p>
           </div>
         </div>
         {this.renderExplanations()}
