@@ -1,5 +1,34 @@
 @import '~material-design-lite/src/material-design-lite';
+@import '~react-select/dist/default';
 
 body {
   background-color: #FAFAFA;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+}
+
+.card-auto-fit {
+  width: auto;
+  min-height: auto;
+  margin-bottom: 5px;
+}
+
+.chip {
+  display: inline-block;
+  height: 32px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  background-color: #E4E4E4;
+  margin: 2px 2px 2px 0;
+
+  > i {
+    cursor: pointer;
+    float: right;
+    font-size: 16px;
+    line-height: 32px;
+    padding-left: 8px;
+  }
 }

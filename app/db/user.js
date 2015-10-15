@@ -6,20 +6,18 @@ import {db, query} from './connection';
 
 export default {
 
-  authenticate(attrs) {
-    let {name, password} = attrs;
-
+  authenticate({name, password}) {
     return query(
       `
-                MATCH (u:User {name: {name}})
-                RETURN u.password_hash AS pwHash, u.id AS id
-                LIMIT 1
-            `,
+        MATCH (u:User {name: {name}})
+        RETURN u.id AS id, u.password_hash AS pwHash
+        LIMIT 1
+      `,
       {name}
     ).then(dbData => {
-        if (_.isEmpty(dbData)) return {'success': false};
+        if (_.isEmpty(dbData)) return null;
         let {pwHash, id} = dbData[0];
-        return {'success': bcrypt.compareSync(password, pwHash), id};
+        return bcrypt.compareSync(password, pwHash) ? {id, name} : null;
       });
   },
 
@@ -43,7 +41,7 @@ export default {
       ).then(dbData => dbData[0]));
   },
 
-  find({id, name}) {
+  find({id = null, name = null}) {
     return query(
       `
         MATCH (u:User)
@@ -51,7 +49,7 @@ export default {
         RETURN u.id AS id, u.name AS name, u.admin AS admin
         LIMIT 1
       `,
-      {'id': id || null, 'name': name || null}
+      {id, name}
     ).then(dbData => dbData[0])
   }
 

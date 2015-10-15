@@ -58,7 +58,7 @@ export default Relay.createContainer(SearchResults, {
 
   fragments: {
     viewer: () =>  Relay.QL`
-      fragment on User {
+      fragment on Viewer {
         concepts(query: $query) {
           ${ConceptListItem.getFragment('concept')}
         }

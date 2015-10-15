@@ -8,10 +8,9 @@ const ERRORS = {
 };
 
 let asParams = concept => ({
-  'data': _.omit(concept, 'id', 'container', 'reqs', 'tags', 'explanations'),
+  'attrs': _.pick(concept, 'name', 'summary', 'summarySource'),
   'container': concept.container || '',
   'reqs': concept.reqs || [],
-  'tags': concept.tags || [],
   'explanations': concept.explanations || []
 });
 
@@ -30,20 +29,14 @@ let subQuery = {
 			OPTIONAL MATCH (newContainer:Concept {id: {container}})
 			CREATE (c)-[:CONTAINED_BY]->(newContainer)
 		` : '';
-  },
-  'createTags': `
-		FOREACH (tagName in {tags}|
-			MERGE (newTag:Tag {name: tagName})
-			CREATE UNIQUE (newTag)-[:TAGS]->(c)
-		)
-	`
+  }
 };
 
 export default {
 
   ERRORS,
 
-  find(args) {
+  find(args, limit = null) {
     let queryStr = 'MATCH (c:Concept) ';
     let globalWith = 'c';
     let extendWith = (expr, alias) => {
@@ -66,11 +59,14 @@ export default {
       }).concat('(c)').join('<-[:CONTAINED_BY]-'));
     }
 
-    if (args.id) queryStr += 'WHERE c.id = {id} ';
-
-    if (args.query) {
+    if (args.id) {
+      limit = 1;
+      queryStr += 'WHERE c.id = {id} ';
+    } else if (args.query) {
+      if (args.exclude) queryStr += 'WHERE NOT(c.id IN {exclude}) AND ';
+      else queryStr += 'WHERE ';
       args.query = `.*${args.query}.*`;
-      queryStr += 'WHERE c.name =~ {query} ';
+      queryStr += 'c.name =~ {query} ';
     }
 
     if (args.userId) {
@@ -121,33 +117,35 @@ export default {
       ORDER BY conceptsCount DESC
     `;
 
+    if (limit || args.limit) queryStr += 'LIMIT ' + (limit || args.limit);
+
     return query(queryStr, args).then(dbData => {
-      return dbData.map(concept => {
+      let concepts = dbData.map(concept => {
         if (!concept) return;
         if (concept.explanations[0].id == null) concept.explanations = [];
         if (concept.container.id == null) concept.container = null;
 
         return concept;
       });
+      return limit == 1 ? concepts[0] : concepts;
     });
   },
 
-  create(user, data) {
+  create(data, user="wat") {
     let params = asParams(data);
-    params.data.id = uuid.v4();
+    params.attrs.id = uuid.v4();
 
     return query(
       `
-				CREATE (c:Concept {data})
+				CREATE (c:Concept {attrs})
 
 				${subQuery.containConcept(params.container)}
 				${subQuery.connectConcepts(params.reqs)}
-				${subQuery.createTags}
 
 				RETURN c.id AS id
 			`,
       params
-    ).then(dbData => this.find(user, dbData[0].id));
+    ).then(dbData => this.find({id: dbData[0].id}));
   },
 
   update(user, id, data) {
@@ -172,14 +170,10 @@ export default {
 				OPTIONAL MATCH (c)-[reqRel:REQUIRES]->(oldReq:Concept)
 				WHERE NOT(oldReq.id IN {reqs})
 
-				OPTIONAL MATCH (oldTag:Tag)-[tagRel:TAGS]->(c)
-				WHERE NOT(oldTag.name IN {tags})
-
-				DELETE containerRel, reqRel, tagRel
+				DELETE containerRel, reqRel
 
 				${subQuery.containConcept(container)}
 				${subQuery.connectConcepts(params.reqs)}
-				${subQuery.createTags}
 				SET c += {data}
 			`,
         params

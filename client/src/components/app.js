@@ -8,7 +8,6 @@ import Layout from './layout';
 import ConceptPage from './concept/page';
 import AuthPage from './auth-page';
 
-
 Relay.injectNetworkLayer(
   new Relay.DefaultNetworkLayer('http://localhost:2323/graphql')
 );

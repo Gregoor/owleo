@@ -5,8 +5,7 @@ import ExtractTextPlugin from 'extract-text-webpack-plugin';
 export default {
   devtool: 'eval',
   entry: [
-    'webpack-dev-server/client?http://localhost:3000',
-    'webpack/hot/only-dev-server',
+    'webpack-hot-middleware/client',
     './src/index'
   ],
   module: {
@@ -24,11 +23,6 @@ export default {
         test: /\.scss$/,
         loader: ExtractTextPlugin.extract('css?sourceMap!sass?sourceMap')
       }
-      //{
-      //  test: /\.js$/,
-      //  loader: 'react-hot',
-      //  include: path.join(__dirname, 'src')
-      //}
     ]
   },
   plugins: [

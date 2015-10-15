@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
+import LoginMutation from '../mutations/login-mutation';
+import {TextField} from './mdl';
+
 import './checkbox-fix.scss';
 
 class AuthPage extends Component {
@@ -18,21 +21,11 @@ class AuthPage extends Component {
         <div className="mdl-card__title">
           <h2 className="mdl-card__title-text">Authentication</h2>
         </div>
-        <div className="mdl-card__supporting-text">
-          <form >
-            <div className="mdl-textfield mdl-js-textfield">
-              <input className="mdl-textfield__input" type="text" id="name" />
-              <label className="mdl-textfield__label" htmlFor="name">
-                Username
-              </label>
-            </div>
-            <div className="mdl-textfield mdl-js-textfield">
-              <input className="mdl-textfield__input" type="password"
-                     id="password" />
-              <label className="mdl-textfield__label" htmlFor="password">
-                Password
-              </label>
-            </div>
+        <form onSubmit={this.onSubmit.bind(this)}>
+          <div className="mdl-card__supporting-text">
+
+            <TextField id="name" label="Username"/>
+            <TextField id="name" label="Password" type="password"/>
             <label className="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
                    htmlFor="is-new">
               <input type="checkbox" id="is-new"
@@ -40,14 +33,14 @@ class AuthPage extends Component {
                      onChange={this.onChangeNew.bind(this)}/>
               <span className="mdl-checkbox__label">I'm a new user</span>
             </label>
-          </form>
-        </div>
-        <div className="mdl-card__actions mdl-card--border">
-          <button className="mdl-button mdl-button--colored mdl-js-button
-                              mdl-js-ripple-effect">
+          </div>
+          <div className="mdl-card__actions mdl-card--border">
+            <button type="submit" className="mdl-button mdl-button--colored
+                                    mdl-js-button mdl-js-ripple-effect">
             {loginMode ? 'Login' : 'Signup'}
-          </button>
-        </div>
+            </button>
+          </div>
+        </form>
       </div>
     );
   }
@@ -56,13 +49,27 @@ class AuthPage extends Component {
     this.setState({loginMode: !event.target.checked});
   }
 
+  onSubmit(event) {
+    event.preventDefault();
+    let {name, password} = this.refs;
+    Relay.Store.update(
+      new LoginMutation({
+        name: name.value, password: password.value, viewer: this.props.viewer
+      }),
+      {onFailure: (t) => console.error(t.getError().source.errors)}
+    );
+  }
+
 }
 
 export default Relay.createContainer(AuthPage, {
   fragments: {
     viewer: () => Relay.QL`
-      fragment on User {
-        name
+      fragment on Viewer {
+        identities {
+          name
+        },
+        ${LoginMutation.getFragment('viewer')}
       }
     `
   }

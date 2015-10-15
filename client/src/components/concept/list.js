@@ -7,11 +7,12 @@ class ConceptList extends Component {
 
   static propTypes = {
     concept: PropTypes.object.isRequired,
-    isRoot: PropTypes.bool
+    isRoot: PropTypes.bool,
+    showCreate: PropTypes.bool
   };
 
   render() {
-    let {concept, selectedPath, isRoot} = this.props;
+    let {concept, selectedPath, isRoot, showCreate} = this.props;
     let {concepts} = concept;
 
     let topPath;
@@ -20,16 +21,16 @@ class ConceptList extends Component {
       restPath = selectedPath.slice() ;
       topPath = restPath.shift();
     }
-    let subListsHTML = concepts ? concepts.map(concept => {
+    let subLists = concepts ? concepts.map(concept => {
       let isOpenProps = topPath == concept.name ?
         {selectedPath: restPath, expanded: true} : {};
 
       return <ConceptListItem key={concept.id} concept={concept}
                               {...isOpenProps}/>
-    }) : '';
+    }) : [];
 
     let style = isRoot ? {} : {borderLeft: '1px dashed black', marginLeft: '-25px'};
-    return <ul style={style}>{subListsHTML}</ul>;
+    return <ul style={style}>{subLists}</ul>;
   }
 
 }

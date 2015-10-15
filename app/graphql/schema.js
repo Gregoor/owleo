@@ -1,88 +1,46 @@
 import {
-  graphql,
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLList,
-  GraphQLNonNull,
   GraphQLString,
   GraphQLInt
 } from 'graphql';
 
 import {
-  connectionArgs,
   connectionDefinitions,
-  connectionFromArray,
-  cursorForObjectInConnection,
   fromGlobalId,
-  globalIdField,
   mutationWithClientMutationId,
-  nodeDefinitions,
   toGlobalId,
 } from 'graphql-relay';
 
 // TODO: ALWAYS BE UPDTING SCHEMA
 
+import NodeGQL from './node-gql';
+import UserGQL from './user-gql';
+import ConceptGQL from './concept-gql';
 import Concept from '../db/concept';
+import User from '../db/user';
 
-let getConcept = args => Concept.find(args).then(arr => arr[0]);
+let {
+  connectionType: IdentitiesConnection,
+  edgeType: IdentityEdge
+} = connectionDefinitions({name: 'Identity', nodeType: UserGQL.type});
 
-let {nodeInterface, nodeField} = nodeDefinitions(
-  (globalId) => {
-    let {type, id} = fromGlobalId(globalId);
-    return type == 'Concept' ? Concept.find({id}).then(arr => arr[0]) : null;
-  },
-  (obj) => {
-    return ConceptType;
-  }
-);
-
-let ExplanationType = new GraphQLObjectType({
-  name: 'Explanation',
-  fields: () => ({
-    id: globalIdField('Explanation'),
-    content: {type: GraphQLString},
-    votes: {type: GraphQLInt},
-    author: {type: UserType}
-  })
-});
-
-let ConceptType = new GraphQLObjectType({
-  name: 'Concept',
-  fields: () => ({
-    id: globalIdField('Concept'),
-    name: {type: GraphQLString},
-    path: {type: new GraphQLList(GraphQLString)},
-    summary: {type: GraphQLString},
-    conceptsCount: {type: GraphQLInt},
-    reqs: {
-      type: new GraphQLList(ConceptType),
-      resolve(concept) {
-        return Promise.all(concept.reqs.map(req => getConcept({id: req})));
+let ViewerType = new GraphQLObjectType({
+  name: 'Viewer',
+  fields: {
+    identities: {
+      type: new GraphQLList(UserGQL.type),
+      resolve: (parent, dunno, root) => {
+        root.rootValue.user().then(u => u ? [u] : [])
       }
     },
-    concepts: {
-      type: new GraphQLList(ConceptType),
-      resolve(root, args) {
-        args.container = root.id || '';
-        return Concept.find(args);
-      }
-    },
-    explanations: {type: new GraphQLList(ExplanationType)}
-  }),
-  interfaces: [nodeInterface]
-});
-
-let UserType = new GraphQLObjectType({
-  name: 'User',
-  fields: () => ({
-    //id: globalIdField('User'),
-    name: {type: GraphQLString},
     conceptRoot: {
-      type: ConceptType,
+      type: ConceptGQL.type,
       resolve: () => ({})
     },
     concept: {
-      type: ConceptType,
+      type: ConceptGQL.type,
       args: {
         path: {type: GraphQLString}
       },
@@ -91,19 +49,24 @@ let UserType = new GraphQLObjectType({
           let {id} = fromGlobalId(args.id);
           args = {id};
         }
-        return getConcept(args);
+        return Concept.find(args, 1);
       }
     },
     concepts: {
-      type: new GraphQLList(ConceptType),
+      type: new GraphQLList(ConceptGQL.type),
       args: {
-        query: {type: GraphQLString}
+        query: {type: GraphQLString},
+        limit: {type: GraphQLInt},
+        exclude: {type: new GraphQLList(GraphQLString)}
       },
       resolve(root, args) {
-        return Concept.find(args);
+        if (args.exclude) {
+          args.exclude = args.exclude.map(id => fromGlobalId(id).id);
+        }
+        return args.query ? Concept.find(args) : [];
       }
     }
-  })
+  }
 });
 
 export default new GraphQLSchema({
@@ -111,10 +74,36 @@ export default new GraphQLSchema({
     name: 'RootQuery',
     fields: {
       viewer: {
-        type: UserType,
-        resolve:  () => ({})
+        type: ViewerType,
+        resolve: (root) => ({id: toGlobalId('Viewer', 'wat')})
       },
-      node: nodeField
+      node: NodeGQL.field
+    }
+  }),
+  mutation: new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+      createConcept: ConceptGQL.create,
+      login: mutationWithClientMutationId({
+        name: 'Login',
+        inputFields: {
+          name: {type: GraphQLString},
+          password: {type: GraphQLString}
+        },
+        outputFields: {
+          identityEdge: {
+            type: IdentityEdge,
+            resolve: u => ({node: u, cursor: null})
+          },
+          viewer: {type: ViewerType, resolve: () => ({})}
+        },
+        mutateAndGetPayload(input, root) {
+          return User.authenticate(input).then((user) => {
+            return user ?
+              root.rootValue.user().then(u => Object.assign(u, user)) : {};
+          });
+        }
+      })
     }
   })
 });

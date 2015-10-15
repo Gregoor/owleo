@@ -6,8 +6,9 @@ let connection = {
     'url': config.dbHost || 'http://localhost:7474'
   }),
   'query': (query, params) => new Promise((resolve) => {
+    let {stack} = new Error();
     connection.db.cypher({query, params, 'lean': true}, (err, data) => {
-      if (err) console.error(err);
+      if (err) process.stderr.write(err + '\n' + stack);
       else resolve(data);
     });
   })

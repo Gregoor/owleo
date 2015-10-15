@@ -5,6 +5,8 @@ import sessions from 'client-sessions';
 import graphqlHTTP from 'express-graphql';
 import cors from 'cors';
 
+import User from './db/user';
+
 let config = require('./configs/config');
 try {
   config = _.defaults(require('./configs/config.custom'), config);
@@ -14,12 +16,12 @@ try {
 let app = express();
 
 app.use(sessions({
-  'cookieName': 'user',
-  'secret': 'soon',
-  'duration': 1000 * 60 * 60 * 24 * 7,
-  'cookie': {
-    'path': '/api'
-    //'secureProxy': 'DOME' //TODO: Srsly
+  cookieName: 'user',
+  secret: 'soon',
+  duration: 1000 * 60 * 60 * 24 * 7,
+  cookie: {
+    path: '/api'
+    //secureProxy: 'DOME' //TODO: Srsly
   }
 }));
 
@@ -30,6 +32,17 @@ app.use(express.static('app/landingPage'));
 app.use('/app', express.static(config.clientDir));
 app.use(require('body-parser').json());
 
-app.use('/graphql', graphqlHTTP({schema: require('./graphql/schema')}));
+
+app.use('/graphql', graphqlHTTP(request => ({
+  schema: require('./graphql/schema'),
+  graphiql: true,
+  rootValue: {
+    user: () => {
+      let {id} = request.user;
+      if (!id) return Promise.resolve(request.user);
+      return new Promise(resolve => User.find({id}));
+    }
+  }
+})));
 
 app.listen(config.port);

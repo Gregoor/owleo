@@ -51,7 +51,7 @@ class ConceptListItem extends Component {
 
     return (
       <li style={{listStyleType: 'none', marginLeft: '10px'}}>
-        <div>
+        <div style={{padding: '10px 0'}}>
           <button onClick={this.onClickButton.bind(this)}
                   className={classNames('mdl-button mdl-js-button ' +
                     'mdl-button--raised mdl-button--icon',
@@ -62,7 +62,7 @@ class ConceptListItem extends Component {
           <Link to={pathToUrl(concept.path)} style={headStyle}>
             {name}
           </Link>
-          <hr/>
+          <hr style={{margin: 0}}/>
         </div>
         {sublist}
       </li>

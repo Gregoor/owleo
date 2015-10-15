@@ -4,9 +4,29 @@ type Concept implements Node {
   path: [String]
   summary: String
   conceptsCount: Int
+  container: Concept
   reqs: [Concept]
   concepts: [Concept]
   explanations: [Explanation]
+}
+
+type ConceptEdge {
+  node: Concept
+  cursor: String!
+}
+
+input CreateConceptInput {
+  name: String
+  summary: String
+  summarySource: String
+  container: String
+  reqs: [String]
+  clientMutationId: String!
+}
+
+type CreateConceptPayload {
+  conceptEdge: ConceptEdge
+  clientMutationId: String!
 }
 
 type Explanation {
@@ -16,18 +36,45 @@ type Explanation {
   author: User
 }
 
+type IdentityEdge {
+  node: User
+  cursor: String!
+}
+
+input LoginInput {
+  name: String
+  password: String
+  clientMutationId: String!
+}
+
+type LoginPayload {
+  identityEdge: IdentityEdge
+  viewer: Viewer
+  clientMutationId: String!
+}
+
+type Mutation {
+  createConcept(input: CreateConceptInput!): CreateConceptPayload
+  login(input: LoginInput!): LoginPayload
+}
+
 interface Node {
   id: ID!
 }
 
 type RootQuery {
-  viewer: User
+  viewer: Viewer
   node(id: ID!): Node
 }
 
-type User {
+type User implements Node {
+  id: ID!
   name: String
+}
+
+type Viewer {
+  identities: [User]
   conceptRoot: Concept
   concept(path: String): Concept
-  concepts(query: String): [Concept]
+  concepts(query: String, limit: Int, exclude: [String]): [Concept]
 }

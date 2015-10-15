@@ -4,16 +4,13 @@ import Relay from 'react-relay';
 
 import {pathToUrl} from './../helpers';
 
-let cardStyle = {width: 'auto', minHeight: 'auto', marginBottom: '5px'};
-
 class ConceptInfo extends Component {
 
   render() {
     let {name, summary, reqs} = this.props.concept;
-
     return (
-      <div style={{maxWidth: '512px', margin: '0 auto'}}>
-        <div className="mdl-card mdl-shadow--2dp" style={cardStyle}>
+      <div>
+        <div className="mdl-card mdl-shadow--2dp card-auto-fit">
           <div className="mdl-card__title">
             <h2 className="mdl-card__title-text">{name}</h2>
           </div>
@@ -44,7 +41,7 @@ class ConceptInfo extends Component {
   renderExplanations() {
     let {explanations} = this.props.concept;
     return explanations.map(explanation => (
-      <div className="mdl-card mdl-shadow--2dp" style={cardStyle}>
+      <div className="mdl-card mdl-shadow--2dp card-auto-fit">
         <div className="mdl-card__supporting-text">
           {explanation.content}
         </div>
