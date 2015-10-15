@@ -4,7 +4,7 @@ import Relay from 'react-relay';
 import classNames from 'classnames';
 
 import ConceptList from './list';
-import {pathToUrl} from './../helpers';
+import {pathToUrl} from '../../helpers';
 
 const buttonSize = '26px';
 const buttonStyle = {

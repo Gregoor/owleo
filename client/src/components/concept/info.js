@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 
-import {pathToUrl} from './../helpers';
+import {pathToUrl} from '../../helpers';
 
 class ConceptInfo extends Component {
 
