@@ -11,30 +11,37 @@ let ConceptMap = React.createClass({
   mixins: [History],
 
   componentDidMount() {
+    let idGroupMap = this.idGroupMap = new Map();
     let {history} = this;
-
     let prevent = (event) => event.preventDefault();
-
     let foamtree = this.foamtree = new CarrotSearchFoamTree({
       element: this.refs.container,
       wireframeLabelDrawing: 'always',
       dataObject: {
-        groups: this.props.concept.concepts.map(concept => ({
-          concept, label: concept.name, weight: concept.conceptsCount,
-          groups: concept.concepts.map(concept => ({
-            concept, label: concept.name, weight: concept.conceptsCount
-          }))
-        }))
+        groups: this.props.concept.concepts.map(concept => {
+          let group = {
+            concept, label: concept.name, weight: concept.conceptsCount,
+            groups: concept.concepts.map(concept => ({
+              concept, label: concept.name, weight: concept.conceptsCount
+            }))
+          };
+          idGroupMap.set(concept.id, group);
+          return group;
+        })
       },
       onGroupClick(event) {
         let {group} = event;
-        if (!group) return;
-        history.pushState(null, pathToUrl(group.concept.path));
-        foamtree.trigger('doubleclick', event);
+        history.pushState(null, group ? pathToUrl(group.concept.path) : '');
+        if (group) foamtree.trigger('doubleclick', event);
       },
       onGroupDrag: prevent,
       onGroupMouseWheel: prevent
-    })
+    });
+    this._onProps(this.props);
+  },
+
+  componentWillReceiveProps(props) {
+    this._onProps(props);
   },
 
   render() {
@@ -43,6 +50,11 @@ let ConceptMap = React.createClass({
                   width: '100%', height: '100%',
                   backgroundColor: '#FAFAFA'
                 }}/>;
+  },
+
+  _onProps(props) {
+    let {selectedId} = props;
+    this.foamtree.expose(this.idGroupMap.get(selectedId));
   }
 
 });

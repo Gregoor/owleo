@@ -28,7 +28,8 @@ class ConceptPage extends Component {
 
     let list;
     if (showMap) {
-      list = <ConceptMap concept={conceptRoot}/>;
+      list = <ConceptMap concept={conceptRoot}
+                         selectedId={concept ? concept.id : null}/>;
     } else if (query) {
       list = <SearchResults {...{viewer, query}} selectedId={concept.id}/>;
     } else {
