@@ -8,10 +8,13 @@ import {pathToUrl} from '../../helpers';
 
 let ConceptMap = React.createClass({
 
+  rendered: false,
+
   mixins: [History],
 
   componentDidMount() {
     let idGroupMap = this.idGroupMap = new Map();
+    let self = this;
     let {history} = this;
     let prevent = (event) => event.preventDefault();
     let foamtree = this.foamtree = new CarrotSearchFoamTree({
@@ -34,6 +37,10 @@ let ConceptMap = React.createClass({
         history.pushState(null, group ? pathToUrl(group.concept.path) : '');
         if (group) foamtree.trigger('doubleclick', event);
       },
+      onRolloutComplete() {
+        self.rendered = true;
+        self._onProps(self.props);
+      },
       onGroupDrag: prevent,
       onGroupMouseWheel: prevent
     });
@@ -53,8 +60,8 @@ let ConceptMap = React.createClass({
   },
 
   _onProps(props) {
-    let {selectedId} = props;
-    this.foamtree.expose(this.idGroupMap.get(selectedId));
+    if (!this.rendered) return;
+    this.foamtree.expose(this.idGroupMap.get(props.selectedId));
   }
 
 });
