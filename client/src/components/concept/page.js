@@ -5,6 +5,7 @@ import SearchResults from './results';
 import ConceptList from './list';
 import ConceptInfo from './info';
 import ConceptForm from './form';
+import ConceptMap from './map';
 
 class ConceptPage extends Component {
 
@@ -23,12 +24,18 @@ class ConceptPage extends Component {
     let {conceptRoot, concept} = viewer;
     let {selectedPath} = relay.variables;
     let {showForm} = this.state;
+    let {showMap} = localStorage;
 
-    let list = query ?
-      <SearchResults {...{viewer, query}} selectedId={concept.id}/> :
-      <ConceptList concept={conceptRoot}
-                   selectedPath={selectedPath ? selectedPath.split('/') : null}
-                   selectedId={concept.id}/>;
+    let list;
+    if (showMap) {
+      list = <ConceptMap concept={conceptRoot}/>;
+    } else if (query) {
+      list = <SearchResults {...{viewer, query}} selectedId={concept.id}/>;
+    } else {
+      list = <ConceptList concept={conceptRoot}
+                          selectedPath={selectedPath ? selectedPath.split('/') : null}
+                          selectedId={concept.id}/>;
+    }
 
     let content;
     if (showForm) {
@@ -43,15 +50,18 @@ class ConceptPage extends Component {
     return (
       <div className="mdl-grid" style={{padding: 0}}>
 
-        <div className="mdl-cell mdl-cell--4-col mdl-cell--stretch"
+        <div className="mdl-cell mdl-cell--6-col mdl-cell--stretch"
              style={{margin: 0, backgroundColor: 'white'}}>
           <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
-               style={{height: '100%', marginTop: '5px', overflowY: 'scroll'}}>
+               style={{
+                height: '90%', marginTop: '5px',
+                overflowY: showMap ? 'auto' : 'scroll'
+               }}>
             {list}
           </div>
         </div>
 
-        <div className="mdl-cell mdl-cell--8-col"
+        <div className="mdl-cell mdl-cell--6-col"
              style={{maxWidth: 512/*330*/, margin: '10px auto'}}>
           {content}
         </div>
@@ -95,6 +105,7 @@ export default Relay.createContainer(ConceptPage, {
       fragment on Viewer {
         conceptRoot {
           ${ConceptList.getFragment('concept')}
+          ${ConceptMap.getFragment('concept')}
         },
         concept(path: $selectedPath) {
           id,

@@ -41,7 +41,8 @@ class ConceptInfo extends Component {
   renderExplanations() {
     let {explanations} = this.props.concept;
     return explanations.map(explanation => (
-      <div className="mdl-card mdl-shadow--2dp card-auto-fit">
+      <div key={explanation.id}
+           className="mdl-card mdl-shadow--2dp card-auto-fit">
         <div className="mdl-card__supporting-text">
           {explanation.content}
         </div>

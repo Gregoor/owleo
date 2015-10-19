@@ -71,7 +71,6 @@ class ConceptListItem extends Component {
 
   onClickName() {
     this.setExpanded(true);
-    this.props.onSelect(this.props.concept.id);
   }
 
   onClickButton() {
