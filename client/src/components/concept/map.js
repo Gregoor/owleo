@@ -8,8 +8,6 @@ import {pathToUrl} from '../../helpers';
 
 let ConceptMap = React.createClass({
 
-  rendered: false,
-
   mixins: [History],
 
   componentDidMount() {
@@ -21,34 +19,25 @@ let ConceptMap = React.createClass({
       element: this.refs.container,
       wireframeLabelDrawing: 'always',
       dataObject: {
-        groups: this.props.concept.concepts.map(concept => {
-          let group = {
-            concept, label: concept.name, weight: concept.conceptsCount,
-            groups: concept.concepts.map(concept => ({
-              concept, label: concept.name, weight: concept.conceptsCount
-            }))
-          };
-          idGroupMap.set(concept.id, group);
-          return group;
-        })
+        groups: this._conceptsToGroups(this.props.concept.concepts)
       },
       onGroupClick(event) {
         let {group} = event;
+        self.selectedChange = true;
         history.pushState(null, group ? pathToUrl(group.concept.path) : '');
         if (group) foamtree.trigger('doubleclick', event);
-      },
-      onRolloutComplete() {
-        self.rendered = true;
-        self._onProps(self.props);
       },
       onGroupDrag: prevent,
       onGroupMouseWheel: prevent
     });
-    this._onProps(this.props);
+    this._expose(this.props.selectedId);
   },
 
   componentWillReceiveProps(props) {
-    this._onProps(props);
+    if (this.props.selectedId != props.selectedId) {
+      if (this.selectedChange) this.selectedChange = false;
+      else this._expose(props.selectedId);
+    }
   },
 
   render() {
@@ -59,9 +48,21 @@ let ConceptMap = React.createClass({
                 }}/>;
   },
 
-  _onProps(props) {
-    if (!this.rendered) return;
-    this.foamtree.expose(this.idGroupMap.get(props.selectedId));
+  _conceptsToGroups(concepts) {
+    return concepts.map(concept => {
+      let group = {
+        concept, label: concept.name, weight: concept.conceptsCount
+      };
+      if (concept.concepts) {
+        group.groups = this._conceptsToGroups(concept.concepts);
+      }
+      this.idGroupMap.set(concept.id, group);
+      return group;
+    });
+  },
+
+  _expose(id) {
+    this.foamtree.expose(this.idGroupMap.get(id));
   }
 
 });
