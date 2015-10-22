@@ -17,13 +17,12 @@ let ConceptMap = React.createClass({
     let prevent = (event) => event.preventDefault();
     let foamtree = this.foamtree = new CarrotSearchFoamTree({
       element: this.refs.container,
-      wireframeLabelDrawing: 'always',
       dataObject: {
         groups: this._conceptsToGroups(this.props.concept.concepts)
       },
       onGroupClick(event) {
         let {group} = event;
-        self.selectedChange = true;
+        self._internalChange = true;
         history.pushState(null, group ? pathToUrl(group.concept.path) : '');
         if (group) foamtree.trigger('doubleclick', event);
       },
@@ -35,7 +34,7 @@ let ConceptMap = React.createClass({
 
   componentWillReceiveProps(props) {
     if (this.props.selectedId != props.selectedId) {
-      if (this.selectedChange) this.selectedChange = false;
+      if (this._internalChange) this._internalChange = false;
       else this._expose(props.selectedId);
     }
   },
@@ -80,8 +79,20 @@ export default Relay.createContainer(ConceptMap, {
           concepts {
             id,
             name,
+            path,
             conceptsCount,
-            path
+            concepts {
+              id,
+              name,
+              path,
+              conceptsCount,
+              concepts {
+                id,
+                name,
+                path,
+                conceptsCount
+              }
+            }
           }
         }
       }
