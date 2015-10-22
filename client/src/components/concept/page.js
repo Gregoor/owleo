@@ -26,10 +26,12 @@ class ConceptPage extends Component {
     let {showForm} = this.state;
     let {showMap} = localStorage;
 
+    let hasSelection = concept && selectedPath && this.state.selectedPath;
+
     let list;
     if (showMap) {
       list = <ConceptMap concept={conceptRoot}
-                         selectedId={concept ? concept.id : null}/>;
+                         selectedId={hasSelection ? concept.id : null}/>;
     } else if (query) {
       list = <SearchResults {...{viewer, query}} selectedId={concept.id}/>;
     } else {
@@ -42,10 +44,8 @@ class ConceptPage extends Component {
     if (showForm) {
       content = <ConceptForm {...{viewer}}
         onAbort={this._onCloseCreate.bind(this)} />;
-    } else if (concept && selectedPath && this.state.selectedPath) {
-      content = <ConceptInfo {...{concept}}/>;
     } else {
-      content = '';
+      content = hasSelection ? <ConceptInfo {...{concept}}/> : '';
     }
 
     return (
@@ -82,7 +82,7 @@ class ConceptPage extends Component {
     let {params, query} = props;
     let {path, splat} = params;
     let selectedPath = path + splat;
-    this.setState({selectedPath: selectedPath});
+    this.setState({selectedPath});
     if (!selectedPath || selectedPath == this.state.selectedPath) return;
     this.props.relay.setVariables({selectedPath});
   }
