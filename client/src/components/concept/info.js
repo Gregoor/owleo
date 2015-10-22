@@ -43,9 +43,8 @@ class ConceptInfo extends Component {
     return explanations.map(explanation => (
       <div key={explanation.id}
            className="mdl-card mdl-shadow--2dp card-auto-fit">
-        <div className="mdl-card__supporting-text">
-          {explanation.content}
-        </div>
+        <div className="mdl-card__supporting-text"
+             dangerouslySetInnerHTML={{__html: explanation.content}}/>
       </div>
     ));
   }
