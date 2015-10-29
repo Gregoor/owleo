@@ -29,7 +29,13 @@ let ConceptType = new GraphQLObjectType({
   fields: () => ({
     id: globalIdField('Concept'),
     name: {type: GraphQLString},
-    path: {type: new GraphQLList(GraphQLString)},
+    path: {
+      type: new GraphQLList(ConceptType),
+      resolve(concept) {
+        if (!concept.path) return [];
+        return Promise.all(concept.path.map(id => Concept.find({id})));
+      }
+    },
     summary: {type: GraphQLString},
     conceptsCount: {type: GraphQLInt},
     container: {type: ConceptType},

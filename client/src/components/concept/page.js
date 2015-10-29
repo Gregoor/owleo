@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Relay from 'react-relay';
 
 import SearchResults from './results';
+import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptList from './list';
 import ConceptInfo from './info';
 import ConceptForm from './form';
@@ -50,6 +51,11 @@ class ConceptPage extends Component {
 
     return (
       <div className="mdl-grid" style={{padding: 0}}>
+
+        <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
+             style={{backgroundColor: 'white', margin: 0, width: '100%'}}>
+          {hasSelection ? <ConceptBreadcrumbs {...{concept}}/> : ''}
+        </div>
 
         <div className="mdl-cell mdl-cell--6-col mdl-cell--stretch"
              style={{margin: 0, backgroundColor: 'white'}}>
@@ -110,6 +116,7 @@ export default Relay.createContainer(ConceptPage, {
         },
         concept(path: $selectedPath) {
           id,
+          ${ConceptBreadcrumbs.getFragment('concept')}
           ${ConceptInfo.getFragment('concept')}
         },
         ${SearchResults.getFragment('viewer')},

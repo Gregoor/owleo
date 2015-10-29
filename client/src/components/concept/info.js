@@ -63,7 +63,9 @@ export default Relay.createContainer(ConceptInfo, {
         reqs {
           id,
           name,
-          path
+          path {
+            name
+          }
         },
         explanations {
           id,

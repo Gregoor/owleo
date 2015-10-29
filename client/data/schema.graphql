@@ -1,7 +1,7 @@
 type Concept implements Node {
   id: ID!
   name: String
-  path: [String]
+  path: [Concept]
   summary: String
   conceptsCount: Int
   container: Concept

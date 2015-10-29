@@ -1,5 +1,6 @@
 export default {
   pathToUrl: (path) => {
-    return `/concepts/${path.map(encodeURIComponent).reverse().join('/')}`;
+    let parts = path.map(concept => encodeURIComponent(concept.name));
+    return `/concepts/${parts.reverse().join('/')}`;
   }
 };

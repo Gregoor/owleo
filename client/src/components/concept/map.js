@@ -74,22 +74,30 @@ export default Relay.createContainer(ConceptMap, {
         concepts {
           id,
           name,
-          path,
+          path {
+            name
+          },
           conceptsCount,
           concepts {
             id,
             name,
-            path,
+            path {
+              name
+            },
             conceptsCount,
             concepts {
               id,
               name,
-              path,
+              path {
+                name
+              },
               conceptsCount,
               concepts {
                 id,
                 name,
-                path,
+                path {
+                  name
+                },
                 conceptsCount
               }
             }

@@ -100,16 +100,14 @@ export default {
         -[:EXPLAINS]->(c)
       OPTIONAL MATCH (u:User)-[v:VOTED]->(e)
       WITH COUNT(u) AS votes, e, explainer, ${globalWith}
-      ${extendWith(`COLLECT(
-        {
-          id: e.id, content: e.content, paywalled: e.paywalled, votes: votes,
-          hasVoted: 0, createdAt: e.createdAt,
-          author: {id: explainer.id, name: explainer.name}
-        }
-      )`, 'explanations')}
+      ${extendWith(`COLLECT({
+        id: e.id, content: e.content, paywalled: e.paywalled, votes: votes,
+        hasVoted: 0, createdAt: e.createdAt,
+        author: {id: explainer.id, name: explainer.name}
+      })`, 'explanations')}
 
       OPTIONAL MATCH (c)-[:CONTAINED_BY*0..]->(containers:Concept)
-      ${extendWith('COLLECT(DISTINCT containers.name)', 'path')}
+      ${extendWith('COLLECT(DISTINCT containers.id)', 'path')}
 
       RETURN c.id AS id, c.name AS name, c.summary AS summary,
         c.summarySource AS summarySource, c.color AS color, path, reqs,
