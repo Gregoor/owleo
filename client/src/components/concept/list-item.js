@@ -94,7 +94,9 @@ export default Relay.createContainer(ConceptListItem, {
       fragment on Concept {
         id,
         name,
-        path,
+        path {
+          name
+        },
         conceptsCount,
         ${ConceptList.getFragment('concept').if(variables.includeSublist)}
       }
