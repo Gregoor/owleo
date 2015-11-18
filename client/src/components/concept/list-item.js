@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 import classNames from 'classnames';
+import _ from 'lodash';
 
 import ConceptList from './list';
 import {pathToUrl} from '../../helpers';
@@ -21,9 +22,17 @@ class ConceptListItem extends Component {
   }
 
   componentWillReceiveProps(props) {
-    let {expanded} = props;
+    let {expanded, concept, selectedId, selectedPath} = props;
     if (expanded !== undefined && this.props.expanded !== expanded) {
       this.setExpanded(expanded);
+    }
+
+    if (!this.isSelected) {
+      if (concept.id == selectedId || _.isArray(selectedPath) && _.isEmpty(selectedPath)) {
+        this.isSelected = true;
+        this.refs.label.scrollIntoView();
+        console.log(concept.name);
+      } else this.isSelected = false;
     }
   }
 
@@ -41,6 +50,7 @@ class ConceptListItem extends Component {
 
     let {id, name, conceptsCount} = concept;
     let isSelected = selectedPath || selectedId == id;
+
     let headStyle = {
       display: 'inline-block',
       width: '100%',
@@ -51,7 +61,7 @@ class ConceptListItem extends Component {
 
     return (
       <li style={{listStyleType: 'none', marginLeft: '10px'}}>
-        <div style={{padding: '10px 0'}}>
+        <div style={{padding: '10px 0'}} ref="label">
           <button onClick={this.onClickButton.bind(this)}
                   className={classNames('mdl-button mdl-js-button ' +
                     'mdl-button--raised mdl-button--icon',
@@ -59,7 +69,8 @@ class ConceptListItem extends Component {
                   style={buttonStyle}>
             {conceptsCount || ' '}
           </button>
-          <Link to={pathToUrl(concept.path)} style={headStyle}>
+          <Link to={pathToUrl(concept.path)} onClick={this.onSelect.bind(this)}
+                style={headStyle}>
             {name}
           </Link>
           <hr style={{margin: 0}}/>
@@ -69,12 +80,12 @@ class ConceptListItem extends Component {
     );
   }
 
-  onClickName() {
-    this.setExpanded(true);
-  }
-
   onClickButton() {
     this.setExpanded(!this.props.relay.variables.includeSublist);
+  }
+
+  onSelect() {
+    this.isSelected = true;
   }
 
   setExpanded(state) {
