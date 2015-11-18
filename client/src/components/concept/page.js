@@ -21,16 +21,15 @@ class ConceptPage extends Component {
   }
 
   render() {
-    let {viewer, relay, query} = this.props;
+    let {viewer, relay, query, navType} = this.props;
     let {conceptRoot, concept} = viewer;
     let {selectedPath} = relay.variables;
     let {showForm} = this.state;
-    let {showMap} = localStorage;
 
     let hasSelection = concept && selectedPath && this.state.selectedPath;
 
     let list;
-    if (showMap) {
+    if (navType == 'map') {
       list = <ConceptMap concept={conceptRoot}
                          selectedId={hasSelection ? concept.id : null}/>;
     } else if (query) {
@@ -62,7 +61,7 @@ class ConceptPage extends Component {
           <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
                style={{
                 height: '90%', marginTop: '5px',
-                overflowY: showMap ? 'auto' : 'scroll'
+                overflowY: navType == 'map' ? 'auto' : 'scroll'
                }}>
             {list}
           </div>
