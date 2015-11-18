@@ -1,21 +1,37 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router';
 
+import './icon-switch.scss';
+
 class Layout extends Component {
 
-  state = {query: ''};
+  state = {query: '', navType: 'list'};
 
   componentDidUpdate() {
     window.componentHandler.upgradeDom();
   }
 
   render() {
-    let children = React.cloneElement(this.props.children,
-      {query: this.state.query});
+    let {navType, query} = this.state;
+
+    let children = React.cloneElement(this.props.children, {query, navType});
+
     return (
       <div className="mdl-layout">
         <header className="mdl-layout__header">
           <div className="mdl-layout__header-row">
+            <label className="icon-switch mdl-switch mdl-js-switch mdl-js-ripple-effect"
+                   style={{width: 'auto', marginRight: '15px'}}>
+              <input type="checkbox" className="mdl-switch__input"
+                     onChange={this.onChangeNav.bind(this)}/>
+              <i className={`material-icons on ${navType != 'list' ? 'hide' : ''}`} key="list">
+                list
+              </i>
+              <i className={`material-icons off ${navType != 'map' ? 'hide' : ''}`} key="map">
+                map
+              </i>
+              <span className="mdl-switch__label"/>
+            </label>
             <div className="mdl-textfield mdl-js-textfield
                     mdl-textfield--expandable mdl-textfield--floating-label
                     mdl-textfield--align-right" ref="searchContainer">
@@ -63,6 +79,11 @@ class Layout extends Component {
         this.refs.searchContainer.classList.remove('is-dirty');
         break;
     }
+  }
+
+  onChangeNav(event) {
+    let switchTo = event.target.checked ? 'map' : 'list';
+    this.setState({navType: switchTo});
   }
 
   navigateToConcepts() {

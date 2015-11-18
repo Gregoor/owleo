@@ -28,6 +28,7 @@ class ConceptPage extends Component {
 
     let hasSelection = concept && selectedPath && this.state.selectedPath;
 
+    if (!concept) concept = {};
     let list;
     if (navType == 'map') {
       list = <ConceptMap concept={conceptRoot}
