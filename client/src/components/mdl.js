@@ -1,6 +1,10 @@
-import React from 'react';
+import React, {Component} from 'react';
 
-class TextField extends React.Component {
+class TextField extends Component {
+
+  componentDidMount() {
+    window.componentHandler.upgradeDom();
+  }
 
   render() {
     let {id, label, onChange, type = 'text'} = this.props;
@@ -22,7 +26,7 @@ class TextField extends React.Component {
 
 
 
-class TextArea extends React.Component {
+class TextArea extends Component {
 
   render() {
     let {id, label, rows} = this.props;

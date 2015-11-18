@@ -4,12 +4,9 @@ import {
   GraphQLString,
   GraphQLInt
 } from 'graphql';
-import {
-  connectionDefinitions,
-  globalIdField,
-  mutationWithClientMutationId,
-} from 'graphql-relay';
+import {globalIdField, mutationWithClientMutationId} from 'graphql-relay';
 
+import getFieldList from './get-field-list';
 import NodeGQL from './node-gql';
 import UserGQL from './user-gql';
 import Concept from '../db/concept';
@@ -29,38 +26,23 @@ let ConceptType = new GraphQLObjectType({
   fields: () => ({
     id: globalIdField('Concept'),
     name: {type: GraphQLString},
-    path: {
-      type: new GraphQLList(ConceptType),
-      resolve(concept) {
-        if (!concept.path) return [];
-        return Promise.all(concept.path.map(id => Concept.find({id})));
-      }
-    },
+    path: {type: new GraphQLList(ConceptType)},
     summary: {type: GraphQLString},
     conceptsCount: {type: GraphQLInt},
     container: {type: ConceptType},
-    reqs: {
-      type: new GraphQLList(ConceptType),
-      resolve(concept) {
-        return Promise.all(concept.reqs.map(req => Concept.find({id: req})));
-      }
-    },
+    reqs: {type: new GraphQLList(ConceptType)},
     concepts: {
       type: new GraphQLList(ConceptType),
-      resolve(root, args) {
+      resolve(root, args, context) {
+        if (root.concepts) return root.concepts;
         args.container = root.id || '';
-        return Concept.find(args);
+        return Concept.find(args, getFieldList(context));
       }
     },
     explanations: {type: new GraphQLList(ExplanationType)}
   }),
   interfaces: [NodeGQL.interface]
 });
-
-let {
-  connectionType: ConceptsConnection,
-  edgeType: ConceptEdge
-} = connectionDefinitions({name: 'Concept', nodeType: ConceptType});
 
 
 export default {
@@ -75,10 +57,7 @@ export default {
       reqs: {type: new GraphQLList(GraphQLString)}
     },
     outputFields: {
-      conceptEdge: {
-        type: ConceptEdge,
-        resolve: concept => console.log(23, concept) || ({node: concept, cursor: null})
-      }
+      conceptEdge: {type: GraphQLString}
     },
     mutateAndGetPayload: (input, root) => Concept.create(input)
   })

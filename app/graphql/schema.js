@@ -13,8 +13,8 @@ import {
   toGlobalId,
 } from 'graphql-relay';
 
-// TODO: ALWAYS BE UPDTING SCHEMA
 
+import getFieldList from './get-field-list';
 import NodeGQL from './node-gql';
 import UserGQL from './user-gql';
 import ConceptGQL from './concept-gql';
@@ -44,12 +44,12 @@ let ViewerType = new GraphQLObjectType({
       args: {
         path: {type: GraphQLString}
       },
-      resolve(root, args) {
+      resolve(root, args, context) {
         if (args.id) {
           let {id} = fromGlobalId(args.id);
           args = {id};
         }
-        return Concept.find(args, 1);
+        return Concept.find(args, getFieldList(context)).then(([c]) => c);
       }
     },
     concepts: {

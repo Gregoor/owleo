@@ -10,11 +10,6 @@ type Concept implements Node {
   explanations: [Explanation]
 }
 
-type ConceptEdge {
-  node: Concept
-  cursor: String!
-}
-
 input CreateConceptInput {
   name: String
   summary: String
@@ -25,7 +20,7 @@ input CreateConceptInput {
 }
 
 type CreateConceptPayload {
-  conceptEdge: ConceptEdge
+  conceptEdge: String
   clientMutationId: String!
 }
 

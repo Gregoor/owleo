@@ -12,7 +12,7 @@ class ConceptList extends Component {
   };
 
   render() {
-    let {concept, selectedPath, isRoot, showCreate} = this.props;
+    let {concept, selectedPath, isRoot} = this.props;
     let {concepts} = concept;
 
     let topPath;

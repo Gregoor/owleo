@@ -41,6 +41,7 @@ class ConceptForm extends Component {
   }
 
   _onSubmit(event) {
+    event.preventDefault();
     let {name, container, reqs, summary, summarySource} = this.refs;
     let selectedContainer = container.refs.component.getSelected();
     Relay.Store.update(
@@ -49,8 +50,11 @@ class ConceptForm extends Component {
         summary: summary.getValue(), summarySrc: summarySource.getValue(),
         container: selectedContainer ? selectedContainer.id : null,
         reqs: reqs.refs.component.getSelected().map(c => c.id)
-      }),
-      {onFailure: (t) => console.error(t.getError().source.errors)}
+        }),
+      {
+        onSuccess: t => console.log('fuck yeah', t),
+        onFailure: t => console.error(t.getError().source.errors)
+      }
     );
   }
 

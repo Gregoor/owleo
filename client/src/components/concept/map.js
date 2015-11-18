@@ -28,8 +28,15 @@ let ConceptMap = React.createClass({
       },
       onGroupDrag: prevent,
       onGroupMouseWheel: prevent
+      //rainbowStartColor: '#F0F0F0',
+      //rainbowEndColor: '#9E9E9E'
     });
     this._expose(this.props.selectedId);
+
+    window.addEventListener('resize', () => {
+      foamtree.resize();
+      setTimeout(() => foamtree.resize(), 0);
+    });
   },
 
   componentWillReceiveProps(props) {
@@ -42,8 +49,8 @@ let ConceptMap = React.createClass({
   render() {
     return <div ref="container"
                 style={{
-                  width: '100%', height: '100%',
-                  backgroundColor: '#FAFAFA'
+                  width: '100%', height: '95%',
+                  backgroundColor: 'white'
                 }}/>;
   },
 

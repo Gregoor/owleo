@@ -16,24 +16,20 @@ export default class CreateConceptMutation extends Relay.Mutation {
   getFatQuery() {
     return Relay.QL`
       fragment on CreateConceptPayload {
-        conceptEdge
+        conceptId
       }
     `;
   }
 
   getConfigs() {
     return [{
-      type: 'RANGE_ADD',
-      parentName: 'concept',
-      parentID: this.props.container,
-      connectionName: 'concepts',
-      edgeName: 'conceptEdge',
-      rangeBehaviors: {'': 'append'}
+      type: 'REQUIRED_CHILDREN',
+      children: [Relay.QL`
+        fragment on CreateConceptPayload {
+          conceptId
+        }
+      `]
     }];
-  }
-
-  getOptimisticResponse() {
-    return {conceptEdge: this.props};
   }
 
 }

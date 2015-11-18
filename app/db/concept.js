@@ -14,7 +14,7 @@ let asParams = concept => ({
   'explanations': concept.explanations || []
 });
 
-let subQuery = {
+let subCreates = {
   connectConcepts(reqs) {
     return _.isEmpty(reqs) ? '' : `
 			WITH c
@@ -32,101 +32,265 @@ let subQuery = {
   }
 };
 
+let asAliases = (fields) => fields.map(([, alias]) => alias).join(',');
+const FILTER_FIELDS = ['concepts', 'container', 'reqs', 'path', 'explanations'];
+let filterEmpty = concepts => {
+  for (let concept of concepts) {
+    for (let field of FILTER_FIELDS) {
+      let val = concept[field];
+      if (_.isArray(val)) {
+        if (!val[0].id) concept[field] = [];
+        else filterEmpty(concept[field]);
+      } else if (_.isObject(val)) {
+        if (!val.id) concept[field] = null;
+        else filterEmpty([concept[field]]);
+      }
+    }
+  }
+  return concepts;
+};
+
+class ConceptQuery {
+
+  constructor(alias = 'c', parentFields = []) {
+    this.params = {};
+    this._alias = alias;
+    this._queryParts = [];
+    this._fields = [[alias, alias]];
+    this._privateFields = [alias];
+    this._parentFields = parentFields;
+    if (_.isEmpty(parentFields)) {
+      this._queryParts.push(`MATCH (${alias}:Concept)`);
+    }
+    this._limit = null;
+  }
+
+  idEquals(id) {
+    this._limit = 1;
+    this._addToQuery(`WHERE ${this._alias}.id = {id}`);
+    this.params.id = id;
+  }
+
+  idIsIn(ids) {
+    this._addToQuery(`WHERE ${this._alias}.id IN {ids}`);
+    this.params.ids = ids;
+  }
+
+  hasPath(path) {
+    let pathParts = path.split('/');
+
+    this.params.name = pathParts.pop();
+    this._addToQuery(`WHERE ${this._alias}.name = {name}`);
+
+    if (pathParts.length) this._addToQuery(
+      'MATCH ' + pathParts.map((n, i) => {
+        let pathArg = 'path' + i;
+        this.params[pathArg] = n;
+        return `(:Concept {name: {${pathArg}}})`;
+      }).concat(`(${this._alias})`).join('<-[:CONTAINED_BY]-')
+    );
+  }
+
+  isContained(container) {
+    this._addToQuery(container.length ?
+      `MATCH (${this._alias})-[:CONTAINED_BY]->(:Concept {id: {container}})` :
+      `WHERE NOT (${this._alias})-[:CONTAINED_BY]->()`
+    );
+    this.params.container = container;
+  }
+
+  matchesQuery(query, {exclude = ''}) {
+    this._addToQuery(
+      (exclude ? `WHERE NOT(${this._alias}.id IN {exclude}) AND` : 'WHERE') +
+      ` ${this._alias}.name =~ {query}`
+    );
+    this.params.query = `.*${query}.*`;
+  }
+
+  forUser(userId) {
+    if (userId) {
+      this._addToQuery(`OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(e)`,
+        ['hasVoted', 'COUNT(DISTINCT self)']);
+      this.params.userId = userId;
+    } else {
+      this._addToQuery('', ['hasVoted', '0']);
+    }
+  }
+
+  withFields(fields: {}) {
+    let {
+      id, name, summary, summarySource,
+      container, concepts, reqs,  path, explanations
+    } = fields;
+
+    this._addToQuery('',
+      ..._(['name', 'summary', 'summarySource'])
+        .filter(f => fields[f])
+        .map(f => [f, `${this._alias}.${f}`])
+        .value()
+    );
+
+    if (concepts) {
+      let prefixed = this._prefix('concepts');
+      this._addToQuery(
+        `
+        OPTIONAL MATCH (${prefixed}:Concept)-[:CONTAINED_BY]->(${this._alias})
+        ${new ConceptQuery(prefixed, this._getAllFields())
+          .withFields(concepts).getQueryString({multiple: true})}
+      `,
+        ['concepts', prefixed]
+      );
+    }
+
+    if (container) {
+      let prefixed = this._prefix('container');
+      this._addToQuery(
+        `
+        OPTIONAL MATCH (${this._alias})-[:CONTAINED_BY]->(${prefixed}:Concept)
+        ${new ConceptQuery(prefixed, this._getAllFields())
+          .withFields(container).getQueryString()}
+      `,
+        ['container', prefixed]
+      );
+    }
+
+    if (reqs) {
+      let prefixed = this._prefix('reqs');
+      this._addToQuery(
+        `
+        OPTIONAL MATCH (${this._alias})-[:REQUIRES]->(${prefixed}:Concept)
+        ${new ConceptQuery(prefixed, this._getAllFields())
+          .withFields(reqs).getQueryString({multiple: true})}
+      `,
+        ['reqs', prefixed]
+      );
+    }
+
+    if (path) {
+      this._queryParts.push(`
+        OPTIONAL MATCH ${this._alias}-[:CONTAINED_BY*0..]->(containers:Concept)
+      `);
+      let pathField = '';
+      if (path.path) {
+        this._queryParts.push(`OPTIONAL MATCH (containers)-[:CONTAINED_BY*0..]->
+          (containerContainers:Concept)`);
+        this._addWithToQuery(`containers, COLLECT(DISTINCT {
+          id: containerContainers.id, name: containerContainers.name
+        }) AS containersPath`);
+        pathField = `
+          , path: containersPath
+        `;
+      }
+      this._addToQuery('', [
+        'path',
+        `COLLECT(DISTINCT {id: containers.id, name: containers.name${pathField}})`
+      ]);
+    }
+
+    if (explanations) this._addToQuery(
+      `
+          OPTIONAL MATCH (explainer:User)-[:CREATED]->(e:Explanation)
+            -[:EXPLAINS]->(${this._alias})
+          OPTIONAL MATCH (u:User)-[v:VOTED]->(e)
+          WITH ${asAliases(this._fields)},
+            COUNT(u) AS votes, e, explainer
+        `,
+      ['explanations', `
+          COLLECT({
+            id: e.id, content: e.content, paywalled: e.paywalled, votes: votes,
+            hasVoted: 0, createdAt: e.createdAt,
+            author: {id: explainer.id, name: explainer.name}
+          })
+        `]
+    );
+
+    return this;
+  }
+
+  getQueryString({limit, multiple} = {}) {
+    let {_alias: alias, _fields: fields, _parentFields: parentFields} = this;
+
+    let returnFields = fields.filter(([alias]) => {
+      return !_.includes(this._privateFields, alias);
+    });
+
+    let queryString = this._queryParts.join('\n');
+
+    if (_.isEmpty(parentFields)) {
+      return queryString + `
+        OPTIONAL MATCH (${alias})<-[:CONTAINED_BY]-(containees:Concept)
+        WITH COUNT(DISTINCT containees) AS conceptsCount,
+          ${asAliases(fields)}
+
+        RETURN ${alias}.id AS id, conceptsCount,
+          ${returnFields.map(([label, alias]) => `${alias} AS ${label}`)}
+        ORDER BY conceptsCount DESC
+        ${this._limit || limit ? 'LIMIT ' + (this._limit || limit) : ''}
+      `;
+    } else {
+      let map = `
+        {
+          id: ${alias}.id,
+          ${returnFields.map(([l, a]) => `${l}: ${a}`).join(', ')}
+        }
+      `;
+      if (multiple) map = `COLLECT(${map})`;
+      return `${queryString} WITH ${map} AS ${alias}, ${asAliases(parentFields)}`;
+    }
+  }
+
+  _addToQuery(str, ...aliasSelections) {
+    if (str) this._queryParts.push(str);
+
+    let fields = this._fields.slice();
+    let withString = aliasSelections.map(([alias, selection]) => {
+      let tempAlias = this._prefix(alias);
+      this._fields.push([alias, tempAlias]);
+      return selection ? `${selection} AS ${tempAlias}` : tempAlias;
+    }).join(', ');
+
+    if (withString) this._addWithToQuery(withString, fields);
+  }
+
+  _addWithToQuery(withString, fields=this._fields) {
+    this._queryParts.push(`
+      WITH ${asAliases(fields)}, ${withString}
+        ${this._parentFields.length ? ',' + asAliases(this._parentFields) : ''}
+    `);
+  }
+
+  _prefix(alias) {
+    return this._alias + _.capitalize(alias);
+  }
+
+  _getAllFields() {
+    return [...this._parentFields, ...this._fields];
+  }
+
+}
+
 export default {
 
   ERRORS,
 
-  find(args, limit = null) {
-    let queryStr = 'MATCH (c:Concept) ';
-    let globalWith = 'c';
-    let extendWith = (expr, alias) => {
-      let entry = alias ? `${expr} AS ${alias}` : alias;
-      let withStr = `WITH ${entry}, ${globalWith}  `;
-      globalWith += ', ' + alias || expr;
-      return withStr;
-    };
+  find(params = {}, fields = {}) {
+    let conceptQuery = new ConceptQuery();
 
-    if (args.path) {
-      let pathParts = args.path.split('/');
+    if (params.path) conceptQuery.hasPath(params.path);
 
-      args.name = pathParts.pop();
-      queryStr += 'WHERE c.name = {name} ';
+    if (params.id) conceptQuery.idEquals(params.id);
+    else if (params.query) conceptQuery.matchesQuery(params.query);
 
-      if (pathParts.length) queryStr += 'MATCH ' + (pathParts.map((n, i) => {
-        let pathArg = 'path'+i;
-        args[pathArg] = n;
-        return `(:Concept {name: {${pathArg}}})`;
-      }).concat('(c)').join('<-[:CONTAINED_BY]-'));
-    }
+    conceptQuery.forUser(params.userId);
 
-    if (args.id) {
-      limit = 1;
-      queryStr += 'WHERE c.id = {id} ';
-    } else if (args.query) {
-      if (args.exclude) queryStr += 'WHERE NOT(c.id IN {exclude}) AND ';
-      else queryStr += 'WHERE ';
-      args.query = `.*${args.query}.*`;
-      queryStr += 'c.name =~ {query} ';
-    }
+    if (_.isString(params.container)) conceptQuery.isContained(params.container);
 
-    if (args.userId) {
-      queryStr += `
-        OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(e)
-        ${extendWith('COUNT(DISTINCT self)', 'hasVoted')}
-      `;
-    } else {
-      queryStr += extendWith('0', 'hasVoted');
-    }
+    conceptQuery.withFields(fields);
 
-    if (_.isString(args.container)) {
-      if (args.container.length) {
-        queryStr += 'MATCH (c)-[:CONTAINED_BY]->(:Concept {id: {container}})';
-      } else {
-        queryStr += 'WHERE NOT (c)-[:CONTAINED_BY]->()';
-      }
-    }
+    let queryString = conceptQuery.getQueryString({limit: params.limit});
 
-    queryStr += `
-      OPTIONAL MATCH (c)-[:CONTAINED_BY]->(container:Concept)
-      ${extendWith('{id: container.id, name: container.name}', 'container')}
-
-      OPTIONAL MATCH (c)<-[:CONTAINED_BY]-(containees:Concept)
-      ${extendWith('COUNT(DISTINCT containees)', 'conceptsCount')}
-
-      OPTIONAL MATCH (c)-[:REQUIRES]->(req:Concept)
-      ${extendWith('COLLECT(DISTINCT req.id)', 'reqs')}
-
-      OPTIONAL MATCH (explainer:User)-[:CREATED]->(e:Explanation)
-        -[:EXPLAINS]->(c)
-      OPTIONAL MATCH (u:User)-[v:VOTED]->(e)
-      WITH COUNT(u) AS votes, e, explainer, ${globalWith}
-      ${extendWith(`COLLECT({
-        id: e.id, content: e.content, paywalled: e.paywalled, votes: votes,
-        hasVoted: 0, createdAt: e.createdAt,
-        author: {id: explainer.id, name: explainer.name}
-      })`, 'explanations')}
-
-      OPTIONAL MATCH (c)-[:CONTAINED_BY*0..]->(containers:Concept)
-      ${extendWith('COLLECT(DISTINCT containers.id)', 'path')}
-
-      RETURN c.id AS id, c.name AS name, c.summary AS summary,
-        c.summarySource AS summarySource, c.color AS color, path, reqs,
-        container, conceptsCount, explanations
-      ORDER BY conceptsCount DESC
-    `;
-
-    if (limit || args.limit) queryStr += 'LIMIT ' + (limit || args.limit);
-
-    return query(queryStr, args).then(dbData => {
-      let concepts = dbData.map(concept => {
-        if (!concept) return;
-        if (concept.explanations[0].id == null) concept.explanations = [];
-        if (concept.container.id == null) concept.container = null;
-
-        return concept;
-      });
-      return limit == 1 ? concepts[0] : concepts;
-    });
+    if (_.isEmpty(params)) return Promise.resolve([]);
+    return query(queryString, conceptQuery.params).then(filterEmpty);
   },
 
   create(data, user="wat") {
@@ -137,13 +301,13 @@ export default {
       `
 				CREATE (c:Concept {attrs})
 
-				${subQuery.containConcept(params.container)}
-				${subQuery.connectConcepts(params.reqs)}
+				${subCreates.containConcept(params.container)}
+				${subCreates.connectConcepts(params.reqs)}
 
 				RETURN c.id AS id
 			`,
       params
-    ).then(dbData => this.find({id: dbData[0].id}));
+    ).then(dbData => dbData[0].id);
   },
 
   update(user, id, data) {
@@ -170,8 +334,8 @@ export default {
 
 				DELETE containerRel, reqRel
 
-				${subQuery.containConcept(container)}
-				${subQuery.connectConcepts(params.reqs)}
+				${subCreates.containConcept(container)}
+				${subCreates.connectConcepts(params.reqs)}
 				SET c += {data}
 			`,
         params
@@ -189,24 +353,6 @@ export default {
 			`,
       {id}
     );
-  },
-
-  reposition(concepts) {
-    return new Promise(resolve => {
-      db.cypher(concepts.map((concept) => {
-        return {
-          'query': `
-					MATCH (c:Concept)
-					WHERE c.id = {id}
-					SET c += {pos}
-				`,
-          'params': _.extend(
-            _.pick(concept, 'id'),
-            {'pos': _.pick(concept, 'x', 'y', 'r')}
-          )
-        };
-      }), () => this.all().then(resolve));
-    });
   }
 
 };

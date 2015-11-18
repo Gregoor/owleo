@@ -18,6 +18,11 @@ class ConceptInfo extends Component {
             {this.renderReqs()}
             <p style={{paddingTop: 10}}>{summary}</p>
           </div>
+          <div className="mdl-card__menu">
+            <button className="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+              <i className="material-icons">school</i>
+            </button>
+          </div>
         </div>
         {this.renderExplanations()}
       </div>
