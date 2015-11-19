@@ -70,6 +70,6 @@ type User implements Node {
 type Viewer {
   identities: [User]
   conceptRoot: Concept
-  concept(path: String): Concept
+  concept(path: String, id: String): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
 }

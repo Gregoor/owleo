@@ -30,8 +30,7 @@ class ConceptListItem extends Component {
     if (!this.isSelected) {
       if (concept.id == selectedId || _.isArray(selectedPath) && _.isEmpty(selectedPath)) {
         this.isSelected = true;
-        this.refs.label.scrollIntoView();
-        console.log(concept.name);
+        this.refs.label.scrollIntoView({behavior: 'smooth'});
       } else this.isSelected = false;
     }
   }

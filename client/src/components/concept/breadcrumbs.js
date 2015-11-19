@@ -11,13 +11,13 @@ class ConceptBreadcrumbs extends Component {
 
     let breadcrumbs = path.slice(1).reverse().map(concept => (
       <span key={concept.id}>
-        <Link to={pathToUrl(concept.path)}>{concept.name}</Link>
+        <Link to={'/id/' + concept.id}>{concept.name}</Link>
         <span style={{padding: 5}}>></span>
       </span>
     ));
 
     return (
-      <p style={{margin: 0, padding: 15, fontSize: 16}}>
+      <p style={{margin: 0, padding: '10px 15px', fontSize: 16}}>
         {breadcrumbs}
         <em>{name}</em>
       </p>
@@ -37,9 +37,6 @@ export default Relay.createContainer(ConceptBreadcrumbs, {
         path {
           id,
           name,
-          path {
-            name
-          }
         }
       }
     `

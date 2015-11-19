@@ -30,6 +30,10 @@ export default () => (
              {...{renderLoading}}>
         <Route path=":path*"/>
       </Route>
+      <Route path="id" component={ConceptPage} queries={ViewerQuery}
+        {...{renderLoading}}>
+        <Route path=":id"/>
+      </Route>
       <Route path="/auth" component={AuthPage} queries={ViewerQuery}
              {...{renderLoading}}/>
     </Route>

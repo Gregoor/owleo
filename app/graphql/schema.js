@@ -42,7 +42,8 @@ let ViewerType = new GraphQLObjectType({
     concept: {
       type: ConceptGQL.type,
       args: {
-        path: {type: GraphQLString}
+        path: {type: GraphQLString},
+        id: {type: GraphQLString}
       },
       resolve(root, args, context) {
         if (args.id) {

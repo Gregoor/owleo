@@ -7,6 +7,7 @@ import ConceptList from './list';
 import ConceptInfo from './info';
 import ConceptForm from './form';
 import ConceptMap from './map';
+import {pathToUrl} from '../../helpers';
 
 class ConceptPage extends Component {
 
@@ -23,10 +24,11 @@ class ConceptPage extends Component {
   render() {
     let {viewer, relay, query, navType} = this.props;
     let {conceptRoot, concept} = viewer;
-    let {selectedPath} = relay.variables;
+    let {selectedPath, selectedId} = relay.variables;
     let {showForm} = this.state;
 
-    let hasSelection = concept && selectedPath && this.state.selectedPath;
+    let hasSelection = concept && (selectedId && this.state.selectedId) ||
+      (selectedPath && this.state.selectedPath);
 
     if (!concept) concept = {};
     let list;
@@ -50,7 +52,7 @@ class ConceptPage extends Component {
     }
 
     return (
-      <div className="mdl-grid" style={{padding: 0}}>
+      <div className="mdl-grid" style={{padding: 0, height: '90%'}}>
 
         <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
              style={{backgroundColor: 'white', margin: 0, width: '100%'}}>
@@ -85,12 +87,25 @@ class ConceptPage extends Component {
   }
 
   _setSelectedPath(props) {
-    let {params, query} = props;
-    let {path, splat} = params;
-    let selectedPath = path + splat;
-    this.setState({selectedPath});
-    if (!selectedPath || selectedPath == this.state.selectedPath) return;
-    this.props.relay.setVariables({selectedPath});
+    let {params} = props;
+    let {id, path, splat} = params;
+
+    if (id) {
+      this.setState({selectedId: id, selectedPath: null});
+      if (id == this.state.selectedId) {
+        let {concept} = props.viewer;
+        if (concept) {
+          this.props.history.replaceState(null, pathToUrl(concept.path));
+        }
+        return;
+      }
+      this.props.relay.setVariables({selectedId: id, selectedPath: null});
+    } else {
+      let selectedPath = path + splat;
+      this.setState({selectedPath, selectedId: null});
+      if (!selectedPath || selectedPath == this.state.selectedPath) return;
+      this.props.relay.setVariables({selectedPath, selectedId: null});
+    }
   }
 
   _onOpenCreate() {
@@ -105,7 +120,7 @@ class ConceptPage extends Component {
 
 export default Relay.createContainer(ConceptPage, {
 
-  initialVariables: {selectedPath: null},
+  initialVariables: {selectedPath: null, selectedId: null},
 
   fragments: {
     viewer: (vars) => Relay.QL`
@@ -114,8 +129,11 @@ export default Relay.createContainer(ConceptPage, {
           ${ConceptList.getFragment('concept')}
           ${ConceptMap.getFragment('concept')}
         },
-        concept(path: $selectedPath) {
+        concept(path: $selectedPath, id: $selectedId) {
           id,
+          path {
+            name
+          }
           ${ConceptBreadcrumbs.getFragment('concept')}
           ${ConceptInfo.getFragment('concept')}
         },

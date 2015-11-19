@@ -33,7 +33,7 @@ let subCreates = {
 };
 
 let asAliases = (fields) => fields.map(([, alias]) => alias).join(',');
-const FILTER_FIELDS = ['concepts', 'container', 'reqs', 'path', 'explanations'];
+const FILTER_FIELDS = ['concepts', 'container', 'reqs', 'explanations'];
 let filterEmptyAndOrder = concepts => {
   for (let concept of concepts) {
     for (let field of FILTER_FIELDS) {
@@ -171,26 +171,13 @@ class ConceptQuery {
       );
     }
 
-    if (path) {
-      this._queryParts.push(`
-        OPTIONAL MATCH ${this._alias}-[:CONTAINED_BY*0..]->(containers:Concept)
-      `);
-      let pathField = '';
-      if (path.path) {
-        this._queryParts.push(`OPTIONAL MATCH (containers)-[:CONTAINED_BY*0..]->
-          (containerContainers:Concept)`);
-        this._addWithToQuery(`containers, COLLECT(DISTINCT {
-          id: containerContainers.id, name: containerContainers.name
-        }) AS containersPath`);
-        pathField = `
-          , path: containersPath
-        `;
-      }
-      this._addToQuery('', [
+    if (path) this._addToQuery(
+      `OPTIONAL MATCH ${this._alias}-[:CONTAINED_BY*0..]->(containers:Concept)`,
+      [
         'path',
-        `COLLECT(DISTINCT {id: containers.id, name: containers.name${pathField}})`
-      ]);
-    }
+        `COLLECT(DISTINCT {id: containers.id, name: containers.name})`
+      ]
+    );
 
     if (explanations) this._addToQuery(
       `
