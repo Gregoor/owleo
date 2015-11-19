@@ -34,20 +34,20 @@ let subCreates = {
 
 let asAliases = (fields) => fields.map(([, alias]) => alias).join(',');
 const FILTER_FIELDS = ['concepts', 'container', 'reqs', 'path', 'explanations'];
-let filterEmpty = concepts => {
+let filterEmptyAndOrder = concepts => {
   for (let concept of concepts) {
     for (let field of FILTER_FIELDS) {
       let val = concept[field];
       if (_.isArray(val)) {
         if (!val[0].id) concept[field] = [];
-        else filterEmpty(concept[field]);
+        else concept[field] = filterEmptyAndOrder(concept[field]);
       } else if (_.isObject(val)) {
         if (!val.id) concept[field] = null;
-        else filterEmpty([concept[field]]);
+        else filterEmptyAndOrder([concept[field]]);
       }
     }
   }
-  return concepts;
+  return _.sortBy(concepts, c => -c.conceptsCount);
 };
 
 class ConceptQuery {
@@ -292,7 +292,7 @@ export default {
 
     let queryString = conceptQuery.getQueryString({limit: params.limit});
 
-    return query(queryString, conceptQuery.params).then(filterEmpty);
+    return query(queryString, conceptQuery.params).then(filterEmptyAndOrder);
   },
 
   create(data, user="wat") {
