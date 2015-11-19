@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Relay from 'react-relay';
 import {Router, Route, Redirect} from 'react-router';
 import createBrowserHistory from 'history/lib/createBrowserHistory'
-import ReactRouterRelay from 'react-router-relay';
+import {RelayRouter} from 'react-router-relay';
 
 import Layout from './layout';
 import ConceptPage from './concept/page';
@@ -21,21 +21,19 @@ let renderLoading = () => (
        style={{left: '50%', top: '5px'}}/>
 );
 
+let commonProps = {renderLoading, queries: ViewerQuery};
+
 export default () => (
-  <Router //history={createBrowserHistory()}
-          createElement={ReactRouterRelay.createElement}>
+  <RelayRouter /*history={createBrowserHistory()}*/>
     <Redirect from="/" to="/concepts"/>
     <Route path="/" component={Layout}>
-      <Route path="concepts" component={ConceptPage} queries={ViewerQuery}
-             {...{renderLoading}}>
+      <Route path="concepts" component={ConceptPage} {...commonProps}>
         <Route path=":path*"/>
       </Route>
-      <Route path="id" component={ConceptPage} queries={ViewerQuery}
-        {...{renderLoading}}>
+      <Route path="id" component={ConceptPage} {...commonProps}>
         <Route path=":id"/>
       </Route>
-      <Route path="/auth" component={AuthPage} queries={ViewerQuery}
-             {...{renderLoading}}/>
+      <Route path="auth" component={AuthPage} {...commonProps}/>
     </Route>
-  </Router>
+  </RelayRouter>
 );
