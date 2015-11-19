@@ -7,19 +7,26 @@ import {pathToUrl} from '../../helpers';
 class ConceptBreadcrumbs extends Component {
 
   render() {
-    let {name, path} = this.props.concept;
+    let breadcrumbs = [];
+    let label;
+    if (this.props.concept) {
+      let {name, path} = this.props.concept;
 
-    let breadcrumbs = path.slice(1).reverse().map(concept => (
-      <span key={concept.id}>
+      label = name;
+      breadcrumbs = path.slice(1).reverse().map(concept => (
+        <span key={concept.id}>
         <Link to={'/id/' + concept.id}>{concept.name}</Link>
         <span style={{padding: 5}}>></span>
       </span>
-    ));
+      ));
+    } else label = 'No concept selected';
+
+
 
     return (
       <p style={{margin: 0, padding: '10px 15px', fontSize: 16}}>
         {breadcrumbs}
-        <em>{name}</em>
+        <em>{label}</em>
       </p>
     );
   }
