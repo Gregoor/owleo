@@ -5,7 +5,7 @@ import './icon-switch.scss';
 
 class Layout extends Component {
 
-  state = {query: '', navType: 'list'};
+  state = {query: '', navType: localStorage.navType};
 
   componentDidUpdate() {
     window.componentHandler.upgradeDom();
@@ -16,6 +16,8 @@ class Layout extends Component {
 
     let children = React.cloneElement(this.props.children, {query, navType});
 
+    let showMap = navType == 'map';
+
     return (
       <div className="mdl-layout">
         <header className="mdl-layout__header">
@@ -23,12 +25,12 @@ class Layout extends Component {
             <label className="icon-switch mdl-switch mdl-js-switch mdl-js-ripple-effect"
                    style={{width: 'auto', marginRight: '15px'}}>
               <input type="checkbox" className="mdl-switch__input"
-                     onChange={this.onChangeNav.bind(this)}/>
-              <i className={`material-icons on ${navType != 'list' ? 'hide' : ''}`} key="list">
+                     onChange={this.onChangeNav.bind(this)} defaultChecked={showMap}/>
+              <i className={`material-icons on ${showMap ? 'hide' : ''}`} key="list">
                 list
               </i>
-              <i className={`material-icons off ${navType != 'map' ? 'hide' : ''}`} key="map">
-                map
+              <i className={`material-icons off ${!showMap ? 'hide' : ''}`} key="map">
+                layers
               </i>
               <span className="mdl-switch__label"/>
             </label>
@@ -83,6 +85,7 @@ class Layout extends Component {
 
   onChangeNav(event) {
     let switchTo = event.target.checked ? 'map' : 'list';
+    localStorage.setItem('navType', switchTo);
     this.setState({navType: switchTo});
   }
 
