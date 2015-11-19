@@ -119,7 +119,7 @@ class ConceptQuery {
 
   withFields(fields: {}) {
     let {
-      id, name, summary, summarySource,
+      id, name, summary, summarySource, conceptsCount,
       container, concepts, reqs,  path, explanations
     } = fields;
 
@@ -128,6 +128,11 @@ class ConceptQuery {
         .filter(f => fields[f])
         .map(f => [f, `${this._alias}.${f}`])
         .value()
+    );
+
+    if (conceptsCount) this._addToQuery(
+      `OPTIONAL MATCH (${this._alias})<-[:CONTAINED_BY]-(containees:Concept)`,
+      ['conceptsCount', 'COUNT(DISTINCT containees)']
     );
 
     if (concepts) {
@@ -217,14 +222,11 @@ class ConceptQuery {
     let queryString = this._queryParts.join('\n');
 
     if (_.isEmpty(parentFields)) {
-      return queryString + `
-        OPTIONAL MATCH (${alias})<-[:CONTAINED_BY]-(containees:Concept)
-        WITH COUNT(DISTINCT containees) AS conceptsCount,
-          ${asAliases(fields)}
 
-        RETURN ${alias}.id AS id, conceptsCount,
+      return `${queryString}
+        WITH ${asAliases(fields)}
+        RETURN ${alias}.id AS id,
           ${returnFields.map(([label, alias]) => `${alias} AS ${label}`)}
-        ORDER BY conceptsCount DESC
         ${this._limit || limit ? 'LIMIT ' + (this._limit || limit) : ''}
       `;
     } else {
@@ -274,6 +276,7 @@ export default {
   ERRORS,
 
   find(params = {}, fields = {}) {
+    if (_.isEmpty(params)) return Promise.resolve([]);
     let conceptQuery = new ConceptQuery();
 
     if (params.path) conceptQuery.hasPath(params.path);
@@ -289,7 +292,6 @@ export default {
 
     let queryString = conceptQuery.getQueryString({limit: params.limit});
 
-    if (_.isEmpty(params)) return Promise.resolve([]);
     return query(queryString, conceptQuery.params).then(filterEmpty);
   },
 
