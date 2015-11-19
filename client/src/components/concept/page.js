@@ -63,7 +63,7 @@ class ConceptPage extends Component {
              style={{margin: 0, backgroundColor: 'white'}}>
           <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
                style={{
-                height: '90%', marginTop: '5px',
+                height: '97%', marginTop: '5px',
                 overflowY: navType == 'map' ? 'auto' : 'scroll'
                }}>
             {list}
