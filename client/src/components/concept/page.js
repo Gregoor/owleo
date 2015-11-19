@@ -52,18 +52,19 @@ class ConceptPage extends Component {
     }
 
     return (
-      <div className="mdl-grid" style={{padding: 0, height: '90%'}}>
+      <div className="mdl-grid" style={{padding: 0, height: '90%',
+                                        marginTop: '11px', maxWidth: '1300px'}}>
 
-        <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
-             style={{backgroundColor: 'white', margin: 0, width: '100%'}}>
-          {hasSelection ? <ConceptBreadcrumbs {...{concept}}/> : ''}
-        </div>
-
-        <div className="mdl-cell mdl-cell--6-col mdl-cell--stretch"
-             style={{margin: 0, backgroundColor: 'white'}}>
+        <div className="mdl-cell mdl-cell--6-col mdl-cell--stretch mdl-shadow--2dp"
+             style={{maxWidth: '500px', margin: 0, backgroundColor: 'white'}}>
+          <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
+               style={{backgroundColor: 'white', margin: 0, width: '100%',
+                        borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
+            {hasSelection ? <ConceptBreadcrumbs {...{concept}}/> : ''}
+          </div>
           <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
                style={{
-                height: '97%', marginTop: '5px',
+                height: '92.5%', marginTop: '5px',
                 overflowY: navType == 'map' ? 'auto' : 'scroll'
                }}>
             {list}
@@ -71,7 +72,7 @@ class ConceptPage extends Component {
         </div>
 
         <div className="mdl-cell mdl-cell--6-col"
-             style={{maxWidth: 512/*330*/, margin: '10px auto'}}>
+             style={{maxWidth: 512/*330*/, margin: '0 auto'}}>
           {content}
         </div>
 
