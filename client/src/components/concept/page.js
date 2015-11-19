@@ -90,15 +90,13 @@ class ConceptPage extends Component {
     let {params} = props;
     let {id, path, splat} = params;
 
+    let {concept} = props.viewer;
+    if (id && id == concept.id) {
+      this.props.history.replaceState('', pathToUrl(concept.path));
+    }
     if (id) {
       this.setState({selectedId: id, selectedPath: null});
-      if (id == this.state.selectedId) {
-        let {concept} = props.viewer;
-        if (concept) {
-          this.props.history.replaceState(null, pathToUrl(concept.path));
-        }
-        return;
-      }
+      if (id == this.state.selectedId) return;
       this.props.relay.setVariables({selectedId: id, selectedPath: null});
     } else {
       let selectedPath = path + splat;
