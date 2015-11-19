@@ -35,7 +35,8 @@ let ConceptType = new GraphQLObjectType({
       type: new GraphQLList(ConceptType),
       resolve(root, args, context) {
         if (root.concepts) return root.concepts;
-        args.container = root.id || '';
+        args.container = '';
+        if (root[0] && root[0].id) args.container = root[0].id;
         return Concept.find(args, getFieldList(context));
       }
     },

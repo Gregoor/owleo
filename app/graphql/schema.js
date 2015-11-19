@@ -60,11 +60,11 @@ let ViewerType = new GraphQLObjectType({
         limit: {type: GraphQLInt},
         exclude: {type: new GraphQLList(GraphQLString)}
       },
-      resolve(root, args) {
+      resolve(root, args, context) {
         if (args.exclude) {
           args.exclude = args.exclude.map(id => fromGlobalId(id).id);
         }
-        return args.query ? Concept.find(args) : [];
+        return args.query ? Concept.find(args, getFieldList(context)) : [];
       }
     }
   }
