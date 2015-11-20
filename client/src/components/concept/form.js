@@ -52,7 +52,9 @@ class ConceptForm extends Component {
         reqs: reqs.refs.component.getSelected().map(c => c.id)
         }),
       {
-        onSuccess: t => console.log('fuck yeah', t),
+        onSuccess: t => {
+          this.props.history.pushState(null, 'id/' + t.createConcept.conceptId);
+        },
         onFailure: t => console.error(t.getError().source.errors)
       }
     );

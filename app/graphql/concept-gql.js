@@ -2,9 +2,12 @@ import {
   GraphQLObjectType,
   GraphQLList,
   GraphQLString,
-  GraphQLInt
+  GraphQLInt,
+  GraphQLID
 } from 'graphql';
-import {globalIdField, mutationWithClientMutationId} from 'graphql-relay';
+import {
+  fromGlobalId, toGlobalId, globalIdField,
+  mutationWithClientMutationId} from 'graphql-relay';
 
 import getFieldList from './get-field-list';
 import NodeGQL from './node-gql';
@@ -54,12 +57,22 @@ export default {
       name: {type: GraphQLString},
       summary: {type: GraphQLString},
       summarySource: {type: GraphQLString},
-      container: {type: GraphQLString},
-      reqs: {type: new GraphQLList(GraphQLString)}
+      container: {type: GraphQLID},
+      reqs: {type: new GraphQLList(GraphQLID)}
     },
     outputFields: {
-      conceptEdge: {type: GraphQLString}
+      conceptId: {type: GraphQLID}
     },
-    mutateAndGetPayload: (input, root) => Concept.create(input)
+    mutateAndGetPayload: (input, root) => {
+      if (input.container) {
+        input.container = fromGlobalId(input.container).id;
+      }
+      if (input.reqs) {
+        input.reqs = input.reqs.map(req => fromGlobalId(req).id);
+      }
+      return Concept.create(input).then(id => {
+        return {conceptId: toGlobalId('Concept', id)}
+      });
+    }
   })
 };

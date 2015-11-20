@@ -6,6 +6,7 @@ import {RelayRouter} from 'react-router-relay';
 
 import Layout from './layout';
 import ConceptPage from './concept/page';
+import ConceptForm from './concept/form';
 import AuthPage from './auth-page';
 
 Relay.injectNetworkLayer(
@@ -28,6 +29,7 @@ export default () => (
     <Redirect from="/" to="/concepts"/>
     <Route path="/" component={Layout}>
       <Route path="concepts" component={ConceptPage} {...commonProps}>
+        <Route path="new" component={ConceptForm}/>
         <Route path=":path*"/>
       </Route>
       <Route path="id" component={ConceptPage} {...commonProps}>

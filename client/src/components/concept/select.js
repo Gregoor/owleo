@@ -101,6 +101,7 @@ class ConceptSelect extends Component {
 
   _onChange(event) {
     let {value: query} = event.target;
+    if (query.length < 3) return;
     if (!this.props.multi) this.selected = [];
     if (!query) this.setState({itemsVisible: false});
     this.setState({showList: true, focused: 0});

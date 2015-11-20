@@ -99,12 +99,13 @@ class ConceptQuery {
     this.params.container = container;
   }
 
-  matchesQuery(query, {exclude = ''}) {
+  matchesQuery(query, exclude = '') {
     this._addToQuery(
       (exclude ? `WHERE NOT(${this._alias}.id IN {exclude}) AND` : 'WHERE') +
       ` ${this._alias}.name =~ {query}`
     );
     this.params.query = `.*${query}.*`;
+    if (exclude) this.params.exclude = exclude;
   }
 
   forUser(userId) {
@@ -212,7 +213,7 @@ class ConceptQuery {
 
       return `${queryString}
         WITH ${asAliases(fields)}
-        RETURN ${alias}.id AS id,
+        RETURN DISTINCT ${alias}.id AS id,
           ${returnFields.map(([label, alias]) => `${alias} AS ${label}`)}
         ${this._limit || limit ? 'LIMIT ' + (this._limit || limit) : ''}
       `;
@@ -269,7 +270,7 @@ export default {
     if (params.path) conceptQuery.hasPath(params.path);
 
     if (params.id) conceptQuery.idEquals(params.id);
-    else if (params.query) conceptQuery.matchesQuery(params.query);
+    else if (params.query) conceptQuery.matchesQuery(params.query, params.exclude);
 
     conceptQuery.forUser(params.userId);
 
@@ -328,7 +329,7 @@ export default {
 				SET c += {data}
 			`,
         params
-      ).then(() => this.find(user, id));
+      ).then(() => id);
     });
   },
 

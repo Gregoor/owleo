@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
+import {Link} from 'react-router';
 
 import SearchResults from './results';
 import ConceptBreadcrumbs from './breadcrumbs';
@@ -11,7 +12,7 @@ import {pathToUrl} from '../../helpers';
 
 class ConceptPage extends Component {
 
-  state = {concept: null, showForm: false};
+  state = {concept: null};
 
   componentWillMount() {
     this._setSelectedPath(this.props);
@@ -25,7 +26,6 @@ class ConceptPage extends Component {
     let {viewer, relay, query, navType} = this.props;
     let {conceptRoot, concept} = viewer;
     let {selectedPath, selectedId} = relay.variables;
-    let {showForm} = this.state;
 
     let hasSelection = concept && (selectedId && this.state.selectedId) ||
       (selectedPath && this.state.selectedPath);
@@ -44,9 +44,8 @@ class ConceptPage extends Component {
     }
 
     let content;
-    if (showForm) {
-      content = <ConceptForm {...{viewer}}
-        onAbort={this._onCloseCreate.bind(this)} />;
+    if (this.props.children) {
+      content = React.cloneElement(this.props.children, {viewer});
     } else {
       content = hasSelection ? <ConceptInfo {...{concept}}/> : '';
     }
@@ -76,12 +75,12 @@ class ConceptPage extends Component {
           {content}
         </div>
 
-        <button style={{position: 'fixed', right: 30, bottom: 30}}
+        <Link style={{position: 'fixed', right: 30, bottom: 30}}
                 className="mdl-button mdl-js-button mdl-button--fab
                            mdl-js-ripple-effect mdl-button--colored"
-                onClick={this._onOpenCreate.bind(this)}>
+                to="/concepts/new">
           <i className="material-icons">add</i>
-        </button>
+        </Link>
 
       </div>
     );
@@ -107,14 +106,6 @@ class ConceptPage extends Component {
     }
   }
 
-  _onOpenCreate() {
-    this.setState({showForm: true});
-  }
-
-  _onCloseCreate() {
-    this.setState({showForm: false});
-  }
-
 }
 
 export default Relay.createContainer(ConceptPage, {
@@ -136,7 +127,7 @@ export default Relay.createContainer(ConceptPage, {
           ${ConceptBreadcrumbs.getFragment('concept')}
           ${ConceptInfo.getFragment('concept')}
         },
-        ${SearchResults.getFragment('viewer')},
+        ${SearchResults.getFragment('viewer')}
         ${ConceptForm.getFragment('viewer')}
       }
     `

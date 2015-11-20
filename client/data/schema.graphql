@@ -14,13 +14,13 @@ input CreateConceptInput {
   name: String
   summary: String
   summarySource: String
-  container: String
-  reqs: [String]
+  container: ID
+  reqs: [ID]
   clientMutationId: String!
 }
 
 type CreateConceptPayload {
-  conceptEdge: String
+  conceptId: ID
   clientMutationId: String!
 }
 
