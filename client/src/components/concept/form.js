@@ -54,6 +54,7 @@ class ConceptForm extends Component {
       {
         onSuccess: t => {
           this.props.history.pushState(null, 'id/' + t.createConcept.conceptId);
+          location.reload();
         },
         onFailure: t => console.error(t.getError().source.errors)
       }
