@@ -72,7 +72,6 @@ class ConceptListItem extends Component {
                 style={headStyle}>
             {name}
           </Link>
-          <hr style={{margin: 0}}/>
         </div>
         {sublist}
       </li>
