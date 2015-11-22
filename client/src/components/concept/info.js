@@ -2,7 +2,9 @@ import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 
+import DeleteConceptMutation from '../../mutations/concept/delete';
 import {pathToUrl} from '../../helpers';
+import {Button} from '../mdl';
 
 class ConceptInfo extends Component {
 
@@ -19,9 +21,17 @@ class ConceptInfo extends Component {
             <p style={{paddingTop: 10}}>{summary}</p>
           </div>
           <div className="mdl-card__menu">
-            <button className="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+            <Button buttonType={['icon', 'accent']}>
               <i className="material-icons">school</i>
-            </button>
+            </Button>
+          </div>
+          <div className="mdl-card__actions mdl-card--border">
+            <Button onClick={this.onDelete.bind(this)}>
+              Delete
+            </Button>
+            <Button onClick={this.onEdit.bind(this)}>
+              Edit
+            </Button>
           </div>
         </div>
         {this.renderExplanations()}
@@ -54,6 +64,26 @@ class ConceptInfo extends Component {
     ));
   }
 
+  onDelete() {
+    let {concept} = this.props;
+    if (!confirm(`Do you really want to delete "${concept.name}"?`)) return;
+
+    Relay.Store.update(
+      new DeleteConceptMutation({conceptId: concept.id}),
+      {
+        onSuccess: t => {
+          location.hash = '/concepts';
+          location.reload();
+        },
+        onFailure: t => console.error(t.getError().source.errors)
+      }
+    );
+  }
+
+  onEdit() {
+
+  }
+
 }
 
 export default Relay.createContainer(ConceptInfo, {
@@ -63,6 +93,7 @@ export default Relay.createContainer(ConceptInfo, {
   fragments: {
     concept: (variables) =>  Relay.QL`
       fragment on Concept {
+        id,
         name,
         summary,
         reqs {

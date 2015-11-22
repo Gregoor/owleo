@@ -71,7 +71,7 @@ class ConceptPage extends Component {
         </div>
 
         <div className="mdl-cell mdl-cell--6-col"
-             style={{maxWidth: 512/*330*/, margin: '0 auto'}}>
+             style={{maxWidth: 512, margin: '0 auto'}}>
           {content}
         </div>
 

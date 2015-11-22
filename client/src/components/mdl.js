@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import {Link} from 'react-router';
+import classnames from 'classnames';
 
 class TextField extends Component {
 
@@ -24,8 +26,6 @@ class TextField extends Component {
 
 }
 
-
-
 class TextArea extends Component {
 
   render() {
@@ -46,4 +46,28 @@ class TextArea extends Component {
 
 }
 
-export default {TextField, TextArea};
+const BUTTON_PREFIX = 'mdl-button--';
+let Button = (props) => {
+  let {buttonType, to} = props;
+
+  let buttonTypeClasses = [];
+  if (buttonType) {
+    buttonTypeClasses = _.isArray(buttonType) ?
+      buttonType.map(type => BUTTON_PREFIX + type) : BUTTON_PREFIX + buttonType;
+  }
+  let className = classnames('mdl-button mdl-js-button mdl-js-ripple-effect',
+    buttonTypeClasses
+  );
+
+  let button = (
+    <button className={className} type="button" {...props}>
+      {props.children}
+    </button>
+  );
+
+  if (to) button = <Link {...{to}}>{button}</Link>;
+
+  return button;
+};
+
+export default {TextField, TextArea, Button};

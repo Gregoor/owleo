@@ -3,6 +3,7 @@ import {
   GraphQLList,
   GraphQLString,
   GraphQLInt,
+  GraphQLBoolean,
   GraphQLID
 } from 'graphql';
 import {
@@ -60,9 +61,7 @@ export default {
       container: {type: GraphQLID},
       reqs: {type: new GraphQLList(GraphQLID)}
     },
-    outputFields: {
-      conceptId: {type: GraphQLID}
-    },
+    outputFields: {conceptId: {type: GraphQLID}},
     mutateAndGetPayload: (input, root) => {
       if (input.container) {
         input.container = fromGlobalId(input.container).id;
@@ -72,6 +71,16 @@ export default {
       }
       return Concept.create(input).then(id => {
         return {conceptId: toGlobalId('Concept', id)}
+      });
+    }
+  }),
+  delete: mutationWithClientMutationId({
+    name: 'DeleteConcept',
+    inputFields: {conceptId: {type: GraphQLID}},
+    outputFields: {success: {type: GraphQLBoolean}},
+    mutateAndGetPayload: (input, root) => {
+      return Concept.delete(fromGlobalId(input.conceptId).id).then(() => {
+        return {success: true};
       });
     }
   })

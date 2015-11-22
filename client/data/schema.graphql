@@ -24,6 +24,16 @@ type CreateConceptPayload {
   clientMutationId: String!
 }
 
+input DeleteConceptInput {
+  conceptId: ID
+  clientMutationId: String!
+}
+
+type DeleteConceptPayload {
+  success: Boolean
+  clientMutationId: String!
+}
+
 type Explanation {
   id: ID!
   content: String
@@ -50,6 +60,7 @@ type LoginPayload {
 
 type Mutation {
   createConcept(input: CreateConceptInput!): CreateConceptPayload
+  deleteConcept(input: DeleteConceptInput!): DeleteConceptPayload
   login(input: LoginInput!): LoginPayload
 }
 

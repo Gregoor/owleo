@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
-import {TextField, TextArea} from '../mdl';
+import {Button, TextField, TextArea} from '../mdl';
 import ConceptSelect from './select.js';
-import CreateConceptMutation from '../../mutations/create-concept-mutation';
+import CreateConceptMutation from '../../mutations/concept/create';
 
 class ConceptForm extends Component {
 
@@ -26,14 +26,12 @@ class ConceptForm extends Component {
                        label="Source of summary"/>
           </div>
           <div className="mdl-card__actions mdl-card--border">
-            <button type="buton" onClick={this.props.onAbort}
-                    className="mdl-button mdl-js-button mdl-js-ripple-effect">
+            <Button type="button" onClick={this.props.onAbort}>
             Abort
-            </button>
-            <button type="submit" className="mdl-button mdl-button--colored
-                                    mdl-js-button mdl-js-ripple-effect">
+            </Button>
+            <Button type="submit" buttonType="primary">
               Create
-            </button>
+            </Button>
           </div>
         </div>
       </form>
