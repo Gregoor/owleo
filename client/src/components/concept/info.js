@@ -64,11 +64,15 @@ class ConceptInfo extends Component {
     return [
       ...concept.explanations.edges.map(edge => {
         let {node: explanation} = edge;
+
+        let {type, content} = explanation;
         return (
           <div key={explanation.id}
                className="mdl-card mdl-shadow--2dp card-auto-fit">
-            <div className="mdl-card__supporting-text"
-                 dangerouslySetInnerHTML={{__html: explanation.content}}/>
+            <div className="mdl-card__supporting-text">
+              {type == 'link' ? <a href={content}>{content}</a> :
+                <div dangerouslySetInnerHTML={{__html: explanation.content}}/>}
+            </div>
           </div>
         )
       }),
@@ -128,6 +132,7 @@ export default Relay.createContainer(ConceptInfo, {
           edges {
             node {
               id,
+              type,
               content
             }
           }
