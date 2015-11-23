@@ -14,7 +14,7 @@ class TextField extends Component {
       <div className="mdl-textfield mdl-js-textfield
                       mdl-textfield--floating-label">
         <input ref="input" className="mdl-textfield__input"
-               {...{id, type, onChange}}/>
+               {...this.props}/>
         <label className="mdl-textfield__label" htmlFor={id}>{label}</label>
       </div>
     );
@@ -29,12 +29,12 @@ class TextField extends Component {
 class TextArea extends Component {
 
   render() {
-    let {id, label, rows} = this.props;
+    let {id, label} = this.props;
     return (
       <div className="mdl-textfield mdl-js-textfield
-                    mdl-textfield--floating-label">
+                    mdl-textfield--floating-label" style={{width: '100%'}}>
         <textarea ref="textarea" className="mdl-textfield__input"
-                  {...{id, rows}}/>
+                  {...this.props}/>
         <label className="mdl-textfield__label" htmlFor={id}>{label}</label>
       </div>
     );

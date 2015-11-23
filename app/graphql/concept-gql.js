@@ -32,6 +32,7 @@ let ConceptType = new GraphQLObjectType({
     name: {type: GraphQLString},
     path: {type: new GraphQLList(ConceptType)},
     summary: {type: GraphQLString},
+    summarySource: {type: GraphQLString},
     conceptsCount: {type: GraphQLInt},
     container: {type: ConceptType},
     reqs: {type: new GraphQLList(ConceptType)},
@@ -72,6 +73,28 @@ export default {
       return Concept.create(input).then(id => {
         return {conceptId: toGlobalId('Concept', id)}
       });
+    }
+  }),
+  update: mutationWithClientMutationId({
+    name: 'UpdateConcept',
+    inputFields: {
+      id: {type: GraphQLID},
+      name: {type: GraphQLString},
+      summary: {type: GraphQLString},
+      summarySource: {type: GraphQLString},
+      container: {type: GraphQLID},
+      reqs: {type: new GraphQLList(GraphQLID)}
+    },
+    outputFields: {success: {type: GraphQLBoolean}},
+    mutateAndGetPayload: (input, root, context) => {
+      input.id = fromGlobalId(input.id).id;
+      if (input.container) {
+        input.container = fromGlobalId(input.container).id;
+      }
+      if (input.reqs) {
+        input.reqs = input.reqs.map(req => fromGlobalId(req).id);
+      }
+      return Concept.update(input.id, input).then(() => ({success: true}));
     }
   }),
   delete: mutationWithClientMutationId({

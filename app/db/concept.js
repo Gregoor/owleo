@@ -300,37 +300,29 @@ export default {
     ).then(dbData => dbData[0].id);
   },
 
-  update(user, id, data) {
+  update(id, data, user) {
     let params = _.extend(asParams(data), {id});
     let {container} = params;
 
-    let promise = container ?
-      this.isContainedBy(container, id) :
-      Promise.resolve(false);
+    return query(
+    `
+      MATCH (c:Concept) WHERE c.id = {id}
 
-    return promise.then(isContained => {
-      if (isContained) throw ERRORS.CONTAINER_LOOP;
+      OPTIONAL MATCH (c)-[containerRel:CONTAINED_BY]
+        ->(oldContainer:Concept)
+      WHERE oldContainer.id IS NULL OR oldContainer.id <> {container}
 
-      return query(
-        `
-				MATCH (c:Concept) WHERE c.id = {id}
+      OPTIONAL MATCH (c)-[reqRel:REQUIRES]->(oldReq:Concept)
+      WHERE NOT(oldReq.id IN {reqs})
 
-				OPTIONAL MATCH (c)-[containerRel:CONTAINED_BY]
-          ->(oldContainer:Concept)
-				WHERE oldContainer.id IS NULL OR oldContainer.id <> {container}
+      DELETE containerRel, reqRel
 
-				OPTIONAL MATCH (c)-[reqRel:REQUIRES]->(oldReq:Concept)
-				WHERE NOT(oldReq.id IN {reqs})
-
-				DELETE containerRel, reqRel
-
-				${subCreates.containConcept(container)}
-				${subCreates.connectConcepts(params.reqs)}
-				SET c += {data}
-			`,
-        params
-      ).then(() => id);
-    });
+      ${subCreates.containConcept(container)}
+      ${subCreates.connectConcepts(params.reqs)}
+      SET c += {attrs}
+    `,
+      params
+    ).then(() => id);
   },
 
   delete(id) {

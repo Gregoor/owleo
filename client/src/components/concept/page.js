@@ -47,7 +47,8 @@ class ConceptPage extends Component {
     if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
     } else {
-      content = hasSelection ? <ConceptInfo {...{concept}}/> : '';
+      content = hasSelection ?
+        <ConceptInfo key={concept.id} {...{viewer, concept}}/> : '';
     }
 
     return (
@@ -91,7 +92,7 @@ class ConceptPage extends Component {
     let {id, path, splat} = params;
 
     let {concept} = props.viewer;
-    if (id && id == concept.id) {
+    if (id && concept && id == concept.id) {
       this.props.history.replaceState('', pathToUrl(concept.path));
     }
     if (id) {
@@ -129,6 +130,7 @@ export default Relay.createContainer(ConceptPage, {
         },
         ${SearchResults.getFragment('viewer')}
         ${ConceptForm.getFragment('viewer')}
+        ${ConceptInfo.getFragment('viewer')}
       }
     `
   }

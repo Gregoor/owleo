@@ -4,6 +4,7 @@ import {Router, Route, Redirect} from 'react-router';
 import createBrowserHistory from 'history/lib/createBrowserHistory'
 import {RelayRouter} from 'react-router-relay';
 
+import history from 'history';
 import Layout from './layout';
 import ConceptPage from './concept/page';
 import ConceptForm from './concept/form';
@@ -25,7 +26,7 @@ let renderLoading = () => (
 let commonProps = {renderLoading, queries: ViewerQuery};
 
 export default () => (
-  <RelayRouter /*history={createBrowserHistory()}*/>
+  <RelayRouter history={history}>
     <Redirect from="/" to="/concepts"/>
     <Route path="/" component={Layout}>
       <Route path="concepts" component={ConceptPage} {...commonProps}>

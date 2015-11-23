@@ -19,6 +19,14 @@ class ConceptSelect extends Component {
   concepts = [];
   selected = [];
 
+  componentWillMount() {
+    let {defaultValue} = this.props;
+
+    if (defaultValue) {
+      this.selected = defaultValue;
+    }
+  }
+
   componentWillReceiveProps({viewer: {concepts}}) {
     if (this.state.itemsVisible && !concepts.length) {
       this.setState({itemsVisible: false});
@@ -68,6 +76,11 @@ class ConceptSelect extends Component {
       items = <li><em>No concepts found</em></li>;
     }
 
+    let defaultValue;
+    if (!multi && this.selected[0]) {
+      defaultValue = this.selected[0].name;
+    }
+
     return (
       <div onKeyDown={this._onKeyDown.bind(this)}
            onBlur={this._onBlur.bind(this)} onFocus={this._onFocus.bind(this)}>
@@ -75,7 +88,7 @@ class ConceptSelect extends Component {
                     mdl-textfield--floating-label">
           {selectedItems}
           <input className="mdl-textfield__input" type="text" ref="input"
-                 onChange={this._onChange.bind(this)} {...{id}}/>
+                 onChange={this._onChange.bind(this)} {...{id, defaultValue}}/>
           <label className={`mdl-textfield__label
                           ${multi && selectedItems.length ? 'has-values' : ''}`}
                  htmlFor={id}>

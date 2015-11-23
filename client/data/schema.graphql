@@ -3,6 +3,7 @@ type Concept implements Node {
   name: String
   path: [Concept]
   summary: String
+  summarySource: String
   conceptsCount: Int
   container: Concept
   reqs: [Concept]
@@ -60,6 +61,7 @@ type LoginPayload {
 
 type Mutation {
   createConcept(input: CreateConceptInput!): CreateConceptPayload
+  updateConcept(input: UpdateConceptInput!): UpdateConceptPayload
   deleteConcept(input: DeleteConceptInput!): DeleteConceptPayload
   login(input: LoginInput!): LoginPayload
 }
@@ -71,6 +73,21 @@ interface Node {
 type RootQuery {
   viewer: Viewer
   node(id: ID!): Node
+}
+
+input UpdateConceptInput {
+  id: ID
+  name: String
+  summary: String
+  summarySource: String
+  container: ID
+  reqs: [ID]
+  clientMutationId: String!
+}
+
+type UpdateConceptPayload {
+  success: Boolean
+  clientMutationId: String!
 }
 
 type User implements Node {

@@ -85,6 +85,7 @@ export default new GraphQLSchema({
     name: 'Mutation',
     fields: {
       createConcept: ConceptGQL.create,
+      updateConcept: ConceptGQL.update,
       deleteConcept: ConceptGQL.delete,
       login: mutationWithClientMutationId({
         name: 'Login',

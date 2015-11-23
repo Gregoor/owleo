@@ -5,11 +5,16 @@ import Relay from 'react-relay';
 import DeleteConceptMutation from '../../mutations/concept/delete';
 import {pathToUrl} from '../../helpers';
 import {Button} from '../mdl';
+import ConceptForm from './form';
 
 class ConceptInfo extends Component {
 
   render() {
-    let {name, summary, reqs} = this.props.concept;
+    let {viewer, concept} = this.props;
+    if (this.props.relay.variables.includeForm) {
+      return <ConceptForm {...{viewer, concept}}/>;
+    }
+    let {name, summary, reqs} = concept;
     return (
       <div>
         <div className="mdl-card mdl-shadow--2dp card-auto-fit">
@@ -81,17 +86,25 @@ class ConceptInfo extends Component {
   }
 
   onEdit() {
-
+    this.props.relay.setVariables({includeForm: true});
   }
 
 }
 
 export default Relay.createContainer(ConceptInfo, {
 
-  initialVariables: {id: null},
+  initialVariables: {includeForm: false},
 
   fragments: {
-    concept: (variables) =>  Relay.QL`
+    viewer: (variables) => Relay.QL`
+      fragment on Viewer {
+        identities {
+          id
+        }
+        ${ConceptForm.getFragment('viewer').if(variables.includeForm)}
+      }
+    `,
+    concept: (variables) => Relay.QL`
       fragment on Concept {
         id,
         name,
@@ -107,6 +120,7 @@ export default Relay.createContainer(ConceptInfo, {
           id,
           content
         }
+        ${ConceptForm.getFragment('concept').if(variables.includeForm)}
       }
     `
   }
