@@ -13,21 +13,35 @@ let subQueries = {
 
 export default {
 
-  create(data, conceptId, userId) {
-    let id = data.id = uuid.v4();
-    data.content = sanitizeHtml(data.content, {
-      'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u']
-    });
-    data.createdAt = Date.now();
+  find({id}) {
+    let fields = ['id', 'type', 'content', 'paywalled', 'createdAt']
+      .map(f => `e.${f} AS ${f}`).join(', ');
     return query(
       `
-        MATCH (u:User {id: {userId}})
+        MATCH (e:Explanation {id: {id}})
+        RETURN ${fields}
+      `,
+      {id}
+    )
+  },
+
+  create(data) {//, userId) {
+    let attrs = Object.assign({
+      id: uuid.v4(),
+      content: sanitizeHtml(data.content, {
+        'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u']
+      }),
+      createdAt: Date.now()
+    }, _.pick(data, 'type', 'paywalled'));
+    return query(
+      `
+        MATCH (u:User {name: "gregor"})
         MATCH (c:Concept {id: {conceptId}})
 
-        CREATE u-[:CREATED]->(e:Explanation {data})-[:EXPLAINS]->c
+        CREATE u-[:CREATED]->(e:Explanation {attrs})-[:EXPLAINS]->c
       `,
-      {data, conceptId, userId}
-    );
+      {attrs, conceptId: data.conceptId}//, userId}
+    ).then(() => attrs.id);
   },
 
   vote(id, userId) {

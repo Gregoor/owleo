@@ -9,12 +9,12 @@ class TextField extends Component {
   }
 
   render() {
-    let {id, label, onChange, type = 'text'} = this.props;
+    let {id, label, type = 'text', outerStyle} = this.props;
     return (
       <div className="mdl-textfield mdl-js-textfield
-                      mdl-textfield--floating-label">
+                      mdl-textfield--floating-label" style={outerStyle}>
         <input ref="input" className="mdl-textfield__input"
-               {...this.props}/>
+               {...this.props} {...{type}}/>
         <label className="mdl-textfield__label" htmlFor={id}>{label}</label>
       </div>
     );
@@ -29,10 +29,11 @@ class TextField extends Component {
 class TextArea extends Component {
 
   render() {
-    let {id, label} = this.props;
+    let {id, label, outerStyle} = this.props;
     return (
       <div className="mdl-textfield mdl-js-textfield
-                    mdl-textfield--floating-label" style={{width: '100%'}}>
+                    mdl-textfield--floating-label"
+           style={{width: '100%', ...outerStyle}}>
         <textarea ref="textarea" className="mdl-textfield__input"
                   {...this.props}/>
         <label className="mdl-textfield__label" htmlFor={id}>{label}</label>
@@ -70,4 +71,4 @@ let Button = (props) => {
   return button;
 };
 
-export default {TextField, TextArea, Button};
+export {TextField, TextArea, Button};

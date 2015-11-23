@@ -3,9 +3,10 @@ import {Link} from 'react-router';
 import Relay from 'react-relay';
 
 import DeleteConceptMutation from '../../mutations/concept/delete';
-import {pathToUrl} from '../../helpers';
+import pathToUrl from '../../path-to-url';
 import {Button} from '../mdl';
 import ConceptForm from './form';
+import ExplanationForm from './explanation-form';
 
 class ConceptInfo extends Component {
 
@@ -59,14 +60,20 @@ class ConceptInfo extends Component {
   }
 
   renderExplanations() {
-    let {explanations} = this.props.concept;
-    return explanations.map(explanation => (
-      <div key={explanation.id}
-           className="mdl-card mdl-shadow--2dp card-auto-fit">
-        <div className="mdl-card__supporting-text"
-             dangerouslySetInnerHTML={{__html: explanation.content}}/>
-      </div>
-    ));
+    let {concept} = this.props;
+    return [
+      ...concept.explanations.edges.map(edge => {
+        let {node: explanation} = edge;
+        return (
+          <div key={explanation.id}
+               className="mdl-card mdl-shadow--2dp card-auto-fit">
+            <div className="mdl-card__supporting-text"
+                 dangerouslySetInnerHTML={{__html: explanation.content}}/>
+          </div>
+        )
+      }),
+      <ExplanationForm key="new" {...{concept}}/>
+    ];
   }
 
   onDelete() {
@@ -106,6 +113,7 @@ export default Relay.createContainer(ConceptInfo, {
     `,
     concept: (variables) => Relay.QL`
       fragment on Concept {
+        ${ExplanationForm.getFragment('concept')}
         id,
         name,
         summary,
@@ -116,9 +124,13 @@ export default Relay.createContainer(ConceptInfo, {
             name
           }
         },
-        explanations {
-          id,
-          content
+        explanations(first: 10) {
+          edges {
+            node {
+              id,
+              content
+            }
+          }
         }
         ${ConceptForm.getFragment('concept').if(variables.includeForm)}
       }

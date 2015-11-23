@@ -8,7 +8,7 @@ type Concept implements Node {
   container: Concept
   reqs: [Concept]
   concepts: [Concept]
-  explanations: [Explanation]
+  explanations(after: String, first: Int, before: String, last: Int): ExplanationConnection
 }
 
 input CreateConceptInput {
@@ -25,6 +25,18 @@ type CreateConceptPayload {
   clientMutationId: String!
 }
 
+input CreateExplanationInput {
+  conceptId: ID
+  type: String
+  content: String
+  clientMutationId: String!
+}
+
+type CreateExplanationPayload {
+  success: Boolean
+  clientMutationId: String!
+}
+
 input DeleteConceptInput {
   conceptId: ID
   clientMutationId: String!
@@ -37,9 +49,20 @@ type DeleteConceptPayload {
 
 type Explanation {
   id: ID!
+  type: String
   content: String
   votes: Int
   author: User
+}
+
+type ExplanationConnection {
+  pageInfo: PageInfo!
+  edges: [ExplanationEdge]
+}
+
+type ExplanationEdge {
+  node: Explanation
+  cursor: String!
 }
 
 type IdentityEdge {
@@ -60,14 +83,22 @@ type LoginPayload {
 }
 
 type Mutation {
+  login(input: LoginInput!): LoginPayload
   createConcept(input: CreateConceptInput!): CreateConceptPayload
   updateConcept(input: UpdateConceptInput!): UpdateConceptPayload
   deleteConcept(input: DeleteConceptInput!): DeleteConceptPayload
-  login(input: LoginInput!): LoginPayload
+  createExplanation(input: CreateExplanationInput!): CreateExplanationPayload
 }
 
 interface Node {
   id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
 }
 
 type RootQuery {

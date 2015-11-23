@@ -14,12 +14,12 @@ import {
 } from 'graphql-relay';
 
 
+import Concept from '../db/concept';
+import User from '../db/user';
 import getFieldList from './get-field-list';
 import NodeGQL from './node-gql';
 import UserGQL from './user-gql';
 import ConceptGQL from './concept-gql';
-import Concept from '../db/concept';
-import User from '../db/user';
 
 let {
   connectionType: IdentitiesConnection,
@@ -83,10 +83,7 @@ export default new GraphQLSchema({
   }),
   mutation: new GraphQLObjectType({
     name: 'Mutation',
-    fields: {
-      createConcept: ConceptGQL.create,
-      updateConcept: ConceptGQL.update,
-      deleteConcept: ConceptGQL.delete,
+    fields: Object.assign({
       login: mutationWithClientMutationId({
         name: 'Login',
         inputFields: {
@@ -107,6 +104,6 @@ export default new GraphQLSchema({
           });
         }
       })
-    }
+    }, ConceptGQL.mutations)
   })
 });

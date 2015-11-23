@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import _ from 'lodash';
 
 import ConceptList from './list';
-import {pathToUrl} from '../../helpers';
+import pathToUrl from '../../path-to-url';
 
 const buttonSize = '26px';
 const buttonStyle = {

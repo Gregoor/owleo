@@ -190,8 +190,8 @@ class ConceptQuery {
         `,
       ['explanations', `
           COLLECT({
-            id: e.id, content: e.content, paywalled: e.paywalled, votes: votes,
-            hasVoted: 0, createdAt: e.createdAt,
+            id: e.id, type: e.type, content: e.content, paywalled: e.paywalled,
+            votes: votes, hasVoted: 0, createdAt: e.createdAt,
             author: {id: explainer.id, name: explainer.name}
           })
         `]

@@ -8,7 +8,7 @@ import ConceptList from './list';
 import ConceptInfo from './info';
 import ConceptForm from './form';
 import ConceptMap from './map';
-import {pathToUrl} from '../../helpers';
+import pathToUrl from '../../path-to-url';
 
 class ConceptPage extends Component {
 
@@ -56,7 +56,8 @@ class ConceptPage extends Component {
                                         marginTop: '11px', maxWidth: '1300px'}}>
 
         <div className="mdl-cell mdl-cell--6-col mdl-cell--stretch mdl-shadow--2dp"
-             style={{maxWidth: navType == 'map' ? '800px' : '500px', margin: 0, backgroundColor: 'white'}}>
+             style={{maxWidth: navType == 'map' ? '800px' : '500px',
+                    marginTop: 0, marginBottom: 0, backgroundColor: 'white'}}>
           <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
                style={{backgroundColor: 'white', margin: 0, width: '100%',
                         borderBottom: '1px solid rgba(0,0,0,0.5)'}}>

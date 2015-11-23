@@ -7,23 +7,30 @@ import {
   GraphQLID
 } from 'graphql';
 import {
-  fromGlobalId, toGlobalId, globalIdField,
-  mutationWithClientMutationId} from 'graphql-relay';
+  fromGlobalId, toGlobalId, globalIdField, mutationWithClientMutationId,
+  connectionDefinitions, connectionFromArray, connectionArgs
+} from 'graphql-relay';
 
+import Concept from '../db/concept';
+import Explanation from '../db/explanation';
 import getFieldList from './get-field-list';
 import NodeGQL from './node-gql';
 import UserGQL from './user-gql';
-import Concept from '../db/concept';
 
 let ExplanationType = new GraphQLObjectType({
   name: 'Explanation',
   fields: () => ({
     id: globalIdField('Explanation'),
+    type: {type: GraphQLString},
     content: {type: GraphQLString},
     votes: {type: GraphQLInt},
     author: {type: UserGQL.type}
   })
 });
+
+let {connectionType: explanationConnection, edgeType: explanationEdge} =
+  connectionDefinitions({name: 'Explanation', nodeType: ExplanationType});
+
 
 let ConceptType = new GraphQLObjectType({
   name: 'Concept',
@@ -45,7 +52,13 @@ let ConceptType = new GraphQLObjectType({
         return Concept.find(args, getFieldList(context));
       }
     },
-    explanations: {type: new GraphQLList(ExplanationType)}
+    explanations: {
+      type: explanationConnection,
+      args: connectionArgs,
+      resolve(concept, args) {
+        return connectionFromArray(concept.explanations, args)
+      }
+    }
   }),
   interfaces: [NodeGQL.interface]
 });
@@ -53,58 +66,73 @@ let ConceptType = new GraphQLObjectType({
 
 export default {
   type: ConceptType,
-  create: mutationWithClientMutationId({
-    name: 'CreateConcept',
-    inputFields: {
-      name: {type: GraphQLString},
-      summary: {type: GraphQLString},
-      summarySource: {type: GraphQLString},
-      container: {type: GraphQLID},
-      reqs: {type: new GraphQLList(GraphQLID)}
-    },
-    outputFields: {conceptId: {type: GraphQLID}},
-    mutateAndGetPayload: (input, root) => {
-      if (input.container) {
-        input.container = fromGlobalId(input.container).id;
+  mutations: {
+    createConcept: mutationWithClientMutationId({
+      name: 'CreateConcept',
+      inputFields: {
+        name: {type: GraphQLString},
+        summary: {type: GraphQLString},
+        summarySource: {type: GraphQLString},
+        container: {type: GraphQLID},
+        reqs: {type: new GraphQLList(GraphQLID)}
+      },
+      outputFields: {conceptId: {type: GraphQLID}},
+      mutateAndGetPayload: (input, root) => {
+        if (input.container) {
+          input.container = fromGlobalId(input.container).id;
+        }
+        if (input.reqs) {
+          input.reqs = input.reqs.map(req => fromGlobalId(req).id);
+        }
+        return Concept.create(input).then(id => {
+          return {conceptId: toGlobalId('Concept', id)}
+        });
       }
-      if (input.reqs) {
-        input.reqs = input.reqs.map(req => fromGlobalId(req).id);
+    }),
+    updateConcept: mutationWithClientMutationId({
+      name: 'UpdateConcept',
+      inputFields: {
+        id: {type: GraphQLID},
+        name: {type: GraphQLString},
+        summary: {type: GraphQLString},
+        summarySource: {type: GraphQLString},
+        container: {type: GraphQLID},
+        reqs: {type: new GraphQLList(GraphQLID)}
+      },
+      outputFields: {success: {type: GraphQLBoolean}},
+      mutateAndGetPayload: (input, root, context) => {
+        input.id = fromGlobalId(input.id).id;
+        if (input.container) {
+          input.container = fromGlobalId(input.container).id;
+        }
+        if (input.reqs) {
+          input.reqs = input.reqs.map(req => fromGlobalId(req).id);
+        }
+        return Concept.update(input.id, input).then(() => ({success: true}));
       }
-      return Concept.create(input).then(id => {
-        return {conceptId: toGlobalId('Concept', id)}
-      });
-    }
-  }),
-  update: mutationWithClientMutationId({
-    name: 'UpdateConcept',
-    inputFields: {
-      id: {type: GraphQLID},
-      name: {type: GraphQLString},
-      summary: {type: GraphQLString},
-      summarySource: {type: GraphQLString},
-      container: {type: GraphQLID},
-      reqs: {type: new GraphQLList(GraphQLID)}
-    },
-    outputFields: {success: {type: GraphQLBoolean}},
-    mutateAndGetPayload: (input, root, context) => {
-      input.id = fromGlobalId(input.id).id;
-      if (input.container) {
-        input.container = fromGlobalId(input.container).id;
+    }),
+    deleteConcept: mutationWithClientMutationId({
+      name: 'DeleteConcept',
+      inputFields: {conceptId: {type: GraphQLID}},
+      outputFields: {success: {type: GraphQLBoolean}},
+      mutateAndGetPayload: (input, root) => {
+        return Concept.delete(fromGlobalId(input.conceptId).id).then(() => {
+          return {success: true};
+        });
       }
-      if (input.reqs) {
-        input.reqs = input.reqs.map(req => fromGlobalId(req).id);
+    }),
+    createExplanation: mutationWithClientMutationId({
+      name: 'CreateExplanation',
+      inputFields: {
+        conceptId: {type: GraphQLID},
+        type: {type: GraphQLString},
+        content: {type: GraphQLString}
+      },
+      outputFields: {success: {type: GraphQLBoolean}},
+      mutateAndGetPayload: (input) => {
+        input.conceptId = fromGlobalId(input.conceptId).id;
+        return Explanation.create(input).then(() => ({success: true}));
       }
-      return Concept.update(input.id, input).then(() => ({success: true}));
-    }
-  }),
-  delete: mutationWithClientMutationId({
-    name: 'DeleteConcept',
-    inputFields: {conceptId: {type: GraphQLID}},
-    outputFields: {success: {type: GraphQLBoolean}},
-    mutateAndGetPayload: (input, root) => {
-      return Concept.delete(fromGlobalId(input.conceptId).id).then(() => {
-        return {success: true};
-      });
-    }
-  })
+    })
+  }
 };
