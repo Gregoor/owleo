@@ -12,6 +12,7 @@ class ConceptInfo extends Component {
 
   render() {
     let {viewer, concept} = this.props;
+    let {user} = viewer;
     if (this.props.relay.variables.includeForm) {
       return <ConceptForm {...{viewer, concept}}/>;
     }
@@ -31,14 +32,16 @@ class ConceptInfo extends Component {
               <i className="material-icons">school</i>
             </Button>
           </div>
-          <div className="mdl-card__actions mdl-card--border">
-            <Button onClick={this.onDelete.bind(this)}>
-              Delete
-            </Button>
-            <Button onClick={this.onEdit.bind(this)}>
-              Edit
-            </Button>
-          </div>
+          {user ? (
+            <div className="mdl-card__actions mdl-card--border">
+              <Button onClick={this.onDelete.bind(this)}>
+                Delete
+              </Button>
+              <Button onClick={this.onEdit.bind(this)}>
+                Edit
+              </Button>
+            </div>
+          ) : ''}
         </div>
         {this.renderExplanations()}
       </div>
@@ -60,24 +63,26 @@ class ConceptInfo extends Component {
   }
 
   renderExplanations() {
-    let {concept} = this.props;
-    return [
-      ...concept.explanations.edges.map(edge => {
-        let {node: explanation} = edge;
+    let {viewer, concept} = this.props;
+    let explanations = concept.explanations.edges.map(edge => {
+      let {node: explanation} = edge;
 
-        let {type, content} = explanation;
-        return (
-          <div key={explanation.id}
-               className="mdl-card mdl-shadow--2dp card-auto-fit">
-            <div className="mdl-card__supporting-text">
-              {type == 'link' ? <a href={content}>{content}</a> :
-                <div dangerouslySetInnerHTML={{__html: explanation.content}}/>}
-            </div>
+      let {type, content} = explanation;
+      return (
+        <div key={explanation.id}
+             className="mdl-card mdl-shadow--2dp card-auto-fit">
+          <div className="mdl-card__supporting-text">
+            {type == 'link' ? <a href={content}>{content}</a> :
+              <div dangerouslySetInnerHTML={{__html: explanation.content}}/>}
           </div>
-        )
-      }),
+        </div>
+      )
+    });
+
+    if (viewer.user) explanations.push(
       <ExplanationForm key="new" {...{concept}}/>
-    ];
+    );
+    return explanations;
   }
 
   onDelete() {

@@ -50,7 +50,7 @@ export default {
         LIMIT 1
       `,
       {id, name}
-    ).then(dbData => dbData[0])
+    ).then(([user]) => user)
   }
 
 };

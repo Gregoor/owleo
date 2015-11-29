@@ -27,10 +27,8 @@ let ViewerType = new GraphQLObjectType({
   fields: {
     user: {
       type: UserGQL.type,
-      resolve: (parent, dunno, root) => {
-        return root.rootValue.user();
-      }
-    },
+      resolve: (parent, dunno, root) => root.rootValue.user()
+  },
     conceptRoot: {
       type: ConceptGQL.type,
       resolve: () => ({})

@@ -54,7 +54,7 @@ class Layout extends Component {
             </Link>
             <div className="mdl-layout-spacer"/>
             <nav className="mdl-navigation">
-              <Link to="/auth" className="mdl-navigation__link">Login/Signup</Link>
+              <Link to="/auth" className="mdl-navigation__link">Login</Link>
             </nav>
           </div>
         </header>

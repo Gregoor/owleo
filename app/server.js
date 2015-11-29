@@ -45,7 +45,7 @@ app.use('/graphql', graphqlHTTP(request => ({
   rootValue: {
     user: () => {
       let {id} = request.user;
-      if (!id) return Promise.resolve(request.user);
+      if (!id) return Promise.resolve(null);
       return User.find({id});
     }
   }
