@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 
+import history from '../history';
 import LoginMutation from '../mutations/login-mutation';
 import {Button, TextField} from './mdl';
 
@@ -69,15 +70,20 @@ class AuthPage extends Component {
       new LoginMutation({
         name: name.getValue(), password: password.getValue()
       }),
-      {onFailure: (t) => {
-        let {errors} = t.getError().source;
-        console.error(errors)
-        for (let {message} of errors) {
-          if (message == 'unauthorized') {
-            this.setState({authFailed: true});
+      {
+        onSuccess: (t) => {
+          history.pushState(null, '/');
+          location.reload();
+        },
+        onFailure: (t) => {
+          let {errors} = t.getError().source;
+          for (let {message} of errors) {
+            if (message == 'unauthorized') {
+              this.setState({authFailed: true});
+            }
           }
         }
-      }}
+      }
     );
   }
 
