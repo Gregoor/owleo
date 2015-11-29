@@ -6,6 +6,7 @@ import graphqlHTTP from 'express-graphql';
 import cors from 'cors';
 
 import User from './db/user';
+import bodyParser from 'body-parser';
 
 let config = require('./configs/config');
 try {
@@ -17,17 +18,22 @@ let app = express();
 
 app.use(sessions({
   cookieName: 'user',
-  secret: 'soon',
+  secret: 'soon', //TODO
   duration: 1000 * 60 * 60 * 24 * 7,
   cookie: {
-    path: '/api'
+    path: '/graphql'
     //secureProxy: 'DOME' //TODO: Srsly
   }
 }));
 
 app.use(compression());
 
-app.use(cors());
+let cor = cors({
+  credentials: true,
+  origin: (o, callback) => callback(null, true)
+});
+app.options('*', cor);
+app.use(cor);
 app.use(express.static('app/landingPage'));
 app.use('/app', express.static(config.clientDir));
 app.use(require('body-parser').json());
@@ -40,7 +46,7 @@ app.use('/graphql', graphqlHTTP(request => ({
     user: () => {
       let {id} = request.user;
       if (!id) return Promise.resolve(request.user);
-      return new Promise(resolve => User.find({id}));
+      return User.find({id});
     }
   }
 })));

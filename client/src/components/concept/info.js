@@ -109,7 +109,7 @@ export default Relay.createContainer(ConceptInfo, {
   fragments: {
     viewer: (variables) => Relay.QL`
       fragment on Viewer {
-        identities {
+        user {
           id
         }
         ${ConceptForm.getFragment('viewer').if(variables.includeForm)}

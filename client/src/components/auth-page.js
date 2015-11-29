@@ -2,47 +2,60 @@ import React, {Component} from 'react';
 import Relay from 'react-relay';
 
 import LoginMutation from '../mutations/login-mutation';
-import {TextField} from './mdl';
+import {Button, TextField} from './mdl';
 
 import './checkbox-fix.scss';
 
 class AuthPage extends Component {
 
-  state = {loginMode: true};
+  state = {loginMode: true, authFailed: false};
 
   componentDidUpdate() {
     window.componentHandler.upgradeDom();
   }
 
   render() {
-    let {loginMode} = this.state;
+    let {loginMode, authFailed} = this.state;
+
+    let errorText;
+    if (authFailed) errorText = (
+      <div>
+        <em style={{color: 'rgb(222, 50, 38)'}}>Authorization failed!</em>
+        <br/>
+      </div>
+    );
+
     return (
-      <div className="mdl-card mdl-shadow--2dp" style={{margin: '5px auto'}}>
+      <div className="mdl-card mdl-shadow--2dp" style={{margin: '11px auto'}}>
         <div className="mdl-card__title">
           <h2 className="mdl-card__title-text">Authentication</h2>
         </div>
-        <form onSubmit={this.onSubmit.bind(this)}>
+        <form onSubmit={this.onSubmit.bind(this)}
+              onChange={this.onChange.bind(this)}>
           <div className="mdl-card__supporting-text">
-
-            <TextField id="name" label="Username"/>
-            <TextField id="name" label="Password" type="password"/>
+            {errorText}
+            <TextField ref="name" label="Username"/>
+            <TextField ref="password" label="Password" type="password"/>
             <label className="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
                    htmlFor="is-new">
-              <input type="checkbox" id="is-new"
+              <input type="checkbox" id="is-new" disabled
                      className="mdl-checkbox__input"
                      onChange={this.onChangeNew.bind(this)}/>
               <span className="mdl-checkbox__label">I'm a new user</span>
             </label>
           </div>
           <div className="mdl-card__actions mdl-card--border">
-            <button type="submit" className="mdl-button mdl-button--colored
-                                    mdl-js-button mdl-js-ripple-effect">
+            <Button type="submit" buttonType="accent" disabled={authFailed}>
             {loginMode ? 'Login' : 'Signup'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
     );
+  }
+
+  onChange() {
+    this.setState({authFailed: false});
   }
 
   onChangeNew(event) {
@@ -54,9 +67,17 @@ class AuthPage extends Component {
     let {name, password} = this.refs;
     Relay.Store.update(
       new LoginMutation({
-        name: name.value, password: password.value, viewer: this.props.viewer
+        name: name.getValue(), password: password.getValue()
       }),
-      {onFailure: (t) => console.error(t.getError().source.errors)}
+      {onFailure: (t) => {
+        let {errors} = t.getError().source;
+        console.error(errors)
+        for (let {message} of errors) {
+          if (message == 'unauthorized') {
+            this.setState({authFailed: true});
+          }
+        }
+      }}
     );
   }
 
@@ -66,10 +87,9 @@ export default Relay.createContainer(AuthPage, {
   fragments: {
     viewer: () => Relay.QL`
       fragment on Viewer {
-        identities {
+        user {
           name
-        },
-        ${LoginMutation.getFragment('viewer')}
+       }
       }
     `
   }

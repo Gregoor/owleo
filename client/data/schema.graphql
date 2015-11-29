@@ -65,11 +65,6 @@ type ExplanationEdge {
   cursor: String!
 }
 
-type IdentityEdge {
-  node: User
-  cursor: String!
-}
-
 input LoginInput {
   name: String
   password: String
@@ -77,8 +72,7 @@ input LoginInput {
 }
 
 type LoginPayload {
-  identityEdge: IdentityEdge
-  viewer: Viewer
+  success: Boolean
   clientMutationId: String!
 }
 
@@ -127,7 +121,7 @@ type User implements Node {
 }
 
 type Viewer {
-  identities: [User]
+  user: User
   conceptRoot: Concept
   concept(path: String, id: String): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]

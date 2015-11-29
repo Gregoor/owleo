@@ -3,10 +3,6 @@ import _ from 'lodash';
 
 class LoginMutation extends Relay.Mutation {
 
-  static fragments = {
-    viewer: () => Relay.QL`fragment on Viewer { identities }`
-  };
-
   getMutation() {
     return Relay.QL`mutation {login}`;
   }
@@ -18,25 +14,19 @@ class LoginMutation extends Relay.Mutation {
   getFatQuery() {
     return Relay.QL`
       fragment on LoginPayload {
-        identityEdge,
-        viewer {
-          identities {
-            id,
-            name
-          }
-        }
+        success
       }
     `;
   }
 
   getConfigs() {
     return [{
-      type: 'RANGE_ADD',
-      parentName: 'viewer',
-      parentID: this.props.viewer.id,
-      connectionName: 'identities',
-      edgeName: 'identityEdge',
-      rangeBehaviors: {'': 'append'}
+      type: 'REQUIRED_CHILDREN',
+      children: [Relay.QL`
+        fragment on LoginPayload {
+          success
+        }
+      `]
     }];
   }
 

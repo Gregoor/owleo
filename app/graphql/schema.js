@@ -3,14 +3,14 @@ import {
   GraphQLObjectType,
   GraphQLList,
   GraphQLString,
-  GraphQLInt
+  GraphQLInt,
+  GraphQLBoolean
 } from 'graphql';
 
 import {
-  connectionDefinitions,
   fromGlobalId,
-  mutationWithClientMutationId,
   toGlobalId,
+  mutationWithClientMutationId
 } from 'graphql-relay';
 
 
@@ -21,18 +21,14 @@ import NodeGQL from './node-gql';
 import UserGQL from './user-gql';
 import ConceptGQL from './concept-gql';
 
-let {
-  connectionType: IdentitiesConnection,
-  edgeType: IdentityEdge
-} = connectionDefinitions({name: 'Identity', nodeType: UserGQL.type});
 
 let ViewerType = new GraphQLObjectType({
   name: 'Viewer',
   fields: {
-    identities: {
-      type: new GraphQLList(UserGQL.type),
+    user: {
+      type: UserGQL.type,
       resolve: (parent, dunno, root) => {
-        root.rootValue.user().then(u => u ? [u] : [])
+        return root.rootValue.user();
       }
     },
     conceptRoot: {
@@ -91,16 +87,14 @@ export default new GraphQLSchema({
           password: {type: GraphQLString}
         },
         outputFields: {
-          identityEdge: {
-            type: IdentityEdge,
-            resolve: u => ({node: u, cursor: null})
-          },
-          viewer: {type: ViewerType, resolve: () => ({})}
+          success: {type: GraphQLBoolean}
         },
         mutateAndGetPayload(input, root) {
           return User.authenticate(input).then((user) => {
-            return user ?
-              root.rootValue.user().then(u => Object.assign(u, user)) : {};
+            if (!user) return new Error('unauthorized');
+
+            root.rootValue.user().then(u => Object.assign(u, user));
+            return {success: true};
           });
         }
       })

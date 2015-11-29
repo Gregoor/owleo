@@ -4,14 +4,17 @@ import {Router, Route, Redirect} from 'react-router';
 import createBrowserHistory from 'history/lib/createBrowserHistory'
 import {RelayRouter} from 'react-router-relay';
 
+import {BACKEND_URL} from '../config';
 import history from 'history';
 import Layout from './layout';
 import ConceptPage from './concept/page';
 import ConceptForm from './concept/form';
 import AuthPage from './auth-page';
 
-Relay.injectNetworkLayer(
-  new Relay.DefaultNetworkLayer('http://localhost:2323/graphql')
+if (BACKEND_URL) Relay.injectNetworkLayer(
+  new Relay.DefaultNetworkLayer(BACKEND_URL + 'graphql', {
+    credentials: 'include'
+  })
 );
 
 const ViewerQuery = {
