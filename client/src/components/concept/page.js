@@ -77,12 +77,14 @@ class ConceptPage extends Component {
           {content}
         </div>
 
-        <Link style={{position: 'fixed', right: 30, bottom: 30}}
+        {viewer.user ? (
+          <Link style={{position: 'fixed', right: 30, bottom: 30}}
                 className="mdl-button mdl-js-button mdl-button--fab
                            mdl-js-ripple-effect mdl-button--colored"
                 to="/concepts/new">
-          <i className="material-icons">add</i>
-        </Link>
+            <i className="material-icons">add</i>
+          </Link>
+        ) : ''}
 
       </div>
     );
@@ -117,6 +119,9 @@ export default Relay.createContainer(ConceptPage, {
   fragments: {
     viewer: (vars) => Relay.QL`
       fragment on Viewer {
+        user {
+          id
+        }
         conceptRoot {
           ${ConceptList.getFragment('concept')}
           ${ConceptMap.getFragment('concept')}
