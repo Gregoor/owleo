@@ -63,6 +63,9 @@ let ConceptType = new GraphQLObjectType({
   interfaces: [NodeGQL.interface]
 });
 
+const assertUser = root => {
+  if (!root.rootValue.user.id) throw new Error('unauthorized');
+};
 
 export default {
   type: ConceptType,
@@ -78,6 +81,7 @@ export default {
       },
       outputFields: {conceptId: {type: GraphQLID}},
       mutateAndGetPayload: (input, root) => {
+        assertUser(root);
         if (input.container) {
           input.container = fromGlobalId(input.container).id;
         }
@@ -101,6 +105,7 @@ export default {
       },
       outputFields: {success: {type: GraphQLBoolean}},
       mutateAndGetPayload: (input, root, context) => {
+        assertUser(root);
         input.id = fromGlobalId(input.id).id;
         if (input.container) {
           input.container = fromGlobalId(input.container).id;
@@ -116,6 +121,7 @@ export default {
       inputFields: {conceptId: {type: GraphQLID}},
       outputFields: {success: {type: GraphQLBoolean}},
       mutateAndGetPayload: (input, root) => {
+        assertUser(root);
         return Concept.delete(fromGlobalId(input.conceptId).id).then(() => {
           return {success: true};
         });
@@ -129,7 +135,8 @@ export default {
         content: {type: GraphQLString}
       },
       outputFields: {success: {type: GraphQLBoolean}},
-      mutateAndGetPayload: (input) => {
+      mutateAndGetPayload: (input, root) => {
+        assertUser(root);
         input.conceptId = fromGlobalId(input.conceptId).id;
         return Explanation.create(input).then(() => ({success: true}));
       }
