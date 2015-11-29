@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
+import Relay from 'react-relay';
 import {Link} from 'react-router';
 
+import LogoutMutation from '../mutations/user/logout';
 import './icon-switch.scss';
 
 class Layout extends Component {
@@ -12,11 +14,20 @@ class Layout extends Component {
   }
 
   render() {
+
     let {navType, query} = this.state;
 
     let children = React.cloneElement(this.props.children, {query, navType});
 
     let showMap = navType == 'map';
+
+    let {user} = this.props.viewer;
+    let authButton = user ? (
+      <a href="" className="mdl-navigation__link"
+         onClick={this.onLogout.bind(this)}>
+        Logout ({user.name})
+      </a>
+    ) : <Link to="/auth" className="mdl-navigation__link">Login</Link>;
 
     return (
       <div className="mdl-layout">
@@ -54,7 +65,7 @@ class Layout extends Component {
             </Link>
             <div className="mdl-layout-spacer"/>
             <nav className="mdl-navigation">
-              <Link to="/auth" className="mdl-navigation__link">Login</Link>
+              {authButton}
             </nav>
           </div>
         </header>
@@ -63,6 +74,16 @@ class Layout extends Component {
           {children}
         </main>
       </div>
+    );
+  }
+
+  onLogout(event) {
+    event.preventDefault();
+    Relay.Store.update(new LogoutMutation(),
+      {
+        onSuccess: (t) => location.reload(),
+        onFailure: (t) => console.error(t.getError().source.errors)
+      }
     );
   }
 
@@ -96,4 +117,16 @@ class Layout extends Component {
 
 }
 
-export default Layout;
+export default Relay.createContainer(Layout, {
+
+  fragments: {
+    viewer: () => Relay.QL`
+      fragment on Viewer {
+        user {
+          name
+        }
+      }
+    `
+  }
+
+});

@@ -43,14 +43,7 @@ app.use('/graphql', graphqlHTTP(request => ({
   schema: require('./graphql/schema'),
   graphiql: true,
   rootValue: {
-    user() {
-      let {id} = request.user;
-      if (!id) return Promise.resolve(null);
-      return User.find({id});
-    },
-    logout() {
-      request.user.id = null;
-    }
+    user: request.user
   }
 })));
 

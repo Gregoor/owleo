@@ -27,7 +27,7 @@ let ViewerType = new GraphQLObjectType({
   fields: {
     user: {
       type: UserGQL.type,
-      resolve: (parent, dunno, root) => root.rootValue.user()
+      resolve: (parent, dunno, root) => User.find({id: root.rootValue.user.id})
   },
     conceptRoot: {
       type: ConceptGQL.type,
@@ -91,7 +91,7 @@ export default new GraphQLSchema({
           return User.authenticate(input).then((user) => {
             if (!user) return new Error('unauthorized');
 
-            root.rootValue.user().then(u => Object.assign(u, user));
+            root.rootValue.user.id = user.id;
             return {success: true};
           });
         }
@@ -102,7 +102,7 @@ export default new GraphQLSchema({
           success: {type: GraphQLBoolean}
         },
         mutateAndGetPayload(input, root) {
-          root.rootValue.logout();
+          root.rootValue.user.id = null;
           return {success: true};
         }
       })
