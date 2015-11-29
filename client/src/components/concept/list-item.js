@@ -40,7 +40,7 @@ class ConceptListItem extends Component {
   }
 
   render() {
-    let {concept, selectedPath, selectedId} = this.props;
+    let {concept, selectedPath, selectedId, onSelect} = this.props;
 
     let sublist = '';
     if (this.props.relay.variables.includeSublist) {
@@ -84,6 +84,7 @@ class ConceptListItem extends Component {
 
   onSelect() {
     this.isSelected = true;
+    this.props.onSelect(this.props.concept);
   }
 
   setExpanded(state) {

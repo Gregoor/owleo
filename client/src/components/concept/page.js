@@ -36,11 +36,12 @@ class ConceptPage extends Component {
     if (!concept) concept = {};
     let list;
     let showMap = navType == 'map';
-    if (showMap) {
+    if (query) {
+      list = <SearchResults {...{viewer, query}} selectedId={concept.id}
+                            onSelect={this._onSearchSelect.bind(this)}/>;
+    } else if (showMap) {
       list = <ConceptMap concept={conceptRoot}
                          selectedId={hasSelection ? concept.id : null}/>;
-    } else if (query) {
-      list = <SearchResults {...{viewer, query}} selectedId={concept.id}/>;
     } else {
       list = <ConceptList concept={conceptRoot}
                           selectedPath={selectedPath ? selectedPath.split('/') : null}
@@ -142,6 +143,11 @@ class ConceptPage extends Component {
         this.refs.searchContainer.classList.remove('is-dirty');
         break;
     }
+  }
+
+  _onSearchSelect() {
+    this.setState({query: null});
+    this.refs.search.value = null;
   }
 
   _navigateToConcepts() {

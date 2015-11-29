@@ -34,7 +34,7 @@ class SearchResults extends Component {
   }
 
   renderList() {
-    let {viewer, selectedId} = this.props;
+    let {viewer, selectedId, onSelect} = this.props;
     let {concepts} = viewer;
     if (!concepts || concepts.length == 0) {
       return this.renderMessage(
@@ -44,7 +44,7 @@ class SearchResults extends Component {
     return (
       <ul>
         {concepts.map(concept => (
-          <ConceptListItem key={concept.id} {...{concept, selectedId}} />
+          <ConceptListItem key={concept.id} {...{concept, selectedId, onSelect}}/>
         ))}
       </ul>
     );
