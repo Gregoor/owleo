@@ -31,7 +31,7 @@ let commonProps = {renderLoading, queries: ViewerQuery};
 export default () => (
   <RelayRouter history={history}>
     <Redirect from="/" to="/concepts"/>
-    <Route path="/" component={Layout}>
+    <Route path="/" component={Layout} {...commonProps}>
       <Route path="concepts" component={ConceptPage} {...commonProps}>
         <Route path="new" component={ConceptForm}/>
         <Route path=":path*"/>

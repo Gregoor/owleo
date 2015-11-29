@@ -95,6 +95,16 @@ export default new GraphQLSchema({
             return {success: true};
           });
         }
+      }),
+      logout: mutationWithClientMutationId({
+        name: 'Logout',
+        outputFields: {
+          success: {type: GraphQLBoolean}
+        },
+        mutateAndGetPayload(input, root) {
+          root.rootValue.logout();
+          return {success: true};
+        }
       })
     }, ConceptGQL.mutations)
   })

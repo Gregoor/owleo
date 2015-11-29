@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Relay from 'react-relay';
 
 import history from '../history';
-import LoginMutation from '../mutations/login-mutation';
+import LoginMutation from '../mutations/user/login';
 import {Button, TextField} from './mdl';
 
 import './checkbox-fix.scss';

@@ -76,8 +76,18 @@ type LoginPayload {
   clientMutationId: String!
 }
 
+input LogoutInput {
+  clientMutationId: String!
+}
+
+type LogoutPayload {
+  success: Boolean
+  clientMutationId: String!
+}
+
 type Mutation {
   login(input: LoginInput!): LoginPayload
+  logout(input: LogoutInput!): LogoutPayload
   createConcept(input: CreateConceptInput!): CreateConceptPayload
   updateConcept(input: UpdateConceptInput!): UpdateConceptPayload
   deleteConcept(input: DeleteConceptInput!): DeleteConceptPayload
