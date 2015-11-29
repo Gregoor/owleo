@@ -93,6 +93,10 @@ class ConceptListItem extends Component {
 
 }
 
+ConceptListItem.defaultProps = {
+  onSelect: _.noop
+};
+
 export default Relay.createContainer(ConceptListItem, {
 
   initialVariables: {
