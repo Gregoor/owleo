@@ -4,7 +4,7 @@ import { Lifecycle } from 'react-router'
 
 import history from '../../history';
 import {Button, TextField, TextArea} from '../mdl';
-import ConceptSelect from './select.js';
+import ConceptSelect from './select/select';
 import CreateConceptMutation from '../../mutations/concept/create';
 import UpdateConceptMutation from '../../mutations/concept/update';
 

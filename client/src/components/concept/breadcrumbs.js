@@ -22,10 +22,10 @@ class ConceptBreadcrumbs extends Component {
     } else label = 'No concept selected';
 
     return (
-      <p style={{margin: 0, padding: '10px 15px', fontSize: 16}}>
+      <span style={{margin: 0, fontSize: 16}}>
         {breadcrumbs}
         <em>{label}</em>
-      </p>
+      </span>
     );
   }
 

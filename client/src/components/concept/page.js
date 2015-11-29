@@ -10,9 +10,11 @@ import ConceptForm from './form';
 import ConceptMap from './map';
 import pathToUrl from '../../path-to-url';
 
+import './icon-switch.scss';
+
 class ConceptPage extends Component {
 
-  state = {concept: null};
+  state = {concept: null, query: '', navType: localStorage.navType};
 
   componentWillMount() {
     this._setSelectedPath(this.props);
@@ -23,16 +25,18 @@ class ConceptPage extends Component {
   }
 
   render() {
-    let {viewer, relay, query, navType} = this.props;
+    let {viewer, relay} = this.props;
     let {conceptRoot, concept} = viewer;
     let {selectedPath, selectedId} = relay.variables;
+    let {query, navType} = this.state;
 
     let hasSelection = concept && (selectedId && this.state.selectedId) ||
       (selectedPath && this.state.selectedPath);
 
     if (!concept) concept = {};
     let list;
-    if (navType == 'map') {
+    let showMap = navType == 'map';
+    if (showMap) {
       list = <ConceptMap concept={conceptRoot}
                          selectedId={hasSelection ? concept.id : null}/>;
     } else if (query) {
@@ -52,23 +56,56 @@ class ConceptPage extends Component {
     }
 
     return (
-      <div className="mdl-grid" style={{padding: 0, height: '90%',
-                                        marginTop: '11px', maxWidth: '1300px'}}>
+      <div className="mdl-grid" style={{maxWidth: '1300px'}}>
 
-        <div className="mdl-cell mdl-cell--6-col mdl-cell--stretch mdl-shadow--2dp"
-             style={{maxWidth: navType == 'map' ? '800px' : '500px',
-                    marginTop: 0, marginBottom: 0, backgroundColor: 'white'}}>
-          <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
-               style={{backgroundColor: 'white', margin: 0, width: '100%',
+        <div className="mdl-cell mdl-cell--6-col mdl-shadow--2dp"
+             style={{maxWidth: navType == 'map' ? '800px' : '500px', margin: 0,
+                     backgroundColor: 'white'}}>
+          <div className="mdl-grid" style={{backgroundColor: 'white', margin: 0,
                         borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
-            <ConceptBreadcrumbs concept={hasSelection ? concept : null}/>
+            <div className="mdl-cell mdl-cell--10-col">
+              <div ref="searchContainer"
+                   className="mdl-textfield mdl-js-textfield
+                            mdl-textfield--expandable
+                            mdl-textfield--floating-label"
+                   style={{padding: 0}}>
+                <label className="mdl-button mdl-js-button mdl-button--icon"
+                       htmlFor="search" style={{bottom: 0}}>
+                  <i className="material-icons">search</i>
+                </label>
+                <div className="mdl-textfield__expandable-holder">
+                  <input className="mdl-textfield__input" id="search" type="text"
+                         ref="search" placeholder="Search for concepts"
+                         onChange={this._onSearchChange.bind(this)}
+                         onKeyUp={this._onSearchKeyUp.bind(this)}/>
+                </div>
+              </div>
+            </div>
+            <div className="mdl-cell mdl-cell--2-col">
+              <label className="icon-switch mdl-switch mdl-js-switch
+                                mdl-js-ripple-effect"
+                     style={{width: 'auto', marginRight: '15px'}}>
+                <input type="checkbox" className="mdl-switch__input"
+                       onChange={this._onChangeNav.bind(this)}
+                       defaultChecked={showMap}/>
+                <i className={`material-icons on ${showMap ? 'hide' : ''}`}
+                   key="list">
+                  list
+                </i>
+                <i className={`material-icons off ${!showMap ? 'hide' : ''}`}
+                   key="map">
+                  layers
+                </i>
+                <span className="mdl-switch__label"/>
+              </label>
+            </div>
+            <div className="mdl-cell mdl-cell--12-col">
+              <ConceptBreadcrumbs concept={hasSelection ? concept : null}/>
+            </div>
           </div>
           <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
-               style={{
-                height: '92.5%', marginTop: '5px',
-                overflowY: navType == 'map' ? 'auto' : 'scroll'
-               }}>
-            {list}
+               style={{overflowY: navType == 'map' ? 'auto' : 'scroll', height: '78vh'}}>
+          {list}
           </div>
         </div>
 
@@ -88,6 +125,34 @@ class ConceptPage extends Component {
 
       </div>
     );
+  }
+
+  _onSearchChange(event) {
+    this._navigateToConcepts();
+    this.setState({query: event.target.value});
+  }
+
+  _onSearchKeyUp(event) {
+    switch (event.keyCode) {
+      case 13/*ENTER*/:
+        this._navigateToConcepts();
+        break;
+      case 27/*ESC*/:
+        this.setState({query: this.refs.search.value = ''});
+        this.refs.searchContainer.classList.remove('is-dirty');
+        break;
+    }
+  }
+
+  _navigateToConcepts() {
+    let {history} = this.props;
+    if (!history.isActive('/concepts')) history.pushState({}, '/concepts');
+  }
+
+  _onChangeNav(event) {
+    let switchTo = event.target.checked ? 'map' : 'list';
+    localStorage.setItem('navType', switchTo);
+    this.setState({navType: switchTo});
   }
 
   _setSelectedPath(props) {
