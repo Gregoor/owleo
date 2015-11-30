@@ -4,7 +4,7 @@ import {Router, Route, Redirect} from 'react-router';
 import createBrowserHistory from 'history/lib/createBrowserHistory'
 import {RelayRouter} from 'react-router-relay';
 
-import {BACKEND_URL} from '../config.custom';
+import {BACKEND_URL, DEV_MODE} from '../config.custom';
 import history from '../history';
 import Layout from './layout';
 import ConceptPage from './concept/page';
@@ -13,9 +13,9 @@ import AuthPage from './auth-page';
 import AboutPage from './about-page';
 import {Spinner} from './mdl';
 
-if (BACKEND_URL) Relay.injectNetworkLayer(
+Relay.injectNetworkLayer(
   new Relay.DefaultNetworkLayer(BACKEND_URL + 'graphql', {
-    credentials: 'include'
+    credentials: DEV_MODE ? 'include' : 'same-origin'
   })
 );
 
