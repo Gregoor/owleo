@@ -1,3 +1,6 @@
-const BACKEND_URL = 'http://localhost:2323/';
+// Copy and rename to 'config.custom.js'
+const BACKEND_URL = `${location.protocol}//${location.hostname}/`;
 
-export {BACKEND_URL};
+const DEV_MODE = false;
+
+export {BACKEND_URL, DEV_MODE};

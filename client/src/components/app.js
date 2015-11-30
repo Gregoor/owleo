@@ -4,8 +4,8 @@ import {Router, Route, Redirect} from 'react-router';
 import createBrowserHistory from 'history/lib/createBrowserHistory'
 import {RelayRouter} from 'react-router-relay';
 
-import {BACKEND_URL} from '../config';
-import history from 'history';
+import {BACKEND_URL} from '../config.custom';
+import history from '../history';
 import Layout from './layout';
 import ConceptPage from './concept/page';
 import ConceptForm from './concept/form';
