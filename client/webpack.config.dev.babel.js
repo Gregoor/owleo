@@ -22,7 +22,8 @@ export default {
       {
         test: /\.scss$/,
         loader: ExtractTextPlugin.extract('css?sourceMap!sass?sourceMap')
-      }
+      },
+      { test: /\.(png|jpg|svg)$/, loader: 'file-loader?name=images/[name].[ext]' }
     ]
   },
   plugins: [
