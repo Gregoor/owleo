@@ -10,6 +10,7 @@ import Layout from './layout';
 import ConceptPage from './concept/page';
 import ConceptForm from './concept/form';
 import AuthPage from './auth-page';
+import {Spinner} from './mdl';
 
 if (BACKEND_URL) Relay.injectNetworkLayer(
   new Relay.DefaultNetworkLayer(BACKEND_URL + 'graphql', {
@@ -21,12 +22,7 @@ const ViewerQuery = {
   viewer: () => Relay.QL`query RootQuery { viewer }`
 };
 
-let renderLoading = () => (
-  <div className="mdl-spinner mdl-js-spinner is-active"
-       style={{left: '50%', top: '5px'}}/>
-);
-
-let commonProps = {renderLoading, queries: ViewerQuery};
+let commonProps = {renderLoading: () => <Spinner/>, queries: ViewerQuery};
 
 export default () => (
   <RelayRouter history={history}>

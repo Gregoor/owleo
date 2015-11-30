@@ -48,7 +48,7 @@ class TextArea extends Component {
 }
 
 const BUTTON_PREFIX = 'mdl-button--';
-let Button = (props) => {
+const Button = (props) => {
   let {buttonType, to} = props;
 
   let buttonTypeClasses = [];
@@ -71,4 +71,9 @@ let Button = (props) => {
   return button;
 };
 
-export {TextField, TextArea, Button};
+const Spinner = () => (
+  <div className="mdl-spinner mdl-js-spinner is-active"
+       style={{left: '50%', top: '5px'}}/>
+);
+
+export {TextField, TextArea, Button, Spinner};
