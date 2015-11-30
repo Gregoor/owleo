@@ -132,7 +132,7 @@ class ConceptQuery {
     );
 
     if (conceptsCount) this._addToQuery(
-      `OPTIONAL MATCH (${this._alias})<-[:CONTAINED_BY]-(containees:Concept)`,
+      `OPTIONAL MATCH (${this._alias})<-[:CONTAINED_BY*]-(containees:Concept)`,
       ['conceptsCount', 'COUNT(DISTINCT containees)']
     );
 
