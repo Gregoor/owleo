@@ -21,6 +21,10 @@ class ConceptPage extends Component {
     this._setSelectedPath(this.props);
   }
 
+  componentDidMount() {
+    window.componentHandler.upgradeElement(this.refs.navSwitch);
+  }
+
   componentWillReceiveProps(props) {
     this._setSelectedPath(props);
   }
@@ -104,8 +108,9 @@ class ConceptPage extends Component {
               </div>
             </div>
             <div className="mdl-cell mdl-cell--2-col">
-              <label className="icon-switch mdl-switch mdl-js-switch
-                                mdl-js-ripple-effect"
+              <label ref="navSwitch" className="icon-switch mdl-switch
+                                                mdl-js-switch
+                                                mdl-js-ripple-effect"
                      style={{width: 'auto', marginRight: '15px'}}>
                 <input type="checkbox" className="mdl-switch__input"
                        onChange={this._onChangeNav.bind(this)}
