@@ -12,13 +12,6 @@ class Layout extends Component {
 
   render() {
     let {user} = this.props.viewer;
-    let authButton = user ? (
-      <a href="" className="mdl-navigation__link"
-         onClick={this.onLogout.bind(this)}>
-        Logout ({user.name})
-      </a>
-    ) : <Link to="/auth" className="mdl-navigation__link">Login</Link>;
-
     return (
       <div className="mdl-layout">
         <header className="mdl-layout__header">
@@ -28,12 +21,29 @@ class Layout extends Component {
               owleo
             </Link>
             <div className="mdl-layout-spacer"/>
+            <Link to="/about" className="mdl-navigation__link"
+                  activeClassName="is-active">
+              About
+            </Link>
             <nav className="mdl-navigation">
-              {authButton}
+              {user ?
+                (
+                  <a href="" className="mdl-navigation__link"
+                     onClick={this.onLogout.bind(this)}>
+                    Logout ({user.name})
+                  </a>
+                ) :
+                (
+                  <Link to="/auth" className="mdl-navigation__link"
+                        activeClassName="is-active">
+                    Login
+                  </Link>
+                )
+              }
             </nav>
           </div>
         </header>
-        <main className="mdl-layout__content" style={{overflow: 'hidden'}}>
+        <main className="mdl-layout__content">
           {this.props.children}
         </main>
       </div>

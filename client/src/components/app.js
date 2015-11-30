@@ -10,6 +10,7 @@ import Layout from './layout';
 import ConceptPage from './concept/page';
 import ConceptForm from './concept/form';
 import AuthPage from './auth-page';
+import AboutPage from './about-page';
 import {Spinner} from './mdl';
 
 if (BACKEND_URL) Relay.injectNetworkLayer(
@@ -36,6 +37,7 @@ export default () => (
         <Route path=":id"/>
       </Route>
       <Route path="auth" component={AuthPage} {...commonProps}/>
+      <Route path="about" component={AboutPage}/>
     </Route>
   </RelayRouter>
 );
