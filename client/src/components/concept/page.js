@@ -4,7 +4,6 @@ import {Link} from 'react-router';
 
 import pathToUrl from '../../path-to-url';
 import SearchResults from './results';
-import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptList from './list';
 import ConceptInfo from './info';
 import ConceptForm from './form';
@@ -88,7 +87,7 @@ class ConceptPage extends Component {
              style={{maxWidth: navType == 'map' ? '800px' : '500px', margin: 0,
                      backgroundColor: 'white'}}>
           <div className="mdl-grid" style={{backgroundColor: 'white', margin: 0,
-                        borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
+                        padding: 0, borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
             <div className="mdl-cell mdl-cell--10-col">
               <div ref="searchContainer"
                    className="mdl-textfield mdl-js-textfield
@@ -126,12 +125,9 @@ class ConceptPage extends Component {
                 <span className="mdl-switch__label"/>
               </label>
             </div>
-            <div className="mdl-cell mdl-cell--12-col">
-              <ConceptBreadcrumbs concept={hasSelection ? concept : null}/>
-            </div>
           </div>
           <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
-               style={{overflowY: navType == 'map' ? 'auto' : 'scroll', height: '78vh'}}>
+               style={{overflowY: navType == 'map' ? 'auto' : 'scroll', height: '84vh'}}>
           {list}
           </div>
         </div>
@@ -236,7 +232,6 @@ export default Relay.createContainer(ConceptPage, {
           path {
             name
           }
-          ${ConceptBreadcrumbs.getFragment('concept')}
           ${ConceptInfo.getFragment('concept')}
         },
         ${SearchResults.getFragment('viewer')}

@@ -7,24 +7,14 @@ import pathToUrl from '../../path-to-url';
 class ConceptBreadcrumbs extends Component {
 
   render() {
-    let breadcrumbs = [];
-    let label;
-    if (this.props.concept) {
-      let {name, path} = this.props.concept;
-
-      label = name;
-      breadcrumbs = path.slice(1).reverse().map(concept => (
-        <span key={concept.id}>
-        <Link to={'/id/' + concept.id}>{concept.name}</Link>
-        <span style={{padding: 5}}>></span>
-      </span>
-      ));
-    } else label = 'No concept selected';
-
     return (
       <span style={{margin: 0, fontSize: 16}}>
-        {breadcrumbs}
-        <em>{label}</em>
+        {this.props.concept.path.slice(1).reverse().map(concept => (
+          <span key={concept.id}>
+            <Link to={'/id/' + concept.id}>{concept.name}</Link>
+            <span style={{padding: 5, color: 'grey'}}>></span>
+          </span>
+        ))}
       </span>
     );
   }
@@ -38,7 +28,6 @@ export default Relay.createContainer(ConceptBreadcrumbs, {
   fragments: {
     concept: (variables) =>  Relay.QL`
       fragment on Concept {
-        name,
         path {
           id,
           name,

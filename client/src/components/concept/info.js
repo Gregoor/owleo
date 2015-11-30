@@ -5,6 +5,7 @@ import Relay from 'react-relay';
 import DeleteConceptMutation from '../../mutations/concept/delete';
 import pathToUrl from '../../path-to-url';
 import {Button} from '../mdl';
+import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptForm from './form';
 import ExplanationForm from './explanation-form';
 
@@ -19,6 +20,9 @@ class ConceptInfo extends Component {
     let {name, summary, reqs} = concept;
     return (
       <div>
+        <div className="mdl-cell mdl-cell--12-col">
+          <ConceptBreadcrumbs concept={concept}/>
+        </div>
         <div className="mdl-card mdl-shadow--2dp card-auto-fit">
           <div className="mdl-card__title" style={{paddingBottom: 0}}>
             <h2 className="mdl-card__title-text">{name}</h2>
@@ -122,7 +126,6 @@ export default Relay.createContainer(ConceptInfo, {
     `,
     concept: (variables) => Relay.QL`
       fragment on Concept {
-        ${ExplanationForm.getFragment('concept')}
         id,
         name,
         summary,
@@ -133,6 +136,8 @@ export default Relay.createContainer(ConceptInfo, {
             name
           }
         },
+        ${ConceptBreadcrumbs.getFragment('concept')}
+        ${ExplanationForm.getFragment('concept')}
         explanations(first: 10) {
           edges {
             node {
