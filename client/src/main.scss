@@ -33,6 +33,16 @@ body {
   }
 }
 
+.card-appear {
+  opacity: 0;
+  transform: translateY(500px);
+}
+
+.card-appear.card-appear-active {
+  opacity: 1;
+  transform: translateY(0px);
+  transition: all 700ms cubic-bezier(.62,.28,.23,.99);
+}
 
 //div {
 //  ul ul {

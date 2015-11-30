@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 import DeleteConceptMutation from '../../mutations/concept/delete';
 import pathToUrl from '../../path-to-url';
@@ -8,6 +9,20 @@ import {Button} from '../mdl';
 import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptForm from './form';
 import ExplanationForm from './explanation-form';
+
+const TRANSITION_DURATION = 700;
+const CardAnimation = ({delay = 0, children}) => {
+  let duration = TRANSITION_DURATION + delay;
+  return (
+    <ReactCSSTransitionGroup transitionName="card"
+                             transitionEnterTimeout={duration}
+                             transitionLeaveTimeout={duration}
+                             transitionAppear={true}
+                             transitionAppearTimeout={duration}>
+      {children}
+    </ReactCSSTransitionGroup>
+  );
+}
 
 class ConceptInfo extends Component {
 
@@ -23,30 +38,32 @@ class ConceptInfo extends Component {
         <div className="mdl-cell mdl-cell--12-col">
           <ConceptBreadcrumbs concept={concept}/>
         </div>
-        <div className="mdl-card mdl-shadow--2dp card-auto-fit">
-          <div className="mdl-card__title" style={{paddingBottom: 0}}>
-            <h2 className="mdl-card__title-text">{name}</h2>
-          </div>
-          <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
-            {this.renderReqs()}
-            <p style={{paddingTop: 10}}>{summary}</p>
-          </div>
-          <div className="mdl-card__menu">
-            <Button buttonType={['icon', 'accent']}>
-              <i className="material-icons">school</i>
-            </Button>
-          </div>
-          {user ? (
-            <div className="mdl-card__actions mdl-card--border">
-              <Button onClick={this.onDelete.bind(this)}>
-                Delete
-              </Button>
-              <Button onClick={this.onEdit.bind(this)}>
-                Edit
+        <CardAnimation>
+          <div key="concept" className="mdl-card mdl-shadow--2dp card-auto-fit">
+            <div className="mdl-card__title" style={{paddingBottom: 0}}>
+              <h2 className="mdl-card__title-text">{name}</h2>
+            </div>
+            <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
+              {this.renderReqs()}
+              <p style={{paddingTop: 10}}>{summary}</p>
+            </div>
+            <div className="mdl-card__menu">
+              <Button buttonType={['icon', 'accent']}>
+                <i className="material-icons">school</i>
               </Button>
             </div>
-          ) : ''}
-        </div>
+            {user ? (
+              <div className="mdl-card__actions mdl-card--border">
+                <Button onClick={this.onDelete.bind(this)}>
+                  Delete
+                </Button>
+                <Button onClick={this.onEdit.bind(this)}>
+                  Edit
+                </Button>
+              </div>
+            ) : ''}
+          </div>
+        </CardAnimation>
         {this.renderExplanations()}
       </div>
     );
@@ -68,12 +85,13 @@ class ConceptInfo extends Component {
 
   renderExplanations() {
     let {viewer, concept} = this.props;
+    let delay = 0;
     let explanations = concept.explanations.edges.map(edge => {
       let {node: explanation} = edge;
 
       let {type, content} = explanation;
       return (
-        <div key={explanation.id}
+        <div key={explanation.id} style={{transitionDelay: `${delay += 100}ms`}}
              className="mdl-card mdl-shadow--2dp card-auto-fit">
           <div className="mdl-card__supporting-text">
             {type == 'link' ? <a href={content}>{content}</a> :
@@ -84,9 +102,11 @@ class ConceptInfo extends Component {
     });
 
     if (viewer.user) explanations.push(
-      <ExplanationForm key="new" {...{concept}}/>
+      <div key="new" style={{transitionDelay: `${delay += 100}ms`}}>
+        <ExplanationForm {...{concept}}/>
+      </div>
     );
-    return explanations;
+    return <CardAnimation delay={delay}>{explanations}</CardAnimation>;
   }
 
   onDelete() {
