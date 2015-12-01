@@ -5,6 +5,7 @@ import compression from 'compression';
 import sessions from 'client-sessions';
 import graphqlHTTP from 'express-graphql';
 import cors from 'cors';
+import favicon from 'serve-favicon';
 
 import User from './db/user';
 import bodyParser from 'body-parser';
@@ -45,6 +46,7 @@ app.use('/graphql', graphqlHTTP(request => ({
   }
 })));
 
+app.use(favicon(__dirname + '/../client/favicon.ico'));
 app.use('/static', express.static(__dirname + '/../client/dist/'));
 app.use('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/index.html'));
