@@ -67,7 +67,8 @@ class ConceptPage extends Component {
           <div className="mdl-cell mdl-cell--12-col"
                style={{textAlign: 'center'}}>
             <Button to={this._getLearnRouteFor(learnPath[conceptIndex - 1])}
-                    disabled={conceptIndex == 0} style={{width: '100px'}}>
+                    disabled={conceptIndex == 0} style={{width: '100px'}}
+                    buttonType="raised">
               Previous
             </Button>
             <span style={{margin: '0 10px'}}>
@@ -80,7 +81,7 @@ class ConceptPage extends Component {
               </span>
             <Button to={this._getLearnRouteFor(learnPath[conceptIndex + 1])}
                     disabled={conceptIndex + 1 == learnPath.length}
-                    style={{width: '100px'}}>
+                    style={{width: '100px'}} buttonType={['raised', 'accent']}>
               Next
             </Button>
           </div>
