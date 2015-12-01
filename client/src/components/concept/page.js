@@ -202,9 +202,9 @@ class ConceptPage extends Component {
       this.props.relay.setVariables({targetId});
     }
 
-    let {concept} = props.viewer;
-    if (!targetId && id && concept && id == concept.id) {
-      this.props.history.replaceState('', pathToUrl(concept.path));
+    let {selectedConcept} = props.viewer;
+    if (!targetId && id && selectedConcept && id == selectedConcept.id) {
+      this.props.history.replaceState('', pathToUrl(selectedConcept.path));
     }
     if (id) {
       this.setState({selectedId: id, selectedPath: null});
