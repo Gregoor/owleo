@@ -64,12 +64,13 @@ class ConceptPage extends Component {
       if (learnPath) {
         let conceptIndex = learnPath.indexOf(selectedConcept.id);
         learnBar = (
-          <div className="mdl-cell mdl-cell--12-col">
+          <div className="mdl-cell mdl-cell--12-col"
+               style={{textAlign: 'center'}}>
             <Button to={this._getLearnRouteFor(learnPath[conceptIndex - 1])}
-                    disabled={conceptIndex == 0}>
+                    disabled={conceptIndex == 0} style={{width: '100px'}}>
               Previous
             </Button>
-            <span style={{margin: '0 auto'}}>
+            <span style={{margin: '0 10px'}}>
               Learning&nbsp;
               <a href={pathToUrl(targetConcept.path)}>
                 {targetConcept.name}
@@ -78,7 +79,8 @@ class ConceptPage extends Component {
               ({conceptIndex + 1}/{learnPath.length})
               </span>
             <Button to={this._getLearnRouteFor(learnPath[conceptIndex + 1])}
-                    disabled={conceptIndex + 1 == learnPath.length}>
+                    disabled={conceptIndex + 1 == learnPath.length}
+                    style={{width: '100px'}}>
               Next
             </Button>
           </div>
