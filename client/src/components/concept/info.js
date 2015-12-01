@@ -57,7 +57,8 @@ class ConceptInfo extends Component {
             <ConceptBreadcrumbs concept={concept}/>
           </div>
           <CardAnimation>
-            <div key="concept" className="mdl-card mdl-shadow--2dp card-auto-fit">
+            <div key="concept" className="mdl-card mdl-shadow--2dp card-auto-fit"
+                 style={{overflow: 'visible'}}>
               <div className="mdl-card__title" style={{paddingBottom: 0}}>
                 <h2 className="mdl-card__title-text">{name}</h2>
               </div>
@@ -67,9 +68,13 @@ class ConceptInfo extends Component {
               </div>
               {learnMode || (_.isEmpty(reqs.length) && path.length == 1) ? '' : (
                 <div className="mdl-card__menu">
-                  <Button to={'/learn/' + id} buttonType={['icon', 'accent']}>
+                  <Button id="learn" to={'/learn/' + id}
+                          buttonType={['icon', 'accent']}>
                     <i className="material-icons">school</i>
                   </Button>
+                  <div className="mdl-tooltip" htmlFor="learn">
+                    Start mastering this concept
+                  </div>
                 </div>
               )}
               {user ? (
