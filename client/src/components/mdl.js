@@ -53,7 +53,7 @@ class TextArea extends Component {
 
 const BUTTON_PREFIX = 'mdl-button--';
 const Button = (props) => {
-  let {buttonType, to} = props;
+  let {disabled, buttonType, to} = props;
 
   let buttonTypeClasses = [];
   if (buttonType) {
@@ -70,7 +70,7 @@ const Button = (props) => {
     </button>
   );
 
-  if (to) button = <Link {...{to}}>{button}</Link>;
+  if (to && !disabled) button = <Link {...{to}}>{button}</Link>;
 
   return button;
 };
