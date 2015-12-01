@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import _ from 'lodash';
 
 import DeleteConceptMutation from '../../mutations/concept/delete';
 import pathToUrl from '../../path-to-url';
@@ -32,44 +33,57 @@ const CardAnimation = ({delay = 0, children}) => {
 
 class ConceptInfo extends Component {
 
+  componentDidMount() {
+    document.title = this.props.concept.name;
+    window.iframely.load();
+  }
+
+  componentDidUpdate() {
+    window.iframely.load();
+  }
+
   render() {
-    let {viewer, concept} = this.props;
+    let {viewer, concept, learnMode} = this.props;
     let {user} = viewer;
     if (this.props.relay.variables.includeForm) {
       return <ConceptForm {...{viewer, concept}}/>;
     }
-    let {name, summary, reqs} = concept;
+    let {id, name, summary, reqs, path} = concept;
     return (
-      <div>
-        <div className="mdl-cell mdl-cell--12-col">
-          <ConceptBreadcrumbs concept={concept}/>
-        </div>
-        <CardAnimation>
-          <div key="concept" className="mdl-card mdl-shadow--2dp card-auto-fit">
-            <div className="mdl-card__title" style={{paddingBottom: 0}}>
-              <h2 className="mdl-card__title-text">{name}</h2>
-            </div>
-            <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
-              {this.renderReqs()}
-              <p style={{paddingTop: 10}}>{summary}</p>
-            </div>
-            <div className="mdl-card__menu">
-              <Button buttonType={['icon', 'accent']}>
-                <i className="material-icons">school</i>
-              </Button>
-            </div>
-            {user ? (
-              <div className="mdl-card__actions mdl-card--border">
-                <Button onClick={this.onDelete.bind(this)}>
-                  Delete
-                </Button>
-                <Button onClick={this.onEdit.bind(this)}>
-                  Edit
-                </Button>
-              </div>
-            ) : ''}
+      <div style={{margin: '0 auto'}}>
+        <div style={{maxWidth: 512}}>
+          <div className="mdl-cell mdl-cell--12-col">
+            <ConceptBreadcrumbs concept={concept}/>
           </div>
-        </CardAnimation>
+          <CardAnimation>
+            <div key="concept" className="mdl-card mdl-shadow--2dp card-auto-fit">
+              <div className="mdl-card__title" style={{paddingBottom: 0}}>
+                <h2 className="mdl-card__title-text">{name}</h2>
+              </div>
+              <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
+                {this.renderReqs()}
+                <p style={{paddingTop: 10}}>{summary}</p>
+              </div>
+              {learnMode || (_.isEmpty(reqs.length) && path.length == 1) ? '' : (
+                <div className="mdl-card__menu">
+                  <Button to={'/learn/' + id} buttonType={['icon', 'accent']}>
+                    <i className="material-icons">school</i>
+                  </Button>
+                </div>
+              )}
+              {user ? (
+                <div className="mdl-card__actions mdl-card--border">
+                  <Button onClick={this.onDelete.bind(this)}>
+                    Delete
+                  </Button>
+                  <Button onClick={this.onEdit.bind(this)}>
+                    Edit
+                  </Button>
+                </div>
+              ) : ''}
+            </div>
+          </CardAnimation>
+        </div>
         {this.renderExplanations()}
       </div>
     );
@@ -96,23 +110,10 @@ class ConceptInfo extends Component {
       let {node: explanation} = edge;
       let {type, content} = explanation;
 
-      let explanationContent;
+      let explanationContent, style;
       if (type == 'link') {
-        let parser = document.createElement('a');
-        parser.href = content;
-
-        if (parser.hostname == 'youtu.be' || parser.host.includes('youtube')) {
-          let id = getYouTubeIDFromURL(content);
-          if (id) {
-            explanationContent = (
-              <iframe type="text/html" width="475" height="267"
-                      src={`http://www.youtube.com/embed/${id}`}
-                      frameborder="0"/>
-            );
-          }
-        }
-
-        if (!explanationContent) explanationContent = <a href={content}>{content}</a>
+        explanationContent = <a data-iframely-url href={content}>{content}</a>;
+        style = {padding: 0, width: '100%'};
       } else {
         explanationContent = <div
           dangerouslySetInnerHTML={{__html: explanation.content}}/>
@@ -121,7 +122,7 @@ class ConceptInfo extends Component {
       return (
         <div key={explanation.id} style={{transitionDelay: `${delay += 100}ms`}}
              className="mdl-card mdl-shadow--2dp card-auto-fit">
-          <div className="mdl-card__supporting-text">
+          <div className="mdl-card__supporting-text" style={style}>
             {explanationContent}
           </div>
         </div>
@@ -133,7 +134,14 @@ class ConceptInfo extends Component {
         <ExplanationForm {...{concept}}/>
       </div>
     );
-    return <CardAnimation delay={delay}>{explanations}</CardAnimation>;
+
+    if (_.isEmpty(explanations)) return;
+
+    return (
+      <CardAnimation delay={delay}>
+        <h4>Explanations</h4>{explanations}
+      </CardAnimation>
+    );
   }
 
   onDelete() {
@@ -173,12 +181,13 @@ export default Relay.createContainer(ConceptInfo, {
     `,
     concept: (variables) => Relay.QL`
       fragment on Concept {
-        id,
-        name,
-        summary,
+        id
+        name
+        summary
+        path {name}
         reqs {
-          id,
-          name,
+          id
+          name
           path {
             name
           }
@@ -188,8 +197,8 @@ export default Relay.createContainer(ConceptInfo, {
         explanations(first: 10) {
           edges {
             node {
-              id,
-              type,
+              id
+              type
               content
             }
           }
