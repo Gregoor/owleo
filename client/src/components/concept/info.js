@@ -10,6 +10,12 @@ import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptForm from './form';
 import ExplanationForm from './explanation-form';
 
+const YOUTUBE_REGEX = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+const getYouTubeIDFromURL = (url) => {
+  let match = url.match(YOUTUBE_REGEX);
+  return match && match[2].length == 11 ? match[2] : false;
+};
+
 const TRANSITION_DURATION = 700;
 const CardAnimation = ({delay = 0, children}) => {
   let duration = TRANSITION_DURATION + delay;
@@ -22,7 +28,7 @@ const CardAnimation = ({delay = 0, children}) => {
       {children}
     </ReactCSSTransitionGroup>
   );
-}
+};
 
 class ConceptInfo extends Component {
 
@@ -88,14 +94,35 @@ class ConceptInfo extends Component {
     let delay = 0;
     let explanations = concept.explanations.edges.map(edge => {
       let {node: explanation} = edge;
-
       let {type, content} = explanation;
+
+      let explanationContent;
+      if (type == 'link') {
+        let parser = document.createElement('a');
+        parser.href = content;
+
+        if (parser.hostname == 'youtu.be' || parser.host.includes('youtube')) {
+          let id = getYouTubeIDFromURL(content);
+          if (id) {
+            explanationContent = (
+              <iframe type="text/html" width="475" height="267"
+                      src={`http://www.youtube.com/embed/${id}`}
+                      frameborder="0"/>
+            );
+          }
+        }
+
+        if (!explanationContent) explanationContent = <a href={content}>{content}</a>
+      } else {
+        explanationContent = <div
+          dangerouslySetInnerHTML={{__html: explanation.content}}/>
+      }
+
       return (
         <div key={explanation.id} style={{transitionDelay: `${delay += 100}ms`}}
              className="mdl-card mdl-shadow--2dp card-auto-fit">
           <div className="mdl-card__supporting-text">
-            {type == 'link' ? <a href={content}>{content}</a> :
-              <div dangerouslySetInnerHTML={{__html: explanation.content}}/>}
+            {explanationContent}
           </div>
         </div>
       )
