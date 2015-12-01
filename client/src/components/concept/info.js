@@ -4,6 +4,7 @@ import Relay from 'react-relay';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import _ from 'lodash';
 
+import history from '../../history';
 import DeleteConceptMutation from '../../mutations/concept/delete';
 import pathToUrl from '../../path-to-url';
 import {Button} from '../mdl';
@@ -152,7 +153,7 @@ class ConceptInfo extends Component {
       new DeleteConceptMutation({conceptId: concept.id}),
       {
         onSuccess: t => {
-          location.hash = '/concepts';
+          history.pushState(null, '/concepts');
           location.reload();
         },
         onFailure: t => console.error(t.getError().source.errors)
