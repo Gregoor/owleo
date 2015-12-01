@@ -52,6 +52,11 @@ body {
   }
 }
 
+.mdl-card__supporting-text > a {
+  display: block;
+  margin: 16px !important;
+}
+
 //div {
 //  ul ul {
 //    border-left-width: 2px;
