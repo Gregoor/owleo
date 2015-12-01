@@ -104,7 +104,7 @@ class ConceptQuery {
       (exclude ? `WHERE NOT(${this._alias}.id IN {exclude}) AND` : 'WHERE') +
       ` ${this._alias}.name =~ {query}`
     );
-    this.params.query = `.*${query}.*`;
+    this.params.query = `.*(?i)${query}.*`;
     if (exclude) this.params.exclude = exclude;
   }
 
