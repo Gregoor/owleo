@@ -16,6 +16,7 @@ import {
 
 import Concept from '../db/concept';
 import User from '../db/user';
+import findLearnPath from '../db/learn-path';
 import getFieldList from './get-field-list';
 import NodeGQL from './node-gql';
 import UserGQL from './user-gql';
@@ -59,6 +60,17 @@ let ViewerType = new GraphQLObjectType({
           args.exclude = args.exclude.map(id => fromGlobalId(id).id);
         }
         return args.query ? Concept.find(args, getFieldList(context)) : [];
+      }
+    },
+    learnPath: {
+      type: new GraphQLList(GraphQLString),
+      args: {targetId: {type: GraphQLString}},
+      resolve(root, {targetId}, context) {
+        if (targetId) {
+          return findLearnPath(fromGlobalId(targetId).id)
+            .then(ids => ids.map(toGlobalId.bind(this, 'Concept')));
+        }
+        return null;
       }
     }
   }

@@ -135,4 +135,5 @@ type Viewer {
   conceptRoot: Concept
   concept(path: String, id: String): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
+  learnPath(targetId: String): [String]
 }

@@ -2,13 +2,15 @@ import React, {Component} from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 
+import history from '../../history';
 import pathToUrl from '../../path-to-url';
 import SearchResults from './results';
 import ConceptList from './list';
 import ConceptInfo from './info';
 import ConceptForm from './form';
 import ConceptMap from './map';
-import {Spinner} from '../mdl';
+import OwlPlaceholder from './owl-placeholder';
+import {Button, Spinner} from '../mdl';
 
 import './icon-switch.scss';
 
@@ -30,26 +32,26 @@ class ConceptPage extends Component {
 
   render() {
     let {viewer, relay} = this.props;
-    let {conceptRoot, concept} = viewer;
+    let {conceptRoot, selectedConcept, targetConcept, learnPath} = viewer;
     let {selectedPath, selectedId} = relay.variables;
     let {query, navType} = this.state;
 
-    let hasSelection = concept && (selectedId && this.state.selectedId) ||
+    let hasSelection = selectedConcept && (selectedId && this.state.selectedId) ||
       (selectedPath && this.state.selectedPath);
 
-    if (!concept) concept = {};
+    if (!selectedConcept) selectedConcept = {};
     let list;
     let showMap = navType == 'map';
     if (query) {
-      list = <SearchResults {...{viewer, query}} selectedId={concept.id}
+      list = <SearchResults {...{viewer, query}} selectedId={selectedConcept.id}
                             onSelect={this._onSearchSelect.bind(this)}/>;
     } else if (showMap) {
       list = <ConceptMap concept={conceptRoot}
-                         selectedId={hasSelection ? concept.id : null}/>;
+                         selectedId={hasSelection ? selectedConcept.id : null}/>;
     } else {
       list = <ConceptList concept={conceptRoot}
                           selectedPath={selectedPath ? selectedPath.split('/') : null}
-                          selectedId={concept.id}/>;
+                          selectedId={selectedConcept.id}/>;
     }
 
     let emptyOwl = false;
@@ -57,27 +59,42 @@ class ConceptPage extends Component {
     if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
     } else if (hasSelection) {
-      content = <ConceptInfo key={concept.id} {...{viewer, concept}}/>;
+      let learnBar;
+      if (learnPath) {
+        let conceptIndex = learnPath.indexOf(selectedConcept.id);
+        learnBar = (
+          <div className="mdl-cell mdl-cell--12-col">
+            <Button to={this._getLearnRouteFor(learnPath[conceptIndex - 1])}
+                    disabled={conceptIndex == 0}>
+              Previous
+            </Button>
+            <span style={{margin: '0 auto'}}>
+              Learning&nbsp;
+              <a href={pathToUrl(targetConcept.path)}>
+                {targetConcept.name}
+              </a>
+              &nbsp;
+              ({conceptIndex + 1}/{learnPath.length})
+              </span>
+            <Button to={this._getLearnRouteFor(learnPath[conceptIndex + 1])}
+                    disabled={conceptIndex + 1 == learnPath.length}>
+              Next
+            </Button>
+          </div>
+        )
+      }
+      content = (
+        <div className="mdl-grid">
+          {learnBar}
+          <ConceptInfo key={selectedConcept.id} learnMode={Boolean(learnPath)}
+                       {...{viewer, concept: selectedConcept}}/>
+        </div>
+      );
     } else if (this.state.loading) {
       content = <Spinner/>;
     } else {
       emptyOwl = true;
-      content = <div style={{
-            display: 'flex', width: '512px', height: '512px', margin: '0 auto',
-            flexDirection: 'column', textAlign: 'center', color: 'white',
-            borderRadius: '50%', overflow: 'hidden', backgroundColor: '#3F51B5',
-            boxShadow: 'inset 0 0 2px rgba(0,0,0,.12),inset 0 2px 4px rgba(0,0,0,.24)'
-          }}>
-        <img src={require('./owl-only.png')}
-             style={{margin: '70px auto 0', height: '40%'}}/>
-        <span style={{fontSize: 35, marginTop: 20}}>
-          No concept selected.
-        </span>
-        <span style={{fontSize: 16, marginTop: 20}}>
-          You can select concepts on the left side.
-          <div style={{fontSize: 50, marginTop: 20}}>←</div>
-        </span>
-      </div>
+      content = <OwlPlaceholder/>
     }
 
     return (
@@ -132,8 +149,7 @@ class ConceptPage extends Component {
           </div>
         </div>
 
-        <div className={'mdl-cell mdl-cell--6-col ' + (emptyOwl ? 'mdl-cell--middle' : '')}
-             style={{maxWidth: 512, margin: '0 auto'}}>
+        <div className={'mdl-cell mdl-cell--6-col ' + (emptyOwl ? 'mdl-cell--middle' : '')}>
           {content}
         </div>
 
@@ -151,15 +167,11 @@ class ConceptPage extends Component {
   }
 
   _onSearchChange(event) {
-    this._navigateToConcepts();
     this.setState({query: event.target.value});
   }
 
   _onSearchKeyUp(event) {
     switch (event.keyCode) {
-      case 13/*ENTER*/:
-        this._navigateToConcepts();
-        break;
       case 27/*ESC*/:
         this.setState({query: this.refs.search.value = ''});
         this.refs.searchContainer.classList.remove('is-dirty');
@@ -172,11 +184,6 @@ class ConceptPage extends Component {
     this.refs.search.value = null;
   }
 
-  _navigateToConcepts() {
-    let {history} = this.props;
-    if (!history.isActive('/concepts')) history.pushState({}, '/concepts');
-  }
-
   _onChangeNav(event) {
     let switchTo = event.target.checked ? 'map' : 'list';
     localStorage.setItem('navType', switchTo);
@@ -184,11 +191,19 @@ class ConceptPage extends Component {
   }
 
   _setSelectedPath(props) {
-    let {params} = props;
-    let {id, path, splat} = params;
+    let {viewer, params} = props;
+    let {id, path, splat, targetId} = params;
+
+    if (viewer.learnPath && !id) {
+      history.pushState(null, this._getLearnRouteFor(viewer.learnPath[0], targetId));
+    }
+
+    if (this.props.relay.variables.targetId != targetId) {
+      this.props.relay.setVariables({targetId});
+    }
 
     let {concept} = props.viewer;
-    if (id && concept && id == concept.id) {
+    if (!targetId && id && concept && id == concept.id) {
       this.props.history.replaceState('', pathToUrl(concept.path));
     }
     if (id) {
@@ -211,29 +226,34 @@ class ConceptPage extends Component {
     }
   }
 
+  _getLearnRouteFor(id, targetId = this.props.params.targetId) {
+    return `/learn/${targetId}/${id}`
+  }
+
 }
 
 export default Relay.createContainer(ConceptPage, {
 
-  initialVariables: {selectedPath: null, selectedId: null},
+  initialVariables: {selectedPath: null, selectedId: null, targetId: null},
 
   fragments: {
     viewer: (vars) => Relay.QL`
       fragment on Viewer {
-        user {
-          id
-        }
+        user {id}
         conceptRoot {
           ${ConceptList.getFragment('concept')}
           ${ConceptMap.getFragment('concept')}
-        },
-        concept(path: $selectedPath, id: $selectedId) {
-          id,
-          path {
-            name
-          }
+        }
+        selectedConcept: concept(path: $selectedPath, id: $selectedId) {
+          id
+          path {name}
           ${ConceptInfo.getFragment('concept')}
-        },
+        }
+        targetConcept: concept(id: $targetId) {
+          name
+          path {name}
+        }
+        learnPath(targetId: $targetId)
         ${SearchResults.getFragment('viewer')}
         ${ConceptForm.getFragment('viewer')}
         ${ConceptInfo.getFragment('viewer')}

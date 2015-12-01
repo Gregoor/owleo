@@ -33,6 +33,9 @@ export default () => (
         <Route path="new" component={ConceptForm}/>
         <Route path=":path*"/>
       </Route>
+      <Route path="learn/:targetId" component={ConceptPage} {...commonProps}>
+        <Route path=":id"/>
+      </Route>
       <Route path="id" component={ConceptPage} {...commonProps}>
         <Route path=":id"/>
       </Route>

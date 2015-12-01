@@ -1,11 +1,11 @@
 import neo4j from 'neo4j';
 import config from '../configs/config.custom';
 
-let db = new neo4j.GraphDatabase({
+const db = new neo4j.GraphDatabase({
     'url': config.dbHost || 'http://localhost:7474'
 });
 
-let query = (query, params) => new Promise((resolve) => {
+const query = (query, params) => new Promise((resolve) => {
   let {stack} = new Error();
   db.cypher({query, params, 'lean': true}, (err, data) => {
     if (err) process.stderr.write(err + '\n' + stack);
@@ -13,4 +13,4 @@ let query = (query, params) => new Promise((resolve) => {
   });
 });
 
-export default {db, query};
+export {db, query};
