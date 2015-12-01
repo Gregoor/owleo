@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import ReactDOM from 'react-dom';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 
@@ -10,7 +11,7 @@ import ConceptInfo from './info';
 import ConceptForm from './form';
 import ConceptMap from './map';
 import OwlPlaceholder from './owl-placeholder';
-import {Button, Spinner} from '../mdl';
+import {TextField, Button, Spinner} from '../mdl';
 
 import './icon-switch.scss';
 
@@ -106,22 +107,10 @@ class ConceptPage extends Component {
           <div className="mdl-grid" style={{backgroundColor: 'white', margin: 0,
                         padding: 0, borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
             <div className="mdl-cell mdl-cell--10-col">
-              <div ref="searchContainer"
-                   className="mdl-textfield mdl-js-textfield
-                            mdl-textfield--expandable
-                            mdl-textfield--floating-label"
-                   style={{padding: 0}}>
-                <label className="mdl-button mdl-js-button mdl-button--icon"
-                       htmlFor="search" style={{bottom: 0}}>
-                  <i className="material-icons">search</i>
-                </label>
-                <div className="mdl-textfield__expandable-holder">
-                  <input className="mdl-textfield__input" id="search" type="text"
-                         ref="search" placeholder="Search for concepts"
+              <TextField label="Search for concepts" ref="search"
                          onChange={this._onSearchChange.bind(this)}
-                         onKeyUp={this._onSearchKeyUp.bind(this)}/>
-                </div>
-              </div>
+                         onKeyUp={this._onSearchKeyUp.bind(this)}
+                         outerStyle={{margin: '-20px 0', width: '100%'}}/>
             </div>
             <div className="mdl-cell mdl-cell--2-col">
               <label ref="navSwitch" className="icon-switch mdl-switch
@@ -173,8 +162,8 @@ class ConceptPage extends Component {
   _onSearchKeyUp(event) {
     switch (event.keyCode) {
       case 27/*ESC*/:
-        this.setState({query: this.refs.search.value = ''});
-        this.refs.searchContainer.classList.remove('is-dirty');
+        this.setState({query: this.refs.search.setValue('')});
+        ReactDOM.findDOMNode(this.refs.search).classList.remove('is-dirty');
         break;
     }
   }

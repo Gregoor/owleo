@@ -24,6 +24,10 @@ class TextField extends Component {
     return this.refs.input.value;
   }
 
+  setValue(value) {
+    this.refs.input.value = value;
+  }
+
 }
 
 class TextArea extends Component {
