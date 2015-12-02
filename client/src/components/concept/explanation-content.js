@@ -16,7 +16,9 @@ class ExplanationContent extends React.Component {
 
     let explanationContent, style;
     return type == 'link' ?
-      <a ref="link" data-iframely-url href={content}>{content}</a> :
+      <div style={{display: 'flex', justifyContent: 'center'}}>
+        <a ref="link" data-iframely-url href={content}>{content}</a>
+      </div> :
       <div dangerouslySetInnerHTML={{__html: content}}/>;
   }
 

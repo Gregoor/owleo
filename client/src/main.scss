@@ -68,9 +68,10 @@ body {
   }
 }
 
-.mdl-card__supporting-text > a {
+.mdl-card__supporting-text > div > a {
   display: block;
   margin: 16px !important;
+  font-size: 15px;
 }
 
 //div {
