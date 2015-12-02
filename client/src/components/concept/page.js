@@ -61,7 +61,7 @@ class ConceptPage extends Component {
       content = React.cloneElement(this.props.children, {viewer});
     } else if (hasSelection) {
       content = <ConceptInfo key={selectedConcept.id}
-                       {...{viewer, concept: selectedConcept}}/>;
+                             {...{viewer, concept: selectedConcept}}/>;
     } else if (this.state.loading) {
       content = <Spinner/>;
     } else {
@@ -70,7 +70,7 @@ class ConceptPage extends Component {
     }
 
     return (
-      <div className="mdl-grid" style={{maxWidth: '1300px'}}>
+      <div className="mdl-grid" style={{maxWidth: '1300px', overflow: 'hidden'}}>
 
         <div className="mdl-cell mdl-cell--6-col mdl-shadow--2dp"
              style={{maxWidth: navType == 'map' ? '800px' : '500px', margin: 0,

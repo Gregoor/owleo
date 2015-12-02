@@ -59,7 +59,7 @@ class ConceptListItem extends Component {
     };
 
     return (
-      <li style={{listStyleType: 'none', marginLeft: '10px'}}>
+      <li style={{listStyleType: 'none', marginLeft: '10px', fontSize: 17}}>
         <div style={{padding: '10px 0'}} ref="label">
           <button onClick={this.onClickButton.bind(this)}
                   className={classNames('mdl-button mdl-js-button ' +

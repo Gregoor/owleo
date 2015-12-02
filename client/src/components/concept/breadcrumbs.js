@@ -9,7 +9,7 @@ class ConceptBreadcrumbs extends Component {
   render() {
     let {name, path} = this.props.concept;
     return (
-      <span style={{margin: 0, fontSize: 16}}>
+      <span style={{margin: 0, fontSize: 17}}>
         {path.slice(1).reverse().map(concept => (
           <span key={concept.id}>
             <Link to={'/id/' + concept.id}>{concept.name}</Link>
