@@ -191,7 +191,7 @@ export default Relay.createContainer(ConceptPage, {
 
   initialVariables: {
     selectedPath: null, selectedId: null,
-    includeList: localStorage.navType == 'list',
+    includeList: !localStorage.navType || localStorage.navType == 'list',
     includeMap: localStorage.navType == 'map'
   },
 
