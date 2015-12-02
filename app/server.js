@@ -49,7 +49,7 @@ app.use('/graphql', graphqlHTTP(request => ({
 app.use(favicon(__dirname + '/../client/favicon.ico'));
 app.use('/static', express.static(__dirname + '/../client/dist/'));
 app.use('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/index.html'));
+  res.sendFile(path.join(__dirname, '../client/index.prod.html'));
 });
 
 app.listen(config.port);
