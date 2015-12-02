@@ -2,15 +2,21 @@ import React, {Component} from 'react';
 import Relay from 'react-relay';
 
 import ConceptListItem from './list-item';
+import {Spinner} from '../mdl';
 
 class SearchResults extends Component {
 
-  state = {isTooShort: true};
+  state = {isTooShort: true, isLoading: false};
 
   componentWillReceiveProps(props) {
     let {query} = props;
     let isTooShort = query.length < 3;
-    if (!isTooShort) this.props.relay.forceFetch({query});
+    if (!isTooShort) {
+      this.setState({isLoading: true});
+      this.props.relay.forceFetch({query}, readyState => {
+        if (readyState.done) this.setState({isLoading: false});
+      });
+    }
     this.setState({isTooShort})
   }
 
@@ -36,6 +42,9 @@ class SearchResults extends Component {
   renderList() {
     let {viewer, selectedId, onSelect} = this.props;
     let {concepts} = viewer;
+
+    if (this.state.isLoading) return <Spinner/>;
+
     if (!concepts || concepts.length == 0) {
       return this.renderMessage(
         `No concepts with '${this.props.query}' in the title found`
