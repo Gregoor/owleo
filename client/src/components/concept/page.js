@@ -49,11 +49,11 @@ class ConceptPage extends Component {
     } else if (showMap && this.props.relay.variables.includeMap) {
       list = <ConceptMap concept={conceptRoot}
                          selectedId={hasSelection ? selectedConcept.id : null}/>;
-    } else if (this.props.relay.variables.includeList) {
+    } else if (!showMap && this.props.relay.variables.includeList) {
       list = <ConceptList concept={conceptRoot}
                           selectedPath={selectedPath ? selectedPath.split('/') : null}
                           selectedId={selectedConcept.id}/>;
-    }
+    } else list = <Spinner/>;
 
     let emptyOwl = false;
     let content;
