@@ -121,7 +121,7 @@ class ConceptQuery {
   withFields(fields: {}) {
     let {
       id, name, summary, summarySource, conceptsCount,
-      container, concepts, reqs,  path, explanations
+      container, concepts, reqs,  path, explanations, explanationsCount
     } = fields;
 
     this._addToQuery('',
@@ -197,6 +197,11 @@ class ConceptQuery {
         `]
     );
 
+    if (explanationsCount) this._addToQuery(
+      `OPTIONAL MATCH (e:Explanation)-[:EXPLAINS]->(${this._alias})`,
+      ['explanationsCount', 'COUNT(e)']
+    );
+
     return this;
   }
 
@@ -270,6 +275,7 @@ export default {
     if (params.path) conceptQuery.hasPath(params.path);
 
     if (params.id) conceptQuery.idEquals(params.id);
+    else if (params.ids) conceptQuery.idIsIn(params.ids);
     else if (params.query) conceptQuery.matchesQuery(params.query, params.exclude);
 
     conceptQuery.forUser(params.userId);

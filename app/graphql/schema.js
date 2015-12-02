@@ -63,12 +63,12 @@ let ViewerType = new GraphQLObjectType({
       }
     },
     learnPath: {
-      type: new GraphQLList(GraphQLString),
+      type: new GraphQLList(ConceptGQL.type),
       args: {targetId: {type: GraphQLString}},
       resolve(root, {targetId}, context) {
         if (targetId) {
           return findLearnPath(fromGlobalId(targetId).id)
-            .then(ids => ids.map(toGlobalId.bind(this, 'Concept')));
+            .then(ids => Concept.find({ids}, getFieldList(context)));
         }
         return null;
       }

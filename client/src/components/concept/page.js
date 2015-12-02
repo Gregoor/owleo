@@ -33,7 +33,7 @@ class ConceptPage extends Component {
 
   render() {
     let {viewer, relay} = this.props;
-    let {conceptRoot, selectedConcept, targetConcept, learnPath} = viewer;
+    let {conceptRoot, selectedConcept, targetConcept} = viewer;
     let {selectedPath, selectedId} = relay.variables;
     let {query, navType} = this.state;
 
@@ -60,37 +60,9 @@ class ConceptPage extends Component {
     if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
     } else if (hasSelection) {
-      let learnBar;
-      if (learnPath) {
-        let conceptIndex = learnPath.indexOf(selectedConcept.id);
-        learnBar = (
-          <div className="mdl-cell mdl-cell--12-col"
-               style={{textAlign: 'center'}}>
-            <Button to={this._getLearnRouteFor(learnPath[conceptIndex - 1])}
-                    disabled={conceptIndex == 0} style={{width: '100px'}}
-                    buttonType="raised">
-              Previous
-            </Button>
-            <span style={{margin: '0 10px'}}>
-              Learning&nbsp;
-              <a href={pathToUrl(targetConcept.path)}>
-                {targetConcept.name}
-              </a>
-              &nbsp;
-              ({conceptIndex + 1}/{learnPath.length})
-              </span>
-            <Button to={this._getLearnRouteFor(learnPath[conceptIndex + 1])}
-                    disabled={conceptIndex + 1 == learnPath.length}
-                    style={{width: '100px'}} buttonType={['raised', 'accent']}>
-              Next
-            </Button>
-          </div>
-        )
-      }
       content = (
         <div className="mdl-grid">
-          {learnBar}
-          <ConceptInfo key={selectedConcept.id} learnMode={Boolean(learnPath)}
+          <ConceptInfo key={selectedConcept.id}
                        {...{viewer, concept: selectedConcept}}/>
         </div>
       );
@@ -186,10 +158,6 @@ class ConceptPage extends Component {
     let {viewer, params} = props;
     let {id, path, splat, targetId} = params;
 
-    if (viewer.learnPath && !id) {
-      history.pushState(null, this._getLearnRouteFor(viewer.learnPath[0], targetId));
-    }
-
     if (this.props.relay.variables.targetId != targetId) {
       this.props.relay.setVariables({targetId});
     }
@@ -218,10 +186,6 @@ class ConceptPage extends Component {
     }
   }
 
-  _getLearnRouteFor(id, targetId = this.props.params.targetId) {
-    return `/learn/${targetId}/${id}`
-  }
-
 }
 
 export default Relay.createContainer(ConceptPage, {
@@ -241,11 +205,6 @@ export default Relay.createContainer(ConceptPage, {
           path {name}
           ${ConceptInfo.getFragment('concept')}
         }
-        targetConcept: concept(id: $targetId) {
-          name
-          path {name}
-        }
-        learnPath(targetId: $targetId)
         ${SearchResults.getFragment('viewer')}
         ${ConceptForm.getFragment('viewer')}
         ${ConceptInfo.getFragment('viewer')}

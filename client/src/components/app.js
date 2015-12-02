@@ -8,6 +8,7 @@ import {BACKEND_URL, DEV_MODE} from '../config.custom';
 import history from '../history';
 import Layout from './layout';
 import ConceptPage from './concept/page';
+import ConceptLearnPage from './concept/learn-page';
 import ConceptForm from './concept/form';
 import AuthPage from './auth-page';
 import AboutPage from './about-page';
@@ -33,9 +34,7 @@ export default () => (
         <Route path="new" component={ConceptForm}/>
         <Route path=":path*"/>
       </Route>
-      <Route path="learn/:targetId" component={ConceptPage} {...commonProps}>
-        <Route path=":id"/>
-      </Route>
+      <Route path="learn/:targetId" component={ConceptLearnPage} {...commonProps}/>
       <Route path="id" component={ConceptPage} {...commonProps}>
         <Route path=":id"/>
       </Route>

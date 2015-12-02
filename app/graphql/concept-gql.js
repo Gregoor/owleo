@@ -58,7 +58,8 @@ let ConceptType = new GraphQLObjectType({
       resolve(concept, args) {
         return connectionFromArray(concept.explanations, args)
       }
-    }
+    },
+    explanationsCount: {type: GraphQLInt}
   }),
   interfaces: [NodeGQL.interface]
 });
