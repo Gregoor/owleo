@@ -10,8 +10,17 @@ import UpdateConceptMutation from '../../mutations/concept/update';
 
 class ConceptForm extends Component {
 
+  state = {summaryLength: 0};
+
+  componentWillMount() {
+    let {concept} = this.props;
+
+    if (concept) this.setState({summaryLength: concept.summary.length});
+  }
+
   render() {
     let {viewer, concept} = this.props;
+    let {summaryLength} = this.state;
 
     let headline, buttonLabel;
     if (concept) {
@@ -37,7 +46,12 @@ class ConceptForm extends Component {
             <ConceptSelect ref="reqs" name="reqs" label="Requirements"
                            multi={true} {...{viewer}} defaultValue={reqs}/>
             <TextArea ref="summary" id="summary" label="Summary"
-                      defaultValue={summary}/>
+                      defaultValue={summary}
+                      onChange={this._onSummaryChange.bind(this)}/>
+            <p style={summaryLength > 140 ? {color: 'red'} : {}}>
+              {summaryLength} characters
+            </p>
+
             <TextField ref="summarySource" id="summarySrc"
                        label="Source of summary" defaultValue={summarySource}/>
           </div>
@@ -52,6 +66,10 @@ class ConceptForm extends Component {
         </div>
       </form>
     );
+  }
+
+  _onSummaryChange(event) {
+    this.setState({summaryLength: event.target.value.length});
   }
 
   _onSubmit(event) {
