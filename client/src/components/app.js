@@ -26,12 +26,16 @@ const ViewerQuery = {
 
 let commonProps = {renderLoading: () => <Spinner/>, queries: ViewerQuery};
 
+const CreateConceptForm = ({viewer}) => (
+  <ConceptForm viewer={viewer} concept={null}/>
+);
+
 export default () => (
   <RelayRouter history={history}>
     <Redirect from="/" to="/concepts"/>
     <Route path="/" component={Layout} {...commonProps}>
       <Route path="concepts" component={ConceptPage} {...commonProps}>
-        <Route path="new" component={ConceptForm}/>
+        <Route path="new" component={CreateConceptForm}/>
         <Route path=":path*"/>
       </Route>
       <Route path="learn/:targetId" component={ConceptLearnPage} {...commonProps}/>
