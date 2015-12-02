@@ -28,9 +28,11 @@ class ConceptInfo extends Component {
     let {id, name, summary, reqs, path} = concept;
     return (
       <div style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
-        <div className="mdl-cell mdl-cell--12-col">
-          <ConceptBreadcrumbs concept={concept}/>
-        </div>
+        {concept.path.length < 2 ? '' : (
+          <div className="mdl-cell mdl-cell--12-col" style={{marginTop: 0}}>
+            <ConceptBreadcrumbs concept={concept}/>
+          </div>
+        )}
         <CardAnimation>
           <div key="concept" className="mdl-card card-auto-fit"
                style={{overflow: 'visible'}}>

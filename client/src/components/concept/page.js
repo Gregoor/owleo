@@ -60,12 +60,8 @@ class ConceptPage extends Component {
     if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
     } else if (hasSelection) {
-      content = (
-        <div className="mdl-grid">
-          <ConceptInfo key={selectedConcept.id}
-                       {...{viewer, concept: selectedConcept}}/>
-        </div>
-      );
+      content = <ConceptInfo key={selectedConcept.id}
+                       {...{viewer, concept: selectedConcept}}/>;
     } else if (this.state.loading) {
       content = <Spinner/>;
     } else {
@@ -113,7 +109,8 @@ class ConceptPage extends Component {
           </div>
         </div>
 
-        <div className={'mdl-cell mdl-cell--6-col ' + (emptyOwl ? 'mdl-cell--middle' : '')}>
+        <div className={'mdl-cell mdl-cell--6-col ' + (emptyOwl ? 'mdl-cell--middle' : '')}
+             style={{margin: '0 8px'}}>
           {content}
         </div>
 

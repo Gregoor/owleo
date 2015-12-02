@@ -16,7 +16,7 @@ class ConceptBreadcrumbs extends Component {
             <span style={{padding: 5, color: 'grey'}}>></span>
           </span>
         ))}
-        {path.length > 1 ? <em>{name}</em> : ''}
+        {<em>{name}</em>}
       </span>
     );
   }
