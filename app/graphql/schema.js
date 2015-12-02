@@ -68,7 +68,16 @@ let ViewerType = new GraphQLObjectType({
       resolve(root, {targetId}, context) {
         if (targetId) {
           return findLearnPath(fromGlobalId(targetId).id)
-            .then(ids => Concept.find({ids}, getFieldList(context)));
+            .then(ids => {
+              return Concept.find({ids}, getFieldList(context))
+                .then(concepts => {
+                  let orderedConcepts = [];
+                  for (let concept of concepts) {
+                    orderedConcepts[ids.indexOf(concept.id)] = concept;
+                  }
+                  return orderedConcepts;
+                })
+            });
         }
         return null;
       }
