@@ -46,10 +46,10 @@ class ConceptPage extends Component {
     if (query) {
       list = <SearchResults {...{viewer, query}} selectedId={selectedConcept.id}
                             onSelect={this._onSearchSelect.bind(this)}/>;
-    } else if (showMap) {
+    } else if (showMap && this.props.relay.variables.includeMap) {
       list = <ConceptMap concept={conceptRoot}
                          selectedId={hasSelection ? selectedConcept.id : null}/>;
-    } else {
+    } else if (this.props.relay.variables.includeList) {
       list = <ConceptList concept={conceptRoot}
                           selectedPath={selectedPath ? selectedPath.split('/') : null}
                           selectedId={selectedConcept.id}/>;
@@ -150,6 +150,9 @@ class ConceptPage extends Component {
 
   _onChangeNav(event) {
     let switchTo = event.target.checked ? 'map' : 'list';
+    let listMode = switchTo == 'list';
+
+    this.props.relay.setVariables({includeList: listMode, includeMap: !listMode});
     localStorage.setItem('navType', switchTo);
     this.setState({navType: switchTo});
   }
@@ -157,10 +160,6 @@ class ConceptPage extends Component {
   _setSelectedPath(props) {
     let {viewer, params} = props;
     let {id, path, splat, targetId} = params;
-
-    if (this.props.relay.variables.targetId != targetId) {
-      this.props.relay.setVariables({targetId});
-    }
 
     let {selectedConcept} = props.viewer;
     if (!targetId && id && selectedConcept && id == selectedConcept.id) {
@@ -190,15 +189,19 @@ class ConceptPage extends Component {
 
 export default Relay.createContainer(ConceptPage, {
 
-  initialVariables: {selectedPath: null, selectedId: null, targetId: null},
+  initialVariables: {
+    selectedPath: null, selectedId: null,
+    includeList: localStorage.navType == 'list',
+    includeMap: localStorage.navType == 'map'
+  },
 
   fragments: {
     viewer: (vars) => Relay.QL`
       fragment on Viewer {
         user {id}
         conceptRoot {
-          ${ConceptList.getFragment('concept')}
-          ${ConceptMap.getFragment('concept')}
+          ${ConceptList.getFragment('concept').if(vars.includeList)}
+          ${ConceptMap.getFragment('concept').if(vars.includeMap)}
         }
         selectedConcept: concept(path: $selectedPath, id: $selectedId) {
           id
