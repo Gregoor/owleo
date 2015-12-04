@@ -50,7 +50,7 @@ class ConceptPage extends Component {
       list = <ConceptMap concept={conceptRoot}
                          selectedId={hasSelection ? selectedConcept.id : null}/>;
     } else if (!showMap && this.props.relay.variables.includeList) {
-      list = <ConceptList concept={conceptRoot}
+      list = <ConceptList concept={conceptRoot} openDepth={1}
                           selectedPath={selectedPath ? selectedPath.split('/') : null}
                           selectedId={selectedConcept.id}/>;
     } else list = <Spinner/>;

@@ -12,7 +12,7 @@ class ConceptList extends Component {
   };
 
   render() {
-    let {concept, selectedPath, isRoot} = this.props;
+    let {openDepth, concept, selectedPath, isRoot} = this.props;
     let {concepts} = concept;
 
     let topPath;
@@ -23,9 +23,11 @@ class ConceptList extends Component {
     }
     let subLists = concepts ? concepts.map(concept => {
       let isOpenProps = topPath == concept.name ?
-        {selectedPath: restPath, expanded: true} : {};
+        {selectedPath: restPath, expanded: true} :
+        {expanded: openDepth > 0};
 
       return <ConceptListItem key={concept.id} concept={concept}
+                              openDepth={openDepth - 1}
                               {...isOpenProps}/>
     }) : [];
 
