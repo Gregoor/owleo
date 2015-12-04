@@ -91,7 +91,7 @@ class ConceptForm extends Component {
       {
         onSuccess: t => {
           history.pushState(null,
-            'id/' + (isNew ? t.createConcept.conceptId : concept.id)
+            '/id/' + (isNew ? t.createConcept.conceptId : concept.id)
           );
           location.reload();
         },
