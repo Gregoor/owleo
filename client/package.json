@@ -7,7 +7,7 @@
     "start": "babel-node dev-server.js",
     "update-schema": "babel-node ./build/updateSchema.js",
     "lint": "eslint src",
-    "deploy": "NODE_ENV=production webpack -p --config webpack.config.dev.babel.js"
+    "deploy": "NODE_ENV=production webpack -p --config webpack.config.prod.babel.js"
   },
   "devDependencies": {
     "babel-core": "^5.8.25",
