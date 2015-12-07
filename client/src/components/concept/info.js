@@ -43,7 +43,7 @@ class ConceptInfo extends Component {
             {this.renderReqs()}
             <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
               <div className="section-title">Summary</div>
-              <div>{summary}</div>
+              <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
             </div>
             {_.isEmpty(reqs.length) && path.length == 1 ? '' : (
               <div className="mdl-card__menu">
