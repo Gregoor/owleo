@@ -68,6 +68,17 @@ body {
   transition: all 700ms cubic-bezier(.62,.28,.23,.99);
 }
 
+.card-leave {
+  opacity: 1;
+  transform: translateY(0px);
+}
+
+.card-leave-active {
+  opacity: 0;
+  transform: translateY(500px);
+  transition: all 700ms cubic-bezier(.62,.28,.23,.99);
+}
+
 .mdl-navigation__link {
   transition: box-shadow linear 300ms;
 

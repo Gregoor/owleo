@@ -12,6 +12,7 @@ import ConceptForm from './form';
 import ConceptMap from './map';
 import OwlPlaceholder from './owl-placeholder';
 import {TextField, Button, Spinner} from '../mdl';
+import CardAnimation from '../card-animation';
 
 import './icon-switch.scss';
 
@@ -112,7 +113,7 @@ class ConceptPage extends Component {
 
         <div className={'mdl-cell mdl-cell--6-col ' + (emptyOwl ? 'mdl-cell--middle' : '')}
              style={{margin: '0 8px'}}>
-          {content}
+          <CardAnimation>{content}</CardAnimation>
         </div>
 
         {viewer.user ? (
