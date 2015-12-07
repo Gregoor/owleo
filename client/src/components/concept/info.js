@@ -87,7 +87,7 @@ class ConceptInfo extends Component {
                style={{borderTop: borderStyle,
                        borderBottom: i + 1 == reqs.length ? borderStyle : 'none'}}>
             <h3 style={{fontSize: 22, margin: 0}}><Link to={pathToUrl(path)}>{name}</Link></h3>
-            <div>{summary}</div>
+            <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
           </div>
         ))}
       </div>

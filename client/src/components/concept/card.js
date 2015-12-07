@@ -52,7 +52,7 @@ class ConceptCard extends React.Component {
         <div className="mdl-card__title">
           <h2 className="mdl-card__title-text">{name}</h2>
         </div>
-        <div className="mdl-card__supporting-text">
+        <div className="mdl-card__supporting-text" style={{whiteSpace: 'pre-wrap'}}>
           {summary}
         </div>
         {explanationPanel}
