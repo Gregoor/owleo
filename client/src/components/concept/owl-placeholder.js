@@ -10,11 +10,12 @@ export default () => (
     <img src={require('./owl-only.png')}
          style={{margin: '70px auto 0'}}/>
         <span style={{fontSize: 35, marginTop: 20}}>
-          No concept selected.
+          Master a new concept!
         </span>
-        <span style={{fontSize: 16, marginTop: 20}}>
-          You can select concepts on the left side.
-          <div style={{fontSize: 50, marginTop: 20}}>←</div>
+        <span style={{fontSize: 16, marginTop: 20, padding: '0 50px'}}>
+          You can browse all concepts on the left or use the search on top
+          to find specific concepts.
+          <div style={{fontSize: 50, margin: '20px 0'}}>←</div>
         </span>
   </div>
 );
