@@ -116,7 +116,7 @@ class ConceptPage extends Component {
         </div>
 
         {viewer.user ? (
-          <Link style={{position: 'fixed', right: 30, bottom: 30}}
+          <Link style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
                 className="mdl-button mdl-js-button mdl-button--fab
                            mdl-js-ripple-effect mdl-button--colored"
                 to="/concepts/new">

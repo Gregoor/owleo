@@ -40,9 +40,10 @@ class ConceptInfo extends Component {
             <div className="mdl-card__title" style={{paddingBottom: 0}}>
               <h2 className="mdl-card__title-text">{name}</h2>
             </div>
+            {this.renderReqs()}
             <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
-              {this.renderReqs()}
-              <div style={{marginTop: 15}}>{summary}</div>
+              <div className="section-title">Summary</div>
+              <div>{summary}</div>
             </div>
             {_.isEmpty(reqs.length) && path.length == 1 ? '' : (
               <div className="mdl-card__menu">
@@ -74,13 +75,20 @@ class ConceptInfo extends Component {
 
   renderReqs() {
     let {reqs} = this.props.concept;
+    if (!reqs.length) return;
+
+    const borderStyle = '1px solid rgba(0, 0, 0, 0.1)';
+
     return (
-      <div>
-        {reqs.length ? <em>Requirements:</em> : ''}
-        {reqs.map(req => (
-          <Link key={req.id} to={pathToUrl(req.path)} style={{padding: '10px'}}>
-            {req.name}
-          </Link>
+      <div style={{paddingTop: 5}}>
+        <div className="section-title">Requirements</div>
+        {reqs.map(({id, name, summary, path}, i) => (
+          <div key={id} className="mdl-card__supporting-text"
+               style={{borderTop: borderStyle,
+                       borderBottom: i + 1 == reqs.length ? borderStyle : 'none'}}>
+            <h3 style={{fontSize: 22, margin: 0}}><Link to={pathToUrl(path)}>{name}</Link></h3>
+            <div>{summary}</div>
+          </div>
         ))}
       </div>
     );
@@ -184,6 +192,7 @@ export default Relay.createContainer(ConceptInfo, {
         reqs {
           id
           name
+          summary
           path {
             name
           }
