@@ -37,8 +37,9 @@ class ConceptPage extends Component {
     let {selectedPath, selectedId} = relay.variables;
     let {query, navType} = this.state;
 
-    let hasSelection = selectedConcept && (selectedId && this.state.selectedId) ||
-      (selectedPath && this.state.selectedPath);
+    let hasSelection = selectedConcept &&
+      (selectedId && this.state.selectedId || selectedPath && this.state.selectedPath);
+
 
     if (!selectedConcept) selectedConcept = {};
     let list;
