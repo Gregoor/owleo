@@ -58,13 +58,13 @@ class ConceptPage extends Component {
 
     let emptyOwl = false;
     let content;
-    if (this.props.children) {
+    if (this.state.isLoading) {
+      content = <Spinner/>;
+    } else if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
     } else if (hasSelection) {
       content = <ConceptInfo key={selectedConcept.id}
                              {...{viewer, concept: selectedConcept}}/>;
-    } else if (this.state.loading) {
-      content = <Spinner/>;
     } else {
       emptyOwl = true;
       content = <OwlPlaceholder/>
@@ -166,19 +166,19 @@ class ConceptPage extends Component {
     if (id) {
       this.setState({selectedId: id, selectedPath: null});
       if (id == this.state.selectedId) return;
-      this.setState({loading: true});
+      this.setState({isLoading: true});
       this.props.relay.setVariables({selectedId: id, selectedPath: null},
         readyState => {
-          if (readyState.done) this.setState({loading: false});
+          if (readyState.done) this.setState({isLoading: false});
         });
     } else {
       let selectedPath = path + splat;
       this.setState({selectedPath, selectedId: null});
       if (!selectedPath || selectedPath == this.state.selectedPath) return;
-      this.setState({loading: true});
+      this.setState({isLoading: true});
       this.props.relay.setVariables({selectedPath, selectedId: null},
         readyState => {
-          if (readyState.done) this.setState({loading: false});
+          if (readyState.done) this.setState({isLoading: false});
         });
     }
   }
