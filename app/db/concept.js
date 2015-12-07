@@ -164,7 +164,7 @@ class ConceptQuery {
       let prefixed = this._prefix('reqs');
       this._addToQuery(
         `
-        OPTIONAL MATCH (${this._alias})-[:REQUIRES]->(${prefixed}:Concept)
+        OPTIONAL MATCH (${this._alias})-[:CONTAINED_BY|:REQUIRES]->(${prefixed}:Concept)
         ${new ConceptQuery(prefixed, this._getAllFields())
           .withFields(reqs).getQueryString({multiple: true})}
       `,
