@@ -90,10 +90,7 @@ class ConceptForm extends Component {
       isNew ? new CreateConceptMutation(input) : new UpdateConceptMutation(input),
       {
         onSuccess: t => {
-          history.pushState(null,
-            '/id/' + (isNew ? t.createConcept.conceptId : concept.id)
-          );
-          location.reload();
+          location = '/id/' + (isNew ? t.createConcept.conceptId : concept.id);
         },
         onFailure: t => console.error(t.getError().source.errors)
       }
