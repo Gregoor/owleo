@@ -76,6 +76,17 @@ export default {
         'params': {id}
       }
     ], (n, r) => resolve(r[1][0])));
+  },
+
+  delete(id) {
+    return query(
+      `
+        MATCH (e:Explanation {id: {id}})
+        OPTIONAL MATCH (e)-[r]-()
+        DELETE e, r
+      `,
+      {id}
+    );
   }
 
 };

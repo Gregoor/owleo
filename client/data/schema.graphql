@@ -48,6 +48,16 @@ type DeleteConceptPayload {
   clientMutationId: String!
 }
 
+input DeleteExplanationInput {
+  explanationId: ID
+  clientMutationId: String!
+}
+
+type DeleteExplanationPayload {
+  success: Boolean
+  clientMutationId: String!
+}
+
 type Explanation {
   id: ID!
   type: String
@@ -93,6 +103,7 @@ type Mutation {
   updateConcept(input: UpdateConceptInput!): UpdateConceptPayload
   deleteConcept(input: DeleteConceptInput!): DeleteConceptPayload
   createExplanation(input: CreateExplanationInput!): CreateExplanationPayload
+  deleteExplanation(input: DeleteExplanationInput!): DeleteExplanationPayload
 }
 
 interface Node {

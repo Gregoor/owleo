@@ -5,6 +5,7 @@ import _ from 'lodash';
 
 import history from '../../history';
 import DeleteConceptMutation from '../../mutations/concept/delete';
+import DeleteExplanationMutation from '../../mutations/explanation/delete';
 import pathToUrl from '../../path-to-url';
 import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptForm from './form';
@@ -87,6 +88,7 @@ class ConceptInfo extends Component {
 
   renderExplanations() {
     let {viewer, concept} = this.props;
+    let {user} = viewer;
     let delay = 0;
     let explanations = concept.explanations.edges.map(edge => {
       let {node: explanation} = edge;
@@ -99,6 +101,13 @@ class ConceptInfo extends Component {
                style={type == 'link' ? {width: '100%', padding: 0} : {}}>
             <ExplanationContent explanation={explanation}/>
           </div>
+          {user ? (
+            <div className="mdl-card__actions mdl-card--border">
+              <Button onClick={this.onDeleteExplanation.bind(this, id)}>
+                Delete
+              </Button>
+            </div>
+          ) : ''}
         </div>
       )
     });
@@ -127,6 +136,19 @@ class ConceptInfo extends Component {
       {
         onSuccess: t => {
           history.pushState(null, '/concepts');
+          location.reload();
+        },
+        onFailure: t => console.error(t.getError().source.errors)
+      }
+    );
+  }
+
+  onDeleteExplanation(id) {
+    if (!confirm('Do you really want to delete this explanation?')) return;
+    Relay.Store.update(
+      new DeleteExplanationMutation({id}),
+      {
+        onSuccess: t => {
           location.reload();
         },
         onFailure: t => console.error(t.getError().source.errors)

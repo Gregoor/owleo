@@ -141,6 +141,18 @@ export default {
         input.conceptId = fromGlobalId(input.conceptId).id;
         return Explanation.create(input).then(() => ({success: true}));
       }
+    }),
+    deleteExplanation: mutationWithClientMutationId({
+      name: 'DeleteExplanation',
+      inputFields: {
+        explanationId: {type: GraphQLID}
+      },
+      outputFields: {success: {type: GraphQLBoolean}},
+      mutateAndGetPayload: (input, root) => {
+        assertUser(root);
+        return Explanation.delete(fromGlobalId(input.explanationId).id)
+          .then(() => ({success: true}));
+      }
     })
   }
 };
