@@ -22,9 +22,12 @@ class ConceptList extends Component {
       topPath = restPath.shift();
     }
     let subLists = concepts ? concepts.map(concept => {
-      let isOpenProps = topPath == concept.name ?
-        {selectedPath: restPath, expanded: true} :
-        {expanded: !selectedPath && openDepth > 0};
+      let isOpenProps = {};
+      if (topPath == concept.name) {
+        isOpenProps = {selectedPath: restPath, expanded: true};
+      } else if (!selectedPath) {
+        isOpenProps = {expanded: openDepth > 0};
+      }
 
       return <ConceptListItem key={concept.id} concept={concept}
                               openDepth={openDepth - 1}
