@@ -59,17 +59,22 @@ class ConceptPage extends Component {
 
     let emptyOwl = false;
     let content;
+    let animateContent = false;
     if (this.state.isLoading) {
       content = <Spinner/>;
+      animateContent = true;
     } else if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
     } else if (hasSelection) {
       content = <ConceptInfo key={selectedConcept.id}
                              {...{viewer, concept: selectedConcept}}/>;
+      animateContent = true;
     } else {
       emptyOwl = true;
       content = <OwlPlaceholder/>
     }
+
+    if (animateContent) content = <CardAnimation>{content}</CardAnimation>;
 
     return (
       <div style={{display: 'flex', justifyContent: 'center', marginTop: 10, overflow: 'hidden'}}>
@@ -112,7 +117,7 @@ class ConceptPage extends Component {
         </div>
 
         <div style={{width: '100%', height: '92vh', justifyContent: 'center', overflowY: 'auto'}}>
-          <CardAnimation>{content}</CardAnimation>
+          {content}
         </div>
 
         {viewer.user ? (
