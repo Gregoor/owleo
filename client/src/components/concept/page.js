@@ -72,10 +72,10 @@ class ConceptPage extends Component {
     }
 
     return (
-      <div className="mdl-grid" style={{maxWidth: '1300px', overflow: 'hidden'}}>
+      <div style={{display: 'flex', justifyContent: 'center', marginTop: 10}}>
 
-        <div className="mdl-cell mdl-cell--6-col mdl-shadow--2dp"
-             style={{maxWidth: navType == 'map' ? '800px' : '500px', margin: 0,
+        <div className="mdl-card"
+             style={{width: '60%', maxWidth: navType == 'map' ? '800px' : '500px', height: '92vh', marginLeft: 10,
                      backgroundColor: 'white'}}>
           <div className="mdl-grid" style={{backgroundColor: 'white', margin: 0,
                         padding: 0, borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
@@ -106,13 +106,12 @@ class ConceptPage extends Component {
             </div>
           </div>
           <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
-               style={{overflowY: navType == 'map' ? 'auto' : 'scroll', height: '84vh'}}>
+               style={{overflowY: navType == 'map' ? 'auto' : 'scroll'}}>
           {list}
           </div>
         </div>
 
-        <div className={'mdl-cell mdl-cell--6-col ' + (emptyOwl ? 'mdl-cell--middle' : '')}
-             style={{margin: '0 8px'}}>
+        <div style={{width: '100%', height: '92vh', justifyContent: 'center', overflowY: 'auto'}}>
           <CardAnimation>{content}</CardAnimation>
         </div>
 

@@ -43,7 +43,7 @@ class Layout extends Component {
             </nav>
           </div>
         </header>
-        <main className="mdl-layout__content">
+        <main className="mdl-layout__content" style={{overflow: 'hidden'}}>
           {this.props.children}
         </main>
       </div>
