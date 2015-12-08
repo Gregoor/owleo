@@ -4,8 +4,9 @@ import Relay from 'react-relay';
 import classNames from 'classnames';
 import _ from 'lodash';
 
-import ConceptList from './list';
 import pathToUrl from '../../path-to-url';
+import ConceptList from './list';
+import {Spinner} from '../mdl';
 
 const buttonSize = '26px';
 const buttonStyle = {
@@ -15,6 +16,8 @@ const buttonStyle = {
 };
 
 class ConceptListItem extends Component {
+
+  state = {isLoading: false};
 
   componentWillMount() {
     let {expanded} = this.props;
@@ -42,8 +45,10 @@ class ConceptListItem extends Component {
   render() {
     let {concept, selectedPath, selectedId, onSelect} = this.props;
 
-    let sublist = '';
-    if (this.props.relay.variables.includeSublist) {
+    let sublist;
+    if (this.state.isLoading) {
+      sublist = <Spinner style={{left: 'initial', top: 'initial'}}/>;
+    } else if (this.props.relay.variables.includeSublist) {
       sublist = <ConceptList {...this.props} concept={concept} isRoot={false}/>;
     }
 
@@ -88,7 +93,11 @@ class ConceptListItem extends Component {
   }
 
   setExpanded(state) {
-    this.props.relay.setVariables({includeSublist: state});
+    if (this.props.concept.conceptsCount == 0) return;
+    this.setState({isLoading: true});
+    this.props.relay.setVariables({includeSublist: state}, readyState => {
+      if (readyState.done) this.setState({isLoading: false});
+    });
   }
 
 }

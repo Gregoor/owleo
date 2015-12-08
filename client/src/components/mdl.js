@@ -75,9 +75,9 @@ const Button = (props) => {
   return button;
 };
 
-const Spinner = () => (
+const Spinner = ({style = {}}) => (
   <div className="mdl-spinner mdl-js-spinner is-active"
-       style={{left: '50%', top: '5px'}}/>
+       style={Object.assign({left: '50%', top: '5px'}, style)}/>
 );
 
 export {TextField, TextArea, Button, Spinner};
