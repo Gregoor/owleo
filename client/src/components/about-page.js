@@ -20,7 +20,7 @@ let sections = new Map([
   )],
   ['Team', (
     <span>
-      Owleo is being developed by <a href="https://twitter.com/brewergorge">Gregor
+      Owleo is being developed by <a href="https://twitter.com/not_clegane">Gregor
       Weber</a> and <a href="https://twitter.com/mxschumacher">Max
       Schumacher</a>.<br/>
       Gregor is responsible for the architecture and technical implementation
@@ -34,15 +34,20 @@ let sections = new Map([
     <span>
       Owleo relies almost exclusively on open source software and the vast
       majority of our stack is implemented in Javasript. <br/>
-      We use Facebook's <a href="http://facebook.github.io/react/">React</a>
-      and visualize the graph with <a href="http://d3js.org/">d3</a>, UI
-      elements are mostly built with <a href="http://material-ui.com/">material-ui</a>.
+      We use Facebook's <a href="http://facebook.github.io/react/">React</a>&nbsp;
+      and visualize the graph with&nbsp;
+      <a href="https://carrotsearch.com/foamtree-overview/">Foamtree</a>, UI
+      elements are mostly built with the help of&nbsp;
+      <a href="getmdl.io/">Material Design lite</a>.
       <br/>
       Wherever feasible ES6+ features are used thanks to <a
       href="https://babeljs.io/">babel.js</a>. <br/>
       Our database is <a href="http://neo4j.com/">Neo4j</a> (a graph database)
       we are running <a href="https://nodejs.org/">node</a> with <a
       href="http://expressjs.com/">express</a> on the Backend. <br/>
+      The frontend communicates with the backend through&nbsp;
+      <a href="https://facebook.github.io/graphql/">GraphQL</a> with the help
+      of and <a href="https://facebook.github.io/relay/">Relay</a>. <br/>
       The application is hosted on <a href="https://www.digitalocean.com/">Digital
       Ocean</a>.
     </span>
@@ -51,8 +56,7 @@ let sections = new Map([
     <span>
       Aside from the techologies used to built our application itself, a
         collection of tools help us in making progress. <br/>
-        Our code is hosted on <a href="https://github.com/">Github</a>, client
-        and backend are stored in seperate repositories.
+        Our code is hosted on <a href="https://github.com/">Github</a>.
         Ticketing for all aspects of the project is done in <a
       href="https://trello.com/">Trello</a>. Ideally tickets are very
         concrete, have a deadline and are assigned to a specic person. <br/>
@@ -65,13 +69,13 @@ let sections = new Map([
         right channels.<br/>
         Strategic and less concrete matters are documented in <a
       href="https://workflowy.com/">Workflowy</a>, a minimalst tool that
-        supports natural thinking processes quite qell.
+        supports natural thinking processes quite well.
         For written documents, presentations and spreadsheets we use <a
       href="https://www.google.com/drive/">Google Drive</a> as part of the
         Apps for business package (including emails via <a
       href="inbox.google.com">Inbox</a>). <br/>
         Development itself happens mostly within Jetbrain's <a
-      href="https://www.jetbrains.com/webstorm/">Webstorm</a> editor.
+      href="https://www.jetbrains.com/webstorm/">WebStorm</a> editor.
     </span>
   )]
 ]);
@@ -83,7 +87,7 @@ for (let [headline, text] of sections) {
          className="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--2dp">
       <div className="mdl-card__supporting-text">
         <h4 style={{color: 'rgb(97, 97, 97)'}}>{headline}</h4>
-        {text}
+        <span>{text}</span>
       </div>
     </div>
   );
