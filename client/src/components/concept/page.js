@@ -42,7 +42,10 @@ class ConceptPage extends Component {
       (selectedId && this.state.selectedId || selectedPath && this.state.selectedPath);
 
 
-    if (!selectedConcept) selectedConcept = {};
+    if (!hasSelection) {
+      selectedConcept = {};
+      document.title = 'Concepts';
+    }
     let list;
     let showMap = navType == 'map';
     if (query) {

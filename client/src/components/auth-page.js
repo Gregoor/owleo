@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
+import DocumentTitle from 'react-document-title';
 
 import history from '../history';
 import LoginMutation from '../mutations/user/login';
@@ -27,31 +28,33 @@ class AuthPage extends Component {
     );
 
     return (
-      <div className="mdl-card mdl-shadow--2dp" style={{margin: '11px auto'}}>
-        <div className="mdl-card__title">
-          <h2 className="mdl-card__title-text">Authentication</h2>
+      <DocumentTitle title="Auth">
+        <div className="mdl-card mdl-shadow--2dp" style={{margin: '11px auto'}}>
+          <div className="mdl-card__title">
+            <h2 className="mdl-card__title-text">Authentication</h2>
+          </div>
+          <form onSubmit={this.onSubmit.bind(this)}
+                onChange={this.onChange.bind(this)}>
+            <div className="mdl-card__supporting-text">
+              {errorText}
+              <TextField ref="name" label="Username"/>
+              <TextField ref="password" label="Password" type="password"/>
+              <label className="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
+                     htmlFor="is-new">
+                <input type="checkbox" id="is-new" disabled
+                       className="mdl-checkbox__input"
+                       onChange={this.onChangeNew.bind(this)}/>
+                <span className="mdl-checkbox__label">I'm a new user</span>
+              </label>
+            </div>
+            <div className="mdl-card__actions mdl-card--border">
+              <Button type="submit" buttonType="accent" disabled={authFailed}>
+              {loginMode ? 'Login' : 'Signup'}
+              </Button>
+            </div>
+          </form>
         </div>
-        <form onSubmit={this.onSubmit.bind(this)}
-              onChange={this.onChange.bind(this)}>
-          <div className="mdl-card__supporting-text">
-            {errorText}
-            <TextField ref="name" label="Username"/>
-            <TextField ref="password" label="Password" type="password"/>
-            <label className="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
-                   htmlFor="is-new">
-              <input type="checkbox" id="is-new" disabled
-                     className="mdl-checkbox__input"
-                     onChange={this.onChangeNew.bind(this)}/>
-              <span className="mdl-checkbox__label">I'm a new user</span>
-            </label>
-          </div>
-          <div className="mdl-card__actions mdl-card--border">
-            <Button type="submit" buttonType="accent" disabled={authFailed}>
-            {loginMode ? 'Login' : 'Signup'}
-            </Button>
-          </div>
-        </form>
-      </div>
+      </DocumentTitle>
     );
   }
 
