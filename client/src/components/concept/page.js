@@ -72,7 +72,7 @@ class ConceptPage extends Component {
     }
 
     return (
-      <div style={{display: 'flex', justifyContent: 'center', marginTop: 10}}>
+      <div style={{display: 'flex', justifyContent: 'center', marginTop: 10, overflow: 'hidden'}}>
 
         <div className="mdl-card"
              style={{width: '60%', maxWidth: navType == 'map' ? '800px' : '500px', height: '92vh', marginLeft: 10,
