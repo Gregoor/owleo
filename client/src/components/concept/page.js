@@ -106,7 +106,7 @@ class ConceptPage extends Component {
             </div>
           </div>
           <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
-               style={{overflowY: navType == 'map' ? 'auto' : 'scroll'}}>
+               style={{overflowY: navType == 'map' ? 'hidden' : 'auto'}}>
           {list}
           </div>
         </div>
