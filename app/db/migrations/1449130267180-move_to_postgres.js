@@ -1,9 +1,7 @@
 import {db, query} from '../connection';
-import pg from 'pg';
+import pgQuery from '../pg-query';
 
-import {pgURL} from '../../configs/config.custom';
-
-const createSchema = (pgClient) => new Promise(resolve => pgClient.query(
+const createSchema = () => new Promise(resolve => pgQuery(
   `
     CREATE TABLE concepts (
       id             SERIAL PRIMARY KEY,
@@ -30,13 +28,12 @@ const createSchema = (pgClient) => new Promise(resolve => pgClient.query(
       is_link      BOOLEAN NOT NULL,
       is_paywalled BOOLEAN NOT NULL
     );
-  `,
-  resolve
+  `
 ));
 
-const importConcepts = (pgClient) => {
+const importConcepts = () => {
   return query('MATCH (c:Concept) RETURN COLLECT(c) AS concepts')
-    .then(([{concepts}]) => new Promise(resolve => pgClient.query(
+    .then(([{concepts}]) => new Promise(resolve => pgQuery(
       `
         INSERT INTO concepts (old_id, name, summary, summary_source)
         VALUES ${concepts.map(({id, name, summary, summarySource}) => {
@@ -45,31 +42,29 @@ const importConcepts = (pgClient) => {
               .map(c => `'${c.split('\'').join('\'\'')}'`).join(', ')}
           )`;
         }).join(', ')};
-      `,
-      resolve
+      `
     )));
 };
 
-const importRequirements = (pgClient) => {
+const importRequirements = () => {
   return query(`
     MATCH (concept:Concept)-[:REQUIRES]->(req:Concept)
     RETURN concept.id AS concept, req.id AS req
-  `).then(reqs => new Promise(resolve => pgClient.query(
+  `).then(reqs => new Promise(resolve => pgQuery(
     reqs.map(({concept, req}) => `
       INSERT INTO requirements (concept_id, required_concept_id)
         SELECT
           (SELECT id FROM concepts WHERE old_id = '${concept}'),
           (SELECT id FROM concepts WHERE old_id = '${req}')
-    `).join(';'),
-    resolve
+    `).join(';')
   )));
 };
 
-const importContainers = (pgClient) => {
+const importContainers = () => {
   return query(`
     MATCH (concept:Concept)-[:CONTAINED_BY]->(container:Concept)
     RETURN concept.id AS concept, container.id AS container`
-  ).then(containers => new Promise(resolve => pgClient.query(
+  ).then(containers => new Promise(resolve => pgQuery(
     containers.map(({concept, container}) => `
       WITH req AS (
         INSERT INTO requirements (concept_id, required_concept_id)
@@ -79,10 +74,9 @@ const importContainers = (pgClient) => {
           RETURNING id
       )
       INSERT INTO container_requirements (requirement_id) SELECT id FROM req
-    `).join(';'),
-    resolve
+    `).join(';')
   )))
-  .then(() => new Promise(resolve => pgClient.query(
+  .then(() => new Promise(resolve => pgQuery(
     `
       DELETE FROM requirements WHERE id IN (
         SELECT id FROM (
@@ -97,16 +91,15 @@ const importContainers = (pgClient) => {
         ) duplicates
         WHERE duplicates.row_nr > 1
       )
-    `,
-    resolve
+    `
   )));
 };
 
-const importExplanations = (pgClient) => {
+const importExplanations = () => {
   return query(`
     MATCH (e:Explanation)-[:EXPLAINS]->(c:Concept)
     RETURN c.id AS concept, e AS explanation
-  `).then(explanations => new Promise(resolve => pgClient.query(
+  `).then(explanations => new Promise(resolve => pgQuery(
     `
       INSERT INTO explanations (concept_id, content, is_link, is_paywalled)
         ${explanations.map(({concept, explanation}) => {
@@ -120,29 +113,24 @@ const importExplanations = (pgClient) => {
             FROM (SELECT id FROM concepts WHERE old_id = '${concept}') concepts
           `;
         }).join(' UNION ')}
-    `,
-    resolve
+    `
   )));
 };
 
-const dropImportRows = (pgClient) => new Promise(resolve => pgClient.query(
-  `ALTER TABLE concepts DROP COLUMN old_id`,
-  resolve
+const dropImportRows = () => new Promise(resolve => pgQuery(
+  `ALTER TABLE concepts DROP COLUMN old_id`
 ));
 
 export default {
 
   up(next) {
-    pg.connect(pgURL, (error, pgClient) => {
-      createSchema(pgClient)
-        .then(() => importConcepts(pgClient))
-        .then(() => importRequirements(pgClient))
-        .then(() => importContainers(pgClient))
-        .then(() => importExplanations(pgClient))
-        .then(() => dropImportRows(pgClient))
-        .then(next);
-    });
-
+    createSchema()
+      .then(importConcepts)
+      .then(importRequirements)
+      .then(importContainers)
+      .then(importExplanations)
+      .then(dropImportRows)
+      .then(next);
   },
 
   down(next) {

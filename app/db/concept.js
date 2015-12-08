@@ -77,18 +77,8 @@ class ConceptQuery {
   }
 
   hasPath(path) {
-    let pathParts = path.split('/');
-
-    this.params.name = pathParts.pop();
-    this._addToQuery(`WHERE ${this._alias}.name = {name}`);
-
-    if (pathParts.length) this._addToQuery(
-      'MATCH ' + pathParts.map((n, i) => {
-        let pathArg = 'path' + i;
-        this.params[pathArg] = n;
-        return `(:Concept {name: {${pathArg}}})`;
-      }).concat(`(${this._alias})`).join('<-[:CONTAINED_BY]-')
-    );
+    this._addToQuery(`WHERE ${this._alias}.path= {path}`);
+    this.params.path = path.split('/').reverse();
   }
 
   isContained(container) {
@@ -121,7 +111,8 @@ class ConceptQuery {
   withFields(fields: {}) {
     let {
       id, name, summary, summarySource, conceptsCount,
-      container, concepts, reqs,  path, explanations, explanationsCount
+      container, concepts, reqs,  path, explanations, explanationsCount,
+      followups
     } = fields;
 
     this._addToQuery('',
@@ -169,6 +160,18 @@ class ConceptQuery {
           .withFields(reqs).getQueryString({multiple: true})}
       `,
         ['reqs', prefixed]
+      );
+    }
+
+    if (followups) {
+      let prefixed = this._prefix('followups');
+      this._addToQuery(
+        `
+        OPTIONAL MATCH (${prefixed}:Concept)-[:CONTAINED_BY|:REQUIRES]->(${this._alias})
+        ${new ConceptQuery(prefixed, this._getAllFields())
+          .withFields(followups).getQueryString({multiple: true})}
+        `,
+        ['followups', prefixed]
       );
     }
 
@@ -264,6 +267,18 @@ class ConceptQuery {
 
 }
 
+const updatePaths = (id) => {
+  return query(
+    `
+        MATCH (:Concept {id: {id}})<-[:CONTAINED_BY*0..]-(c:Concept)
+        OPTIONAL MATCH (c)-[:CONTAINED_BY*0..]->(containers:Concept)
+        WITH c, COLLECT(DISTINCT containers.name) AS path
+        SET c.path = path
+      `,
+    {id}
+  )
+};
+
 export default {
 
   ERRORS,
@@ -303,7 +318,7 @@ export default {
 				RETURN c.id AS id
 			`,
       params
-    ).then(dbData => dbData[0].id);
+    ).then(([{id}]) => updatePaths(id).then(() => id));
   },
 
   update(id, data, user) {
@@ -328,7 +343,7 @@ export default {
       SET c += {attrs}
     `,
       params
-    ).then(() => id);
+    ).then(() => updatePaths(id)).then(() => id);
   },
 
   delete(id) {
