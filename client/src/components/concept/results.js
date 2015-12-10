@@ -1,9 +1,52 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
+import clamp from 'clamp-js'
 
 import pathToUrl from '../../path-to-url';
 import {Spinner} from '../mdl';
+
+class ConceptResult extends Component {
+
+  componentDidMount() {
+    this.clampSummary();
+  }
+
+  componentDidUpdate() {
+    this.clampSummary();
+  }
+
+  render() {
+    const {concept, onSelect} = this.props;
+    const {path, name, summary} = concept;
+    return (
+      <li style={{borderBottom: '1px solid rgba(0, 0, 0, 0.1)', padding: '10 0',
+                  overflow: 'hidden'}}>
+        <Link className="mdl-js-ripple-effect" to={pathToUrl(path)}
+              onClick={onSelect} style={{
+                    display: 'block', textDecoration: 'none',
+                    color: 'black'
+                  }}>
+              <span style={{fontWeight: 200}}>
+                {path.slice(1).reverse().map(({name}) =>
+                  [<span>{name}</span>, ' > ']
+                )}
+              </span>
+          <br/>
+          <span style={{fontSize: 17}}>{name}</span>
+          <div ref="summary" style={{fontWeight: 400}}>
+            {summary}
+          </div>
+        </Link>
+      </li>
+    );
+  }
+
+  clampSummary() {
+    clamp(this.refs.summary, {clamp: 2});
+  }
+
+}
 
 class SearchResults extends Component {
 
@@ -41,8 +84,8 @@ class SearchResults extends Component {
   }
 
   renderList() {
-    let {viewer, selectedId, onSelect} = this.props;
-    let {concepts} = viewer;
+    const {viewer, onSelect} = this.props;
+    const {concepts} = viewer;
 
     if (this.state.isLoading) return <Spinner/>;
 
@@ -52,27 +95,8 @@ class SearchResults extends Component {
       );
     }
     return (
-      <ul style={{listStyleType: 'none', padding: '0 5'}}>
-        {concepts.map(({path, name, summary}) => (
-          <li style={{borderBottom: '1px solid rgba(0, 0, 0, 0.1)', overflow: 'hidden'}}>
-            <Link className="mdl-js-ripple-effect" to={pathToUrl(path)}
-                  onClick={onSelect} style={{
-                    display: 'block', textDecoration: 'none',
-                    color: 'black'
-                  }}>
-              <span style={{fontWeight: 200}}>
-                {path.slice(1).reverse().map(({name}) =>
-                  [<span>{name}</span>, ' > ']
-                )}
-              </span>
-              <br/>
-              <span style={{fontSize: 17}}>{name}</span>
-              <div style={{fontWeight: 400}}>
-                {summary}
-              </div>
-            </Link>
-          </li>
-        ))}
+      <ul style={{listStyleType: 'none', margin: 0, padding: '0 5'}}>
+        {concepts.map((concept) => <ConceptResult {...{concept, onSelect}}/>)}
       </ul>
     );
   }
