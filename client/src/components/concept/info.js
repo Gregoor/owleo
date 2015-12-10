@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 import _ from 'lodash';
+import clamp from 'clamp-js';
 
 import history from '../../history';
 import DeleteConceptMutation from '../../mutations/concept/delete';
@@ -14,6 +15,39 @@ import ExplanationForm from './explanation-form';
 import CardAnimation from '../card-animation';
 import {Button} from '../mdl';
 
+class Req extends Component {
+
+  componentDidMount() {
+    this.clampSummary();
+  }
+
+  componentDidUpdate() {
+    this.clampSummary();
+  }
+
+  render() {
+    const {concept, isLast} = this.props;
+    const {path, name, summary} = concept;
+
+    const borderStyle = '1px solid rgba(0, 0, 0, 0.1)';
+    return (
+      <div className="mdl-card__supporting-text"
+           style={{borderTop: borderStyle,
+                   borderBottom: isLast ? borderStyle : 'none'}}>
+        <h3 style={{fontSize: 22, margin: 0}}>
+          <Link to={pathToUrl(path)}>{name}</Link>
+        </h3>
+        <div ref="summary" style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
+      </div>
+    );
+  }
+
+  clampSummary() {
+    clamp(this.refs.summary, {clamp: 2});
+  }
+
+}
+
 class ConceptInfo extends Component {
 
   componentDidMount() {
@@ -21,12 +55,12 @@ class ConceptInfo extends Component {
   }
 
   render() {
-    let {viewer, concept} = this.props;
-    let {user} = viewer;
+    const {viewer, concept} = this.props;
+    const {user} = viewer;
     if (this.props.relay.variables.includeForm) {
       return <ConceptForm {...{viewer, concept}}/>;
     }
-    let {id, name, summary, reqs, path} = concept;
+    const {id, name, summary, reqs, path} = concept;
     return (
       <div style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
         {concept.path.length < 2 ? '' : (
@@ -40,7 +74,13 @@ class ConceptInfo extends Component {
             <div className="mdl-card__title" style={{paddingBottom: 0}}>
               <h2 className="mdl-card__title-text">{name}</h2>
             </div>
-            {this.renderReqs()}
+            <div style={{paddingTop: 5}}>
+              <div className="section-title">Requirements</div>
+              {_.isEmpty(reqs) ? '' : reqs.map((concept, i) => (
+                <Req key={concept.id} concept={concept}
+                     isLast={i + 1 == reqs.length}/>
+              ))}
+            </div>
             <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
               <div className="section-title">Summary</div>
               <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
@@ -74,24 +114,8 @@ class ConceptInfo extends Component {
   }
 
   renderReqs() {
-    let {reqs} = this.props.concept;
-    if (!reqs.length) return;
 
-    const borderStyle = '1px solid rgba(0, 0, 0, 0.1)';
 
-    return (
-      <div style={{paddingTop: 5}}>
-        <div className="section-title">Requirements</div>
-        {reqs.map(({id, name, summary, path}, i) => (
-          <div key={id} className="mdl-card__supporting-text"
-               style={{borderTop: borderStyle,
-                       borderBottom: i + 1 == reqs.length ? borderStyle : 'none'}}>
-            <h3 style={{fontSize: 22, margin: 0}}><Link to={pathToUrl(path)}>{name}</Link></h3>
-            <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
-          </div>
-        ))}
-      </div>
-    );
   }
 
   renderExplanations() {
