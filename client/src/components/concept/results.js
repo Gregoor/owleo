@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
+import {Link} from 'react-router';
 
-import ConceptListItem from './list-item';
+import pathToUrl from '../../path-to-url';
 import {Spinner} from '../mdl';
 
 class SearchResults extends Component {
@@ -51,9 +52,26 @@ class SearchResults extends Component {
       );
     }
     return (
-      <ul>
-        {concepts.map(concept => (
-          <ConceptListItem key={concept.id} {...{concept, selectedId, onSelect}}/>
+      <ul style={{listStyleType: 'none', padding: '0 5'}}>
+        {concepts.map(({path, name, summary}) => (
+          <li style={{borderBottom: '1px solid rgba(0, 0, 0, 0.1)', overflow: 'hidden'}}>
+            <Link className="mdl-js-ripple-effect" to={pathToUrl(path)}
+                  onClick={onSelect} style={{
+                    display: 'block', textDecoration: 'none',
+                    color: 'black'
+                  }}>
+              <span style={{fontWeight: 200}}>
+                {path.slice(1).reverse().map(({name}) =>
+                  [<span>{name}</span>, ' > ']
+                )}
+              </span>
+              <br/>
+              <span style={{fontSize: 17}}>{name}</span>
+              <div style={{fontWeight: 400}}>
+                {summary}
+              </div>
+            </Link>
+          </li>
         ))}
       </ul>
     );
@@ -70,7 +88,12 @@ export default Relay.createContainer(SearchResults, {
       fragment on Viewer {
         concepts(query: $query) {
           id
-          ${ConceptListItem.getFragment('concept')}
+          name
+          path {
+            id
+            name
+          }
+          summary
         }
       }
     `
