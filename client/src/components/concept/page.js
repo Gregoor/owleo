@@ -10,7 +10,7 @@ import ConceptList from './list';
 import ConceptInfo from './info';
 import ConceptForm from './form';
 import ConceptMap from './map';
-import OwlPlaceholder from './owl-placeholder';
+import OwlPlaceholder from '../owl-placeholder/owl-placeholder';
 import {TextField, Button, Spinner} from '../mdl';
 import CardAnimation from '../card-animation';
 
