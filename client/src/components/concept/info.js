@@ -74,13 +74,14 @@ class ConceptInfo extends Component {
             <div className="mdl-card__title" style={{paddingBottom: 0}}>
               <h2 className="mdl-card__title-text">{name}</h2>
             </div>
-            <div style={{paddingTop: 5}}>
+            {_.isEmpty(reqs) ? '' : <div style={{paddingTop: 5}}>
               <div className="section-title">Requirements</div>
-              {_.isEmpty(reqs) ? '' : reqs.map((concept, i) => (
-                <Req key={concept.id} concept={concept}
-                     isLast={i + 1 == reqs.length}/>
-              ))}
-            </div>
+                {reqs.map((concept, i) => (
+                  <Req key={concept.id} concept={concept}
+                       isLast={i + 1 == reqs.length}/>
+                ))}
+              </div>
+            }
             <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
               <div className="section-title">Summary</div>
               <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
