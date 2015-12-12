@@ -1,7 +1,7 @@
 import React from 'react';
 import Relay from 'react-relay';
 
-import ExplanationContent from './explanation-content';
+import ExplanationContent from '../explanation/content';
 import {Button} from '../mdl';
 
 

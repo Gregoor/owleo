@@ -6,12 +6,11 @@ import clamp from 'clamp-js';
 
 import history from '../../history';
 import DeleteConceptMutation from '../../mutations/concept/delete';
-import DeleteExplanationMutation from '../../mutations/explanation/delete';
 import pathToUrl from '../../path-to-url';
 import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptForm from './form';
-import ExplanationContent from './explanation-content';
-import ExplanationForm from './explanation-form';
+import ExplanationCard from '../explanation/card';
+import ExplanationForm from '../explanation/form';
 import CardAnimation from '../card-animation';
 import {Button} from '../mdl';
 
@@ -114,35 +113,13 @@ class ConceptInfo extends Component {
     );
   }
 
-  renderReqs() {
-
-
-  }
-
   renderExplanations() {
     let {viewer, concept} = this.props;
     let {user} = viewer;
     let delay = 0;
-    let explanations = concept.explanations.edges.map(edge => {
-      let {node: explanation} = edge;
-
-      let {id, type} = explanation;
-      return (
-        <div key={id} style={{marginBottom: 8, transitionDelay: `${delay += 100}ms`}}
-             className="mdl-card card-auto-fit">
-          <div className="mdl-card__supporting-text"
-               style={type == 'link' ? {width: '100%', padding: 0} : {}}>
-            <ExplanationContent explanation={explanation}/>
-          </div>
-          {user ? (
-            <div className="mdl-card__actions mdl-card--border">
-              <Button onClick={this.onDeleteExplanation.bind(this, id)}>
-                Delete
-              </Button>
-            </div>
-          ) : ''}
-        </div>
-      )
+    let explanations = concept.explanations.edges.map(({node: explanation}) => {
+      return <ExplanationCard key={explanation.id} {...{explanation, user}}
+                              style={{transitionDelay: `${delay += 100}ms`}}/>
     });
 
     if (viewer.user) explanations.push(
@@ -176,19 +153,6 @@ class ConceptInfo extends Component {
     );
   }
 
-  onDeleteExplanation(id) {
-    if (!confirm('Do you really want to delete this explanation?')) return;
-    Relay.Store.update(
-      new DeleteExplanationMutation({id}),
-      {
-        onSuccess: t => {
-          location.reload();
-        },
-        onFailure: t => console.error(t.getError().source.errors)
-      }
-    );
-  }
-
   onEdit() {
     this.props.relay.setVariables({includeForm: true});
   }
@@ -204,6 +168,7 @@ export default Relay.createContainer(ConceptInfo, {
       fragment on Viewer {
         user {
           id
+          ${ExplanationCard.getFragment('user')}
         }
         ${ConceptForm.getFragment('viewer').if(variables.includeForm)}
       }
@@ -228,8 +193,7 @@ export default Relay.createContainer(ConceptInfo, {
           edges {
             node {
               id
-              type
-              ${ExplanationContent.getFragment('explanation')}
+              ${ExplanationCard.getFragment('explanation')}
             }
           }
         }
