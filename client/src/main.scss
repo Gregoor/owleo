@@ -78,6 +78,10 @@ body {
   transition: all 700ms cubic-bezier(.62,.28,.23,.99);
 }
 
+.card-container > * > :nth-child(2) {
+  display: none;
+}
+
 .mdl-navigation__link {
   transition: box-shadow linear 300ms;
 

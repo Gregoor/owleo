@@ -62,9 +62,10 @@ class ConceptPage extends Component {
 
     let emptyOwl = false;
     let content;
+    let contentLoading;
     let animateContent = false;
     if (this.state.isLoading) {
-      content = <Spinner/>;
+      contentLoading = <Spinner/>;
       animateContent = true;
     } else if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
@@ -119,7 +120,9 @@ class ConceptPage extends Component {
           </div>
         </div>
 
-        <div style={{width: '100%', height: '92vh', justifyContent: 'center', overflowY: 'auto'}}>
+        <div className="card-container"
+             style={{width: '100%', height: '92vh', justifyContent: 'center', overflowY: 'auto'}}>
+          {contentLoading}
           {content}
         </div>
 
