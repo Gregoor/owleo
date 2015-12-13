@@ -145,7 +145,7 @@ type User implements Node {
 type Viewer {
   user: User
   conceptRoot: Concept
-  concept(path: String, id: String): Concept
+  concept(id: String): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
   learnPath(targetId: String): [Concept]
 }

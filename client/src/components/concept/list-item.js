@@ -4,9 +4,17 @@ import Relay from 'react-relay';
 import classNames from 'classnames';
 import _ from 'lodash';
 
-import pathToUrl from '../../path-to-url';
+import createConceptURL from '../../create-concept-url';
 import ConceptList from './list';
 import {Spinner} from '../mdl';
+
+
+const headStyle = {
+  display: 'inline-block',
+  width: '100%',
+  color: 'black',
+  textDecoration: 'none'
+};
 
 const buttonSize = '26px';
 const buttonStyle = {
@@ -20,21 +28,14 @@ class ConceptListItem extends Component {
   state = {isLoading: false};
 
   componentWillMount() {
-    let {expanded} = this.props;
+    const {expanded} = this.props;
     if (expanded !== undefined) this.setExpanded(expanded);
   }
 
   componentWillReceiveProps(props) {
-    let {expanded, concept, selectedId, selectedPath} = props;
+    const {expanded} = props;
     if (expanded !== undefined && this.props.expanded !== expanded) {
       this.setExpanded(expanded);
-    }
-
-    if (!this.isSelected) {
-      if (concept.id == selectedId || _.isArray(selectedPath) && _.isEmpty(selectedPath)) {
-        this.isSelected = true;
-        this.refs.label.scrollIntoView({behavior: 'smooth'});
-      } else this.isSelected = false;
     }
   }
 
@@ -43,25 +44,17 @@ class ConceptListItem extends Component {
   }
 
   render() {
-    let {concept, selectedPath, selectedId, onSelect} = this.props;
+    const {concept, level} = this.props;
 
     let sublist;
     if (this.state.isLoading) {
       sublist = <Spinner style={{left: 'initial', top: 'initial'}}/>;
     } else if (this.props.relay.variables.includeSublist) {
-      sublist = <ConceptList {...this.props} concept={concept} isRoot={false}/>;
+      sublist = <ConceptList {...this.props} concept={concept}
+                             level={level + 1}/>;
     }
 
-    let {id, name, conceptsCount} = concept;
-    let isSelected = selectedPath || selectedId == id;
-
-    let headStyle = {
-      display: 'inline-block',
-      width: '100%',
-      color: 'black',
-      textDecoration: 'none',
-      fontWeight: isSelected ? 600: 'normal'
-    };
+    const {name, conceptsCount} = concept;
 
     return (
       <li style={{listStyleType: 'none', marginLeft: '10px', fontSize: 17}}>
@@ -69,12 +62,14 @@ class ConceptListItem extends Component {
           <button onClick={this.onClickButton.bind(this)}
                   className={classNames('mdl-button mdl-js-button ' +
                     'mdl-button--raised mdl-button--icon',
-                    {'mdl-button--colored': isSelected})}
+                    {'mdl-button--colored': this.isInSelection()})}
                   style={buttonStyle}>
             {conceptsCount || ' '}
           </button>
-          <Link to={pathToUrl(concept.path)} onClick={this.onSelect.bind(this)}
-                style={headStyle}>
+          <Link to={createConceptURL(concept)} onClick={this.onSelect.bind(this)}
+                style={Object.assign({
+                        fontWeight: this.isSelected() ? 600: 'normal'
+                      }, headStyle)}>
             {name}
           </Link>
         </div>
@@ -83,13 +78,23 @@ class ConceptListItem extends Component {
     );
   }
 
+  isInSelection() {
+    const {selectedPath, concept, level} = this.props;
+    return !_.isEmpty(selectedPath) && concept.id == selectedPath[level];
+  }
+
+  isSelected() {
+    const {selectedPath, level} = this.props;
+    return this.isInSelection() && level + 1 == selectedPath.length;
+  }
+
   onClickButton() {
     this.setExpanded(!this.props.relay.variables.includeSublist);
   }
 
   onSelect() {
-    this.isSelected = true;
     this.props.onSelect(this.props.concept);
+    this.setExpanded(true);
   }
 
   setExpanded(state) {
@@ -115,12 +120,12 @@ export default Relay.createContainer(ConceptListItem, {
   fragments: {
     concept: (variables) =>  Relay.QL`
       fragment on Concept {
-        id,
-        name,
+        id
+        name
         path {
           name
-        },
-        conceptsCount,
+        }
+        conceptsCount
         ${ConceptList.getFragment('concept').if(variables.includeSublist)}
       }
     `

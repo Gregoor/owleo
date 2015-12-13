@@ -6,7 +6,7 @@ import clamp from 'clamp-js';
 
 import history from '../../history';
 import DeleteConceptMutation from '../../mutations/concept/delete';
-import pathToUrl from '../../path-to-url';
+import createConceptURL from '../../create-concept-url';
 import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptForm from './form';
 import ExplanationCard from '../explanation/card';
@@ -34,7 +34,7 @@ class Req extends Component {
            style={{borderTop: borderStyle,
                    borderBottom: isLast ? borderStyle : 'none'}}>
         <h3 style={{fontSize: 22, margin: 0}}>
-          <Link to={pathToUrl(path)}>{name}</Link>
+          <Link to={createConceptURL(concept)}>{name}</Link>
         </h3>
         <div ref="summary" style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
       </div>

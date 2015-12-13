@@ -37,15 +37,13 @@ let ViewerType = new GraphQLObjectType({
     concept: {
       type: ConceptGQL.type,
       args: {
-        path: {type: GraphQLString},
         id: {type: GraphQLString}
       },
       resolve(root, args, context) {
-        if (args.id) {
-          let {id} = fromGlobalId(args.id);
-          args = {id};
-        }
-        return Concept.find(args, getFieldList(context)).then(([c]) => c);
+        const {id} = args;
+        if (!id) return null;
+
+        return Concept.find({id}, getFieldList(context)).then(([c]) => c);
       }
     },
     concepts: {

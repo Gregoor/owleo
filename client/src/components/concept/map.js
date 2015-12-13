@@ -4,9 +4,10 @@ import {History} from 'react-router';
 
 import '../../../lib/foamtree/carrotsearch.foamtree';
 
-import pathToUrl from '../../path-to-url';
+import createConceptURL from '../../create-concept-url';
 
-let ConceptMap = React.createClass({
+
+const ConceptMap = React.createClass({
 
   mixins: [History],
 
@@ -23,7 +24,7 @@ let ConceptMap = React.createClass({
       onGroupClick(event) {
         let {group} = event;
         self._internalChange = true;
-        history.pushState(null, group ? pathToUrl(group.concept.path) : '');
+        history.pushState(null, group ? createConceptURL(group.concept) : '');
         if (group) foamtree.trigger('doubleclick', event);
       },
       onGroupDrag: prevent,

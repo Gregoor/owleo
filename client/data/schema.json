@@ -93,16 +93,6 @@
               "description": null,
               "args": [
                 {
-                  "name": "path",
-                  "description": null,
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
                   "name": "id",
                   "description": null,
                   "type": {

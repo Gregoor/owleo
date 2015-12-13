@@ -4,7 +4,7 @@ import Relay from 'react-relay';
 import {Link} from 'react-router';
 
 import history from '../../history';
-import pathToUrl from '../../path-to-url';
+import createConceptURL from '../../create-concept-url';
 import SearchResults from './results';
 import ConceptList from './list';
 import ConceptInfo from './info';
@@ -21,7 +21,7 @@ class ConceptPage extends Component {
   state = {concept: null, query: '', navType: localStorage.navType};
 
   componentWillMount() {
-    this._setSelectedPath(this.props);
+    this._setSelected(this.props);
   }
 
   componentDidMount() {
@@ -29,23 +29,24 @@ class ConceptPage extends Component {
   }
 
   componentWillReceiveProps(props) {
-    this._setSelectedPath(props);
+    this._setSelected(props);
   }
 
   render() {
-    let {viewer, relay} = this.props;
-    let {conceptRoot, selectedConcept, targetConcept} = viewer;
-    let {selectedPath, selectedId} = relay.variables;
-    let {query, navType} = this.state;
+    const {viewer, relay} = this.props;
+    let {conceptRoot, selectedConcept} = viewer;
+    const {selectedId} = relay.variables;
+    const {query, navType} = this.state;
 
-    let hasSelection = selectedConcept &&
-      (selectedId && this.state.selectedId || selectedPath && this.state.selectedPath);
-
+    const hasSelection = selectedConcept && selectedId && this.state.selectedId;
 
     if (!hasSelection) {
       selectedConcept = {};
       document.title = 'Concepts';
     }
+
+    const selectedPath = (selectedConcept.path || []).map(({id}) => id).reverse();
+
     let list;
     let showMap = navType == 'map';
     if (query) {
@@ -56,8 +57,7 @@ class ConceptPage extends Component {
                          selectedId={hasSelection ? selectedConcept.id : null}/>;
     } else if (!showMap && this.props.relay.variables.includeList) {
       list = <ConceptList concept={conceptRoot} openDepth={1}
-                          selectedPath={selectedPath ? selectedPath.split('/') : null}
-                          selectedId={selectedConcept.id}/>;
+                          selectedPath={selectedPath}/>;
     } else list = <Spinner/>;
 
     let emptyOwl = false;
@@ -166,28 +166,20 @@ class ConceptPage extends Component {
     this.setState({navType: switchTo});
   }
 
-  _setSelectedPath(props) {
-    let {viewer, params} = props;
-    let {id, path, splat, targetId} = params;
+  _setSelected(props) {
+    const {viewer, params, location} = props;
+    const {id} = location.query;
+    const {selectedConcept} = viewer;
 
-    let {selectedConcept} = props.viewer;
-    if (!targetId && id && selectedConcept && id == selectedConcept.id) {
-      this.props.history.replaceState('', pathToUrl(selectedConcept.path));
+    if (id && selectedConcept && id == selectedConcept.id && id != this.state.selectedId) {
+      this.props.history.replaceState('', createConceptURL(selectedConcept));
     }
+
     if (id) {
-      this.setState({selectedId: id, selectedPath: null});
+      this.setState({selectedId: id});
       if (id == this.state.selectedId) return;
       this.setState({isLoading: true});
-      this.props.relay.setVariables({selectedId: id, selectedPath: null},
-        readyState => {
-          if (readyState.done) this.setState({isLoading: false});
-        });
-    } else {
-      let selectedPath = path + splat;
-      this.setState({selectedPath, selectedId: null});
-      if (!selectedPath || selectedPath == this.state.selectedPath) return;
-      this.setState({isLoading: true});
-      this.props.relay.setVariables({selectedPath, selectedId: null},
+      this.props.relay.setVariables({selectedId: id},
         readyState => {
           if (readyState.done) this.setState({isLoading: false});
         });
@@ -199,7 +191,7 @@ class ConceptPage extends Component {
 export default Relay.createContainer(ConceptPage, {
 
   initialVariables: {
-    selectedPath: null, selectedId: null,
+    selectedId: null,
     includeList: !localStorage.navType || localStorage.navType == 'list',
     includeMap: localStorage.navType == 'map'
   },
@@ -212,9 +204,12 @@ export default Relay.createContainer(ConceptPage, {
           ${ConceptList.getFragment('concept').if(vars.includeList)}
           ${ConceptMap.getFragment('concept').if(vars.includeMap)}
         }
-        selectedConcept: concept(path: $selectedPath, id: $selectedId) {
+        selectedConcept: concept(id: $selectedId) {
           id
-          path {name}
+          path {
+            id
+            name
+          }
           ${ConceptInfo.getFragment('concept')}
         }
         ${SearchResults.getFragment('viewer')}

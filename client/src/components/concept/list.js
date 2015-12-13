@@ -1,47 +1,38 @@
 import React, {Component, PropTypes} from 'react';
 import Relay from 'react-relay';
+import _ from 'lodash';
 
 import ConceptListItem from './list-item';
+
+const NODE_STYLE = {borderLeft: '1px solid #e7e7e7', marginLeft: '-25px'};
 
 class ConceptList extends Component {
 
   static propTypes = {
     concept: PropTypes.object.isRequired,
-    isRoot: PropTypes.bool,
+    level: PropTypes.number,
     showCreate: PropTypes.bool
   };
 
   render() {
-    let {openDepth, concept, selectedPath, isRoot} = this.props;
-    let {concepts} = concept;
+    const {concept, selectedPath, level} = this.props;
+    const {concepts} = concept;
 
-    let topPath;
-    let restPath = [];
-    if (selectedPath) {
-      restPath = selectedPath.slice() ;
-      topPath = restPath.shift();
-    }
-    let subLists = concepts ? concepts.map(concept => {
-      let isOpenProps = {};
-      if (topPath == concept.name) {
-        isOpenProps = {selectedPath: restPath, expanded: true};
-      } else if (!selectedPath) {
-        isOpenProps = {expanded: openDepth > 0};
-      }
-
-      return <ConceptListItem key={concept.id} concept={concept}
-                              openDepth={openDepth - 1}
-                              {...isOpenProps}/>
-    }) : [];
-
-    let style = isRoot ? {} : {borderLeft: '1px solid #e7e7e7', marginLeft: '-25px'};
-    return <ul style={style}>{subLists}</ul>;
+    return (
+      <ul style={this.props.level == 0 ? {} : NODE_STYLE}>
+        {_.isEmpty(concepts) ? '' : concepts.map(concept => {
+          const expanded = !_.isEmpty(selectedPath) && concept.id == selectedPath[level];
+          return <ConceptListItem {...this.props} key={concept.id}
+                                  concept={concept} expanded={expanded}/>
+        })}
+      </ul>
+    );
   }
 
 }
 
 ConceptList.defaultProps = {
-  isRoot: true
+  level: 0
 };
 
 export default Relay.createContainer(ConceptList, {
@@ -50,8 +41,7 @@ export default Relay.createContainer(ConceptList, {
     concept: () =>  Relay.QL`
       fragment on Concept {
         concepts {
-          id,
-          name,
+          id
           ${ConceptListItem.getFragment('concept')}
         }
       }

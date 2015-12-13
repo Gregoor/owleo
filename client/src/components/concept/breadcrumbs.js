@@ -2,8 +2,6 @@ import React, {Component} from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 
-import pathToUrl from '../../path-to-url';
-
 class ConceptBreadcrumbs extends Component {
 
   render() {
@@ -12,7 +10,9 @@ class ConceptBreadcrumbs extends Component {
       <span style={{margin: 0, fontSize: 17}}>
         {path.slice(1).reverse().map(concept => (
           <span key={concept.id}>
-            <Link to={'/id/' + concept.id}>{concept.name}</Link>
+            <Link to="/concepts" query={{id: atob(concept.id).split(':')[1]}}>
+              {concept.name}
+            </Link>
             <span style={{padding: 5, color: 'grey'}}>></span>
           </span>
         ))}

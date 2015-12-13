@@ -76,11 +76,6 @@ class ConceptQuery {
     this.params.ids = ids;
   }
 
-  hasPath(path) {
-    this._addToQuery(`WHERE ${this._alias}.path= {path}`);
-    this.params.path = path.split('/').reverse();
-  }
-
   isContained(container) {
     this._addToQuery(container.length ?
       `MATCH (${this._alias})-[:CONTAINED_BY]->(:Concept {id: {container}})` :
@@ -192,7 +187,7 @@ class ConceptQuery {
             COUNT(u) AS votes, e, explainer
         `,
       ['explanations', `
-          COLLECT({
+          COLLECT(DISTINCT {
             id: e.id, type: e.type, content: e.content, paywalled: e.paywalled,
             votes: votes, hasVoted: 0, createdAt: e.createdAt,
             author: {id: explainer.id, name: explainer.name}
@@ -267,17 +262,6 @@ class ConceptQuery {
 
 }
 
-const updatePaths = (id) => {
-  return query(
-    `
-        MATCH (:Concept {id: {id}})<-[:CONTAINED_BY*0..]-(c:Concept)
-        OPTIONAL MATCH (c)-[:CONTAINED_BY*0..]->(containers:Concept)
-        WITH c, COLLECT(DISTINCT containers.name) AS path
-        SET c.path = path
-      `,
-    {id}
-  )
-};
 
 export default {
 
@@ -286,8 +270,6 @@ export default {
   find(params = {}, fields = {}) {
     if (_.isEmpty(params)) return Promise.resolve([]);
     let conceptQuery = new ConceptQuery();
-
-    if (params.path) conceptQuery.hasPath(params.path);
 
     if (params.id) conceptQuery.idEquals(params.id);
     else if (params.ids) conceptQuery.idIsIn(params.ids);
@@ -318,7 +300,7 @@ export default {
 				RETURN c.id AS id
 			`,
       params
-    ).then(([{id}]) => updatePaths(id).then(() => id));
+    ).then(([{id}]) => id);
   },
 
   update(id, data, user) {
@@ -343,7 +325,7 @@ export default {
       SET c += {attrs}
     `,
       params
-    ).then(() => updatePaths(id)).then(() => id);
+    ).then(() => id);
   },
 
   delete(id) {

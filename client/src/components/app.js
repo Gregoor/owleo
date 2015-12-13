@@ -39,9 +39,6 @@ export default () => (
         <Route path=":path*"/>
       </Route>
       <Route path="learn/:targetId" component={ConceptLearnPage} {...commonProps}/>
-      <Route path="id" component={ConceptPage} {...commonProps}>
-        <Route path=":id"/>
-      </Route>
       <Route path="auth" component={AuthPage} {...commonProps}/>
       <Route path="about" component={AboutPage}/>
     </Route>

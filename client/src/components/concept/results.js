@@ -3,7 +3,7 @@ import Relay from 'react-relay';
 import {Link} from 'react-router';
 import clamp from 'clamp-js'
 
-import pathToUrl from '../../path-to-url';
+import createConceptURL from '../../create-concept-url';
 import {Spinner} from '../mdl';
 
 class ConceptResult extends Component {
@@ -22,7 +22,7 @@ class ConceptResult extends Component {
     return (
       <li style={{borderBottom: '1px solid rgba(0, 0, 0, 0.1)', padding: '10 0',
                   overflow: 'hidden'}}>
-        <Link className="mdl-js-ripple-effect" to={pathToUrl(path)}
+        <Link className="mdl-js-ripple-effect" to={createConceptURL(concept)}
               onClick={onSelect} style={{
                     display: 'block', textDecoration: 'none',
                     color: 'black'
