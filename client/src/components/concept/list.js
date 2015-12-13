@@ -21,7 +21,9 @@ class ConceptList extends Component {
     return (
       <ul style={this.props.level == 0 ? {} : NODE_STYLE}>
         {_.isEmpty(concepts) ? '' : concepts.map(concept => {
-          const expanded = !_.isEmpty(selectedPath) && concept.id == selectedPath[level];
+          const expanded = !_.isEmpty(selectedPath) && concept.id == selectedPath[level] ?
+            true :
+            undefined;
           return <ConceptListItem {...this.props} key={concept.id}
                                   concept={concept} expanded={expanded}/>
         })}
