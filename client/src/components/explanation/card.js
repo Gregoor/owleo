@@ -5,16 +5,38 @@ import DeleteExplanationMutation from '../../mutations/explanation/delete';
 import ExplanationContent from './content';
 import {Button} from '../mdl';
 
+const VOTE_ICON_STYLE = {fontSize: 40, marginLeft: -8};
+
 class ExplanationCard extends React.Component {
 
   render() {
-    let {explanation, user} = this.props;
+    const {explanation, user} = this.props;
     return (
       <div style={Object.assign({marginBottom: 8}, this.props.style)}
            className="mdl-card card-auto-fit">
-        <div className="mdl-card__supporting-text"
-             style={explanation.type == 'link' ? {width: '100%', padding: 0} : {}}>
-          <ExplanationContent explanation={explanation}/>
+        <div className="mdl-card__supporting-text">
+          <div className="mdl-grid" style={{padding: 0}}>
+
+            <div className="mdl-cell mdl-cell--1-col mdl-cell--stretch"
+                 style={{margin: 0}}>
+              <Button buttonType="icon" disabled={!user}>
+                <i className="material-icons" style={VOTE_ICON_STYLE}>
+                  arrow_drop_up
+                </i>
+              </Button>
+              <div style={{marginLeft: 11}}>{explanation.votes}</div>
+              <Button buttonType="icon" disabled={!user}>
+                <i className="material-icons" style={VOTE_ICON_STYLE}>
+                  arrow_drop_down
+                </i>
+              </Button>
+            </div>
+
+            <div className="mdl-cell mdl-cell--11-col">
+              <ExplanationContent explanation={explanation}/>
+            </div>
+
+          </div>
         </div>
         {user ? (
           <div className="mdl-card__actions mdl-card--border">
@@ -48,7 +70,7 @@ export default Relay.createContainer(ExplanationCard, {
     explanation: () => Relay.QL`
       fragment on Explanation {
         id
-        type
+        votes
         ${ExplanationContent.getFragment('explanation')}
       }
     `,

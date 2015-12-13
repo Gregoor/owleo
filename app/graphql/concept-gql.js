@@ -10,6 +10,7 @@ import {
   fromGlobalId, toGlobalId, globalIdField, mutationWithClientMutationId,
   connectionDefinitions, connectionFromArray, connectionArgs
 } from 'graphql-relay';
+import _ from 'lodash';
 
 import Concept from '../db/concept';
 import Explanation from '../db/explanation';
@@ -56,7 +57,10 @@ let ConceptType = new GraphQLObjectType({
       type: explanationConnection,
       args: connectionArgs,
       resolve(concept, args) {
-        return connectionFromArray(concept.explanations, args)
+        return connectionFromArray(
+          _(concept.explanations).sortBy('votes').reverse().value(),
+          args
+        );
       }
     },
     explanationsCount: {type: GraphQLInt}
