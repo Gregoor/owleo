@@ -1,10 +1,10 @@
 {
-  "name": "EduGraph",
-  "version": "0.0.0",
-  "description": "Graph for concepts",
+  "name": "Owleo",
+  "private": true,
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register app/__tests__"
+    "test": "mocha --compilers js:babel-core/register app/__tests__",
+    "migrate": "babel-node node_modules/migrate/bin/migrate --chdir app/db"
   },
   "author": "",
   "license": "BSD-2-Clause",
@@ -25,10 +25,10 @@
     "migrate": "git://github.com/Gregoor/node-migrate.git",
     "neo4j": "2.0.0-RC2",
     "node-uuid": "^1.4.3",
+    "pg": "^4.4.3",
     "sanitize-html": "^1.7.0",
     "serve-favicon": "^2.3.0"
   },
-  "private": true,
   "devDependencies": {
     "babel-core": "^5.8.23"
   }
