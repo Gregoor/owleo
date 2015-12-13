@@ -56,8 +56,7 @@ class ConceptPage extends Component {
       list = <ConceptMap concept={conceptRoot}
                          selectedId={hasSelection ? selectedConcept.id : null}/>;
     } else if (!showMap && this.props.relay.variables.includeList) {
-      list = <ConceptList concept={conceptRoot} openDepth={1}
-                          selectedPath={selectedPath}/>;
+      list = <ConceptList concept={conceptRoot} selectedPath={selectedPath}/>;
     } else list = <Spinner/>;
 
     let emptyOwl = false;
@@ -166,8 +165,7 @@ class ConceptPage extends Component {
     this.setState({navType: switchTo});
   }
 
-  _setSelected(props) {
-    const {viewer, params, location} = props;
+  _setSelected({viewer, location}) {
     const {id} = location.query;
     const {selectedConcept} = viewer;
 
@@ -183,6 +181,9 @@ class ConceptPage extends Component {
         readyState => {
           if (readyState.done) this.setState({isLoading: false});
         });
+    } else if (this.state.selectedId) {
+      this.setState({selectedId: null});
+      this.props.relay.setVariables({selectedId: null});
     }
   }
 
