@@ -12,7 +12,7 @@ export default () => (
       <img src={require('./owl-only.png')}
            style={{margin: '70px auto 0'}}/>
           <span style={{fontSize: 35, marginTop: 20}}>
-            Master a new concept!
+            Master new concepts!
           </span>
           <span style={{fontSize: 16, marginTop: 20, padding: '0 50px'}}>
             You can browse all concepts on the left or use the search on top
