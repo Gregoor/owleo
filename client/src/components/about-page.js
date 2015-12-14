@@ -27,7 +27,7 @@ let sections = new Map([
       Owleo relies almost exclusively on open source software and the vast
       majority of our stack is implemented in Javasript. <br/>
       The frontend is built with Facebook's <a href="http://facebook.github.io/react/">React</a>&nbsp;
-      and visualize the graph with&nbsp;
+      and the map visualization with&nbsp;
       <a href="https://carrotsearch.com/foamtree-overview/">Foamtree</a>, UI
       elements are mostly built with the help of&nbsp;
       <a href="getmdl.io/">Material Design lite</a>.
