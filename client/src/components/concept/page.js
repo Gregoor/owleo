@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
+import classnames from 'classnames';
 
 import history from '../../history';
 import createConceptURL from '../../create-concept-url';
@@ -79,6 +80,8 @@ class ConceptPage extends Component {
 
     if (animateContent) content = <CardAnimation>{content}</CardAnimation>;
 
+    const isLearnable = selectedConcept.reqs && selectedConcept.reqs.length;
+
     return (
       <div style={{display: 'flex', justifyContent: 'center', marginTop: 10, overflow: 'hidden'}}>
 
@@ -125,16 +128,17 @@ class ConceptPage extends Component {
           {content}
         </div>
 
-        {viewer.user ? (
-          <Link style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
-                className="mdl-button mdl-js-button mdl-button--fab
-                           mdl-js-ripple-effect mdl-button--colored"
-                to="/concepts/new">
-            <i className="material-icons">add</i>
-          </Link>
-        ) : ''}
+        <span style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
+              className={classnames('fab-hideable', {'fab-hidden': !isLearnable})}
+              title="Start mastering this concept!">
+          <Button id="learn" to={'/learn/' + selectedConcept.id}
+                    disabled={!isLearnable} buttonType="fab colored">
+            <i className="material-icons">school</i>
+          </Button>
+        </span>
 
       </div>
+
     );
   }
 
@@ -200,13 +204,17 @@ export default Relay.createContainer(ConceptPage, {
   fragments: {
     viewer: (vars) => Relay.QL`
       fragment on Viewer {
-        user {id}
+        user {
+          id
+          admin
+        }
         conceptRoot {
           ${ConceptList.getFragment('concept').if(vars.includeList)}
           ${ConceptMap.getFragment('concept').if(vars.includeMap)}
         }
         selectedConcept: concept(id: $selectedId) {
           id
+          reqs { id }
           path {
             id
             name

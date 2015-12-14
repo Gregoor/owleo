@@ -11,7 +11,8 @@ class Layout extends Component {
   }
 
   render() {
-    let {user} = this.props.viewer;
+    const {user} = this.props.viewer;
+
     return (
       <div className="mdl-layout">
         <header className="mdl-layout__header">
@@ -20,6 +21,15 @@ class Layout extends Component {
                   className="mdl-layout-title mdl-navigation__link">
               owleo
             </Link>
+            <Link to="/concepts" className="mdl-navigation__link"
+                  activeClassName="is-active">
+              Concepts
+            </Link>
+            {!user || !user.admin ? '' : (
+              <Link to="/concepts/new" className="mdl-navigation__link">
+                New Concept
+              </Link>
+            )}
             <div className="mdl-layout-spacer"/>
             <Link to="/about" className="mdl-navigation__link"
                   activeClassName="is-active">
@@ -69,6 +79,7 @@ export default Relay.createContainer(Layout, {
       fragment on Viewer {
         user {
           name
+          admin
         }
       }
     `

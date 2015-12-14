@@ -85,17 +85,6 @@ class ConceptInfo extends Component {
               <div className="section-title">Summary</div>
               <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
             </div>
-            {_.isEmpty(reqs.length) && path.length == 1 ? '' : (
-              <div className="mdl-card__menu">
-                <Button id="learn" to={'/learn/' + id}
-                        buttonType={['icon', 'accent']}>
-                  <i className="material-icons">school</i>
-                </Button>
-                <div className="mdl-tooltip" htmlFor="learn">
-                  Start mastering this concept
-                </div>
-              </div>
-            )}
             {user ? (
               <div className="mdl-card__actions mdl-card--border">
                 <Button onClick={this.onDelete.bind(this)}>

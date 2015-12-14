@@ -56,16 +56,17 @@ const Button = (props) => {
   let {disabled, buttonType, to} = props;
 
   let buttonTypeClasses = [];
-  if (buttonType) {
-    buttonTypeClasses = _.isArray(buttonType) ?
-      buttonType.map(type => BUTTON_PREFIX + type) : BUTTON_PREFIX + buttonType;
-  }
+  if (buttonType) buttonTypeClasses =
+    (_.isArray(buttonType) ? buttonType : buttonType.split(' '))
+      .map(type => BUTTON_PREFIX + type);
+
   let className = classnames('mdl-button mdl-js-button mdl-js-ripple-effect',
     buttonTypeClasses
   );
 
   let button = (
-    <button className={className} type="button" {...props}>
+    <button type="button" {...props}
+            className={className + ' ' + (props.className || '')}>
       {props.children}
     </button>
   );
