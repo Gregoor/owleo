@@ -84,11 +84,21 @@ $timingFn: cubic-bezier(.62,.28,.23,.99);
   display: none;
 }
 
+.mdl-layout__header {
+  box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28);
+}
+
 .mdl-navigation__link {
-  transition: box-shadow linear 300ms;
+  height: calc(100% - 5px);
+  text-transform: uppercase;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.701961) !important;
+  border-bottom: 2px solid transparent;
+  border-top: 2px solid transparent;
 
   &.is-active {
-    box-shadow: inset 0 0 1px 2px rgba(0,0,0,.23);
+    color: white !important;
+    border-bottom-color: #fff;
   }
 }
 

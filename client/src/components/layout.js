@@ -17,20 +17,19 @@ class Layout extends Component {
       <div className="mdl-layout">
         <header className="mdl-layout__header">
           <div className="mdl-layout__header-row">
-            <Link to="/concepts"
-                  className="mdl-layout-title mdl-navigation__link">
+            <div  className="mdl-layout-title">
               owleo
-            </Link>
-            <Link to="/concepts" className="mdl-navigation__link"
-                  activeClassName="is-active">
-              Concepts
-            </Link>
+            </div>
+            <div className="mdl-layout-spacer"/>
             {!user || !user.admin ? '' : (
               <Link to="/concepts/new" className="mdl-navigation__link">
                 New Concept
               </Link>
             )}
-            <div className="mdl-layout-spacer"/>
+            <Link to="/concepts" className="mdl-navigation__link"
+                  activeClassName="is-active">
+              Concepts
+            </Link>
             <Link to="/about" className="mdl-navigation__link"
                   activeClassName="is-active">
               About
@@ -40,7 +39,8 @@ class Layout extends Component {
                 (
                   <a href="" className="mdl-navigation__link"
                      onClick={this.onLogout.bind(this)}>
-                    Logout ({user.name})
+                    Logout
+                    (<span style={{textTransform: 'none'}}>{user.name}</span>)
                   </a>
                 ) :
                 (
