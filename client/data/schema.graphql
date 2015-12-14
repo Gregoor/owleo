@@ -140,6 +140,7 @@ type UpdateConceptPayload {
 type User implements Node {
   id: ID!
   name: String
+  admin: Boolean
 }
 
 type Viewer {
