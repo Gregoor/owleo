@@ -63,7 +63,7 @@ class ConceptInfo extends Component {
     return (
       <div style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
         {concept.path.length < 2 ? '' : (
-          <div className="mdl-cell mdl-cell--12-col" style={{marginTop: 0}}>
+          <div className="mdl-cell mdl-cell--12-col" style={{marginTop: 10}}>
             <ConceptBreadcrumbs concept={concept}/>
           </div>
         )}
