@@ -125,8 +125,10 @@ class ConceptPage extends Component {
 
         <div className="card-container"
              style={{width: '100%', height: '92vh', justifyContent: 'center', overflowY: 'auto'}}>
-          {contentLoading}
-          {content}
+          <div style={{marginTop: 10}}>
+            {contentLoading}
+            {content}
+          </div>
         </div>
 
         <span style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
