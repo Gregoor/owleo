@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
+import classnames from 'classnames';
 
 import LogoutMutation from '../mutations/user/logout';
 
@@ -12,6 +13,8 @@ class Layout extends Component {
 
   render() {
     const {user} = this.props.viewer;
+    const [, root, next] = this.props.location.pathname.split('/');
+    const isConceptRoute = root == 'concepts' && next != 'new';
 
     return (
       <div className="mdl-layout">
@@ -22,12 +25,13 @@ class Layout extends Component {
             </div>
             <div className="mdl-layout-spacer"/>
             {!user || !user.admin ? '' : (
-              <Link to="/concepts/new" className="mdl-navigation__link">
+              <Link to="/concepts/new" className="mdl-navigation__link"
+                    activeClassName="is-active">
                 New Concept
               </Link>
             )}
-            <Link to="/concepts" className="mdl-navigation__link"
-                  activeClassName="is-active">
+            <Link to="/concepts" className={classnames('mdl-navigation__link',
+                                                {'is-active': isConceptRoute})}>
               Concepts
             </Link>
             <Link to="/about" className="mdl-navigation__link"
