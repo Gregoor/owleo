@@ -106,10 +106,13 @@ class ConceptInfo extends Component {
     let {viewer, concept} = this.props;
     let {user} = viewer;
     let delay = 0;
-    let explanations = concept.explanations.edges.map(({node: explanation}) => {
-      return <ExplanationCard key={explanation.id} {...{explanation, user}}
-                              style={{transitionDelay: `${delay += 100}ms`}}/>
-    });
+    let explanations = _(concept.explanations.edges)
+      .sortBy(({node}) => -node.votes)
+      .map(({node: explanation}) => {
+        return <ExplanationCard key={explanation.id} {...{explanation, user}}
+                                style={{transitionDelay: `${delay += 100}ms`}}/>
+      })
+      .value();
 
     if (viewer.user) explanations.push(
       <div key="new" style={{transitionDelay: `${delay += 100}ms`}}>
@@ -182,6 +185,7 @@ export default Relay.createContainer(ConceptInfo, {
           edges {
             node {
               id
+              votes
               ${ExplanationCard.getFragment('explanation')}
             }
           }
