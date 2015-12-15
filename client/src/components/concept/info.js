@@ -107,7 +107,6 @@ class ConceptInfo extends Component {
     let {user} = viewer;
     let delay = 0;
     let explanations = _(concept.explanations.edges)
-      .sortBy(({node}) => -node.votes)
       .map(({node: explanation}) => {
         return <ExplanationCard key={explanation.id} {...{explanation, user}}
                                 style={{transitionDelay: `${delay += 100}ms`}}/>
