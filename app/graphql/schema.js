@@ -43,7 +43,8 @@ let ViewerType = new GraphQLObjectType({
         const {id} = args;
         if (!id) return null;
 
-        return Concept.find({id}, getFieldList(context)).then(([c]) => c);
+        const findArgs = {id, userId: context.rootValue.user.id};
+        return Concept.find(findArgs, getFieldList(context)).then(([c]) => c);
       }
     },
     concepts: {

@@ -27,7 +27,7 @@ type CreateConceptPayload {
 }
 
 input CreateExplanationInput {
-  conceptId: ID
+  conceptId: ID!
   type: String
   content: String
   clientMutationId: String!
@@ -39,7 +39,7 @@ type CreateExplanationPayload {
 }
 
 input DeleteConceptInput {
-  conceptId: ID
+  conceptId: ID!
   clientMutationId: String!
 }
 
@@ -49,7 +49,7 @@ type DeleteConceptPayload {
 }
 
 input DeleteExplanationInput {
-  explanationId: ID
+  explanationId: ID!
   clientMutationId: String!
 }
 
@@ -63,6 +63,8 @@ type Explanation {
   type: String
   content: String
   votes: Int
+  hasUpvoted: Boolean
+  hasDownvoted: Boolean
   author: User
 }
 
@@ -104,6 +106,7 @@ type Mutation {
   deleteConcept(input: DeleteConceptInput!): DeleteConceptPayload
   createExplanation(input: CreateExplanationInput!): CreateExplanationPayload
   deleteExplanation(input: DeleteExplanationInput!): DeleteExplanationPayload
+  voteExplanation(input: VoteExplanationInput!): VoteExplanationPayload
 }
 
 interface Node {
@@ -149,4 +152,20 @@ type Viewer {
   concept(id: String): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
   learnPath(targetId: String): [Concept]
+}
+
+input VoteExplanationInput {
+  explanationId: ID!
+  voteType: voteType
+  clientMutationId: String!
+}
+
+type VoteExplanationPayload {
+  explanation: Explanation!
+  clientMutationId: String!
+}
+
+enum voteType {
+  UP
+  DOWN
 }

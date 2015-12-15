@@ -93,17 +93,7 @@ class ConceptQuery {
     if (exclude) this.params.exclude = exclude;
   }
 
-  forUser(userId) {
-    if (userId) {
-      this._addToQuery(`OPTIONAL MATCH (:User {id: {userId}})-[self:VOTED]->(e)`,
-        ['hasVoted', 'COUNT(DISTINCT self)']);
-      this.params.userId = userId;
-    } else {
-      this._addToQuery('', ['hasVoted', '0']);
-    }
-  }
-
-  withFields(fields: {}) {
+  withFields(fields: {}, userId) {
     let {
       id, name, summary, summarySource, conceptsCount,
       container, concepts, reqs,  path, explanations, explanationsCount,
@@ -178,22 +168,38 @@ class ConceptQuery {
       ]
     );
 
-    if (explanations) this._addToQuery(
-      `
+    if (explanations) {
+      this._addToQuery(
+        `
           OPTIONAL MATCH (explainer:User)-[:CREATED]->(e:Explanation)
             -[:EXPLAINS]->(${this._alias})
-          OPTIONAL MATCH (u:User)-[v:VOTED]->(e)
+          OPTIONAL MATCH (:User)-[upvotes:UPVOTED]->(e)
+          OPTIONAL MATCH (:User)-[downvotes:DOWNVOTED]->(e)
           WITH ${asAliases(this._fields)},
-            COUNT(u) AS votes, e, explainer
+            (COUNT(upvotes) - COUNT(downvotes)) AS votes, e, explainer
+
+
+          ${!userId ? '' : `
+            OPTIONAL MATCH (user:User {id: {userId}})
+            OPTIONAL MATCH (user)-[upvote:UPVOTED]->(e)
+            OPTIONAL MATCH (user)-[downvote:DOWNVOTED]->(e)
+
+            WITH ${asAliases(this._fields)}, votes, e, explainer,
+              COUNT(DISTINCT upvote) AS hasUpvoted,
+              COUNT(DISTINCT downvote) AS hasDownvoted
+          `}
         `,
-      ['explanations', `
+        ['explanations', `
           COLLECT(DISTINCT {
             id: e.id, type: e.type, content: e.content, paywalled: e.paywalled,
-            votes: votes, hasVoted: 0, createdAt: e.createdAt,
-            author: {id: explainer.id, name: explainer.name}
+            votes: votes,
+            ${!userId ? '' : `hasUpvoted: hasUpvoted, hasDownvoted: hasDownvoted,`}
+            createdAt: e.createdAt, author: {id: explainer.id, name: explainer.name}
           })
         `]
-    );
+      );
+      if (userId) this.params.userId = userId;
+    }
 
     if (explanationsCount) this._addToQuery(
       `OPTIONAL MATCH (e:Explanation)-[:EXPLAINS]->(${this._alias})`,
@@ -275,11 +281,9 @@ export default {
     else if (params.ids) conceptQuery.idIsIn(params.ids);
     else if (params.query) conceptQuery.matchesQuery(params.query, params.exclude);
 
-    conceptQuery.forUser(params.userId);
-
     if (_.isString(params.container)) conceptQuery.isContained(params.container);
 
-    conceptQuery.withFields(fields);
+    conceptQuery.withFields(fields, params.userId);
 
     let queryString = conceptQuery.getQueryString({limit: params.limit});
 

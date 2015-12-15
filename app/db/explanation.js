@@ -4,13 +4,6 @@ import sanitizeHtml from 'sanitize-html';
 
 import {db, query} from './connection';
 
-let subQueries = {
-  'votes': `
-    MATCH (:User)-[v:VOTED]->(l:Explanation {id: {id}})
-    RETURN COUNT(v) AS votes
-  `
-};
-
 export default {
 
   find({id}) {
@@ -44,38 +37,56 @@ export default {
     ).then(() => attrs.id);
   },
 
-  vote(id, userId) {
-    return new Promise(resolve => db.cypher([
-      {
-        'query': `
-          MATCH (e:Explanation {id: {id}})
-          MATCH (u:User {id: {userId}})
-          MERGE u-[:VOTED]->e
-        `,
-        'params': {id, userId}
-      },
-      {
-        'query': subQueries.votes,
-        'params': {id}
-      }
-    ], (n, r) => resolve(r[1][0])));
-  },
+  vote(id, voteType, userId) {
+    const params = {id, userId};
 
-  unvote(id, userId) {
-    return new Promise(resolve => db.cypher([
-      {
-        'query': `
-          MATCH (u:User {id: {userId}})
-            -[v:VOTED]->(e:Explanation {id: {id}})
-          DELETE v
+    let queries = [{
+      query: `
+          MATCH (e:Explanation {id: {id}}), (u:User {id: {userId}})
+          OPTIONAL MATCH u-[upvote:UPVOTED]->e
+          OPTIONAL MATCH u-[downvote:DOWNVOTED]->e
+          DELETE upvote, downvote
         `,
-        'params': {id, userId}
-      },
-      {
-        'query': subQueries.votes,
-        'params': {id}
-      }
-    ], (n, r) => resolve(r[1][0])));
+      params
+    }];
+
+    if (['UP', 'DOWN'].includes(voteType)) queries.push({
+      query: `
+        MATCH (e:Explanation {id: {id}}), (u:User {id: {userId}})
+        CREATE u-[:${voteType}VOTED]->e
+      `,
+      params
+    });
+
+    queries.push({
+      query: `
+        MATCH (e:Explanation {id: {id}}), (u:User {id: {userId}})
+
+        OPTIONAL MATCH u-[upvote:UPVOTED]->e
+        WITH e, u, COUNT(DISTINCT upvote) AS hasUpvoted
+        OPTIONAL MATCH u-[downvote:DOWNVOTED]->e
+        WITH e, hasUpvoted, COUNT(DISTINCT downvote) AS hasDownvoted
+
+        OPTIONAL MATCH (:User)-[upvotes:UPVOTED]->e
+        OPTIONAL MATCH (:User)-[downvotes:DOWNVOTED]->e
+        WITH e, hasUpvoted, hasDownvoted,
+          COUNT(upvotes) - COUNT(downvotes) AS votes
+
+        RETURN {
+          id: e.id, type: e.type, content: e.content, votes: votes,
+          hasUpvoted: hasUpvoted, hasDownvoted: hasDownvoted
+        } AS explanation
+      `,
+      params
+    });
+
+
+    return new Promise((resolve, reject) => db.cypher(queries, (error, results) => {
+      if (error) {
+        console.error(error);
+        reject();
+      } else resolve(results[results.length - 1][0].explanation);
+    }));
   },
 
   delete(id) {

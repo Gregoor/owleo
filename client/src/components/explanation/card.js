@@ -1,6 +1,8 @@
 import React from 'react';
 import Relay from 'react-relay';
+import classnames from 'classnames';
 
+import VoteExplanationMutation from '../../mutations/explanation/vote';
 import DeleteExplanationMutation from '../../mutations/explanation/delete';
 import ExplanationContent from './content';
 import {Button} from '../mdl';
@@ -11,22 +13,29 @@ class ExplanationCard extends React.Component {
 
   render() {
     const {explanation, user} = this.props;
+    const {hasUpvoted, hasDownvoted} = explanation;
     return (
-      <div style={Object.assign({marginBottom: 8}, this.props.style)}
-           className="mdl-card card-auto-fit">
+      <div className="mdl-card card-auto-fit"
+           style={Object.assign({marginBottom: 8, overflow: 'visible'}, this.props.style)}>
         <div className="mdl-card__supporting-text">
           <div className="mdl-grid" style={{padding: 0}}>
 
             <div className="mdl-cell mdl-cell--1-col mdl-cell--stretch"
                  style={{margin: 0}}>
-              <Button buttonType="icon" disabled={!user}>
-                <i className="material-icons" style={VOTE_ICON_STYLE}>
+              <Button buttonType="icon" disabled={!user}
+                      onClick={this._commitVote.bind(this, 'UP')}
+                      title={'It explains the concept well ' + (hasUpvoted ? '(click again to undo)' : '')}>
+                <i className={classnames('material-icons', {'accent-color': hasUpvoted})}
+                   style={VOTE_ICON_STYLE}>
                   arrow_drop_up
                 </i>
               </Button>
               <div style={{marginLeft: 11}}>{explanation.votes}</div>
-              <Button buttonType="icon" disabled={!user}>
-                <i className="material-icons" style={VOTE_ICON_STYLE}>
+              <Button buttonType="icon" disabled={!user}
+                      onClick={this._commitVote.bind(this, 'DOWN')}
+                      title={'It explains the concept badly ' + (hasDownvoted ? '(click again to undo)' : '')}>
+                <i className={classnames('material-icons', {'accent-color': hasDownvoted})}
+                   style={VOTE_ICON_STYLE}>
                   arrow_drop_down
                 </i>
               </Button>
@@ -46,6 +55,17 @@ class ExplanationCard extends React.Component {
           </div>
         ) : ''}
       </div>
+    );
+  }
+
+  _commitVote(voteType) {
+    Relay.Store.update(
+      new VoteExplanationMutation({explanation: this.props.explanation, voteType}),
+      {
+        onSuccess: t => {
+        },
+        onFailure: t => console.error(t.getError().source.errors)
+      }
     );
   }
 
@@ -71,7 +91,10 @@ export default Relay.createContainer(ExplanationCard, {
       fragment on Explanation {
         id
         votes
+        hasUpvoted
+        hasDownvoted
         ${ExplanationContent.getFragment('explanation')}
+        ${VoteExplanationMutation.getFragment('explanation')}
       }
     `,
     user: () => Relay.QL`
