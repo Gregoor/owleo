@@ -1,6 +1,8 @@
 import React from 'react';
 import Relay from 'react-relay';
 
+import shortenURL from '../../helpers/shorten-url';
+
 class ExplanationContent extends React.Component {
 
   componentDidMount() {
@@ -16,9 +18,10 @@ class ExplanationContent extends React.Component {
 
     let explanationContent, style;
     return type == 'link' ?
-      <div className="explanation"
-           style={{display: 'flex', justifyContent: 'center'}}>
-        <a ref="link" data-iframely-url href={content}>{content}</a>
+      <div className="explanation">
+        <a ref="link" data-iframely-url href={content}>
+          {content.length > 50 ? shortenURL(content) : content}
+        </a>
       </div> :
       <div dangerouslySetInnerHTML={{__html: content}}/>;
   }
