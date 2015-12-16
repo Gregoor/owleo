@@ -90,7 +90,8 @@ class ConceptForm extends Component {
       isNew ? new CreateConceptMutation(input) : new UpdateConceptMutation(input),
       {
         onSuccess: t => {
-          location = '/id/' + (isNew ? t.createConcept.conceptId : concept.id);
+          window.location = '/concepts?id=' +
+            atob(isNew ? t.createConcept.conceptId : concept.id).split(':')[1];
         },
         onFailure: t => console.error(t.getError().source.errors)
       }
