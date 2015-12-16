@@ -99,6 +99,7 @@ $timingFn: cubic-bezier(.62,.28,.23,.99);
   color: rgba(255, 255, 255, 0.701961) !important;
   border-bottom: 2px solid transparent;
   border-top: 2px solid transparent;
+  transition: border-bottom 200ms linear;
 
   &.is-active {
     color: white !important;
