@@ -8,6 +8,7 @@ import history from '../../history';
 import DeleteConceptMutation from '../../mutations/concept/delete';
 import createConceptURL from '../../create-concept-url';
 import ConceptBreadcrumbs from './breadcrumbs';
+import ConceptSummary from './summary';
 import ConceptForm from './form';
 import ExplanationCard from '../explanation/card';
 import ExplanationForm from '../explanation/form';
@@ -59,7 +60,7 @@ class ConceptInfo extends Component {
     if (this.props.relay.variables.includeForm) {
       return <ConceptForm {...{viewer, concept}}/>;
     }
-    const {id, name, summary, reqs, path} = concept;
+    const {id, name, summary, summarySource, reqs} = concept;
     return (
       <div style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
         {concept.path.length < 2 ? '' : (
@@ -83,7 +84,7 @@ class ConceptInfo extends Component {
             }
             <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
               <div className="section-title">Summary</div>
-              <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
+              <ConceptSummary concept={concept}/>
             </div>
             {user ? (
               <div className="mdl-card__actions mdl-card--border">
@@ -168,7 +169,7 @@ export default Relay.createContainer(ConceptInfo, {
       fragment on Concept {
         id
         name
-        summary
+        ${ConceptSummary.getFragment('concept')}
         path {name}
         reqs {
           id

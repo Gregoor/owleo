@@ -1,6 +1,7 @@
 import React from 'react';
 import Relay from 'react-relay';
 
+import ConceptSummary from './summary';
 import ExplanationContent from '../explanation/content';
 import {Button} from '../mdl';
 
@@ -53,7 +54,7 @@ class ConceptCard extends React.Component {
           <h2 className="mdl-card__title-text">{name}</h2>
         </div>
         <div className="mdl-card__supporting-text" style={{whiteSpace: 'pre-wrap'}}>
-          {summary}
+          <ConceptSummary concept={concept}/>
         </div>
         {explanationPanel}
       </div>
@@ -70,7 +71,7 @@ export default Relay.createContainer(ConceptCard, {
     concept: () => Relay.QL`
       fragment on Concept {
         name
-        summary
+        ${ConceptSummary.getFragment('concept')}
         path {name}
         explanations(first: 10) {
           edges {
