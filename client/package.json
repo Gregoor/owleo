@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "start": "nodejs dev-server.js",
+    "start": "babel-node dev-server.js",
     "update-schema": "babel-node ./build/updateSchema.js",
     "lint": "eslint src",
     "deploy": "NODE_ENV=production webpack -p --config webpack.config.prod.babel.js"
