@@ -4,7 +4,7 @@ import Relay from 'react-relay';
 import classNames from 'classnames';
 import _ from 'lodash';
 
-import createConceptURL from '../../create-concept-url';
+import createConceptURL from '../../helpers/create-concept-url';
 import ConceptList from './list';
 import {Spinner} from '../mdl';
 

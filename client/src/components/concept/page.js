@@ -5,7 +5,7 @@ import {Link} from 'react-router';
 import classnames from 'classnames';
 
 import history from '../../history';
-import createConceptURL from '../../create-concept-url';
+import createConceptURL from '../../helpers/create-concept-url';
 import SearchResults from './results';
 import ConceptList from './list';
 import ConceptInfo from './info';

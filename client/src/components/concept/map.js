@@ -4,7 +4,7 @@ import {History} from 'react-router';
 
 import '../../../lib/foamtree/carrotsearch.foamtree';
 
-import createConceptURL from '../../create-concept-url';
+import createConceptURL from '../../helpers/create-concept-url';
 
 
 const ConceptMap = React.createClass({

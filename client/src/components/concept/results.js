@@ -3,7 +3,7 @@ import Relay from 'react-relay';
 import {Link} from 'react-router';
 import clamp from 'clamp-js'
 
-import createConceptURL from '../../create-concept-url';
+import createConceptURL from '../../helpers/create-concept-url';
 import {Spinner} from '../mdl';
 
 class ConceptResult extends Component {

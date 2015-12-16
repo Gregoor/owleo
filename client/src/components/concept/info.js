@@ -6,7 +6,7 @@ import clamp from 'clamp-js';
 
 import history from '../../history';
 import DeleteConceptMutation from '../../mutations/concept/delete';
-import createConceptURL from '../../create-concept-url';
+import createConceptURL from '../../helpers/create-concept-url';
 import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptSummary from './summary';
 import ConceptForm from './form';
