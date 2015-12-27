@@ -1,6 +1,10 @@
 .flow {
   height: 100%;
 
+  g {
+    transition: all 300ms ease-in-out;
+  }
+
   .background {
     stroke: white;
     stroke-width: 1px;

@@ -135,7 +135,7 @@ class ConceptFlow extends Component {
     if (this.selfChanged) {
       this.selfChanged = false;
     } else {
-      this._setPosition(this.width / 2 + x, this.height / 2 - y);
+      this._setPosition(this.width / 2 - x, this.height / 2 - y);
     }
     d3.select(this.refs.svg).select('.selected').classed('selected', false);
     node.classList.add('selected');
