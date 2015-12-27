@@ -7,6 +7,15 @@ body {
   font-size: 15px;
 }
 
+blockquote {
+  margin: 0;
+  letter-spacing: normal;
+  white-space: pre-wrap;
+  font-size: 19px;
+  line-height: 30px;
+  font-weight: normal;
+}
+
 .accent-color {
   color: #FF4081
 }
@@ -118,6 +127,27 @@ $timingFn: cubic-bezier(.62,.28,.23,.99);
   &.fab-hidden {
     transform: translateY(100px);
   }
+}
+
+.concept-nav-container {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.concept-nav {
+  width: 60%;
+  height: 92vh;
+  margin-top: 10px;
+  margin-left: 10px;
+  background-color: white;
+}
+
+.concept-scroller {
+  width: 100%;
+  height: 92vh;
+  justify-content: center;
+  overflow-y: auto;
 }
 
 //div {

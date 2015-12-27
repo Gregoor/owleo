@@ -74,8 +74,9 @@ class ConceptInfo extends Component {
             <div className="mdl-card__title" style={{paddingBottom: 0}}>
               <h2 className="mdl-card__title-text">{name}</h2>
             </div>
-            {_.isEmpty(reqs) ? '' : <div style={{paddingTop: 5}}>
-              <div className="section-title">Requirements</div>
+            {!this.props.includeReqs || _.isEmpty(reqs) ? '' :
+              <div style={{paddingTop: 5}}>
+                <div className="section-title">Requirements</div>
                 {reqs.map((concept, i) => (
                   <Req key={concept.id} concept={concept}
                        isLast={i + 1 == reqs.length}/>
@@ -150,6 +151,8 @@ class ConceptInfo extends Component {
   }
 
 }
+
+ConceptInfo.defaultProps = {includeReqs: true};
 
 export default Relay.createContainer(ConceptInfo, {
 

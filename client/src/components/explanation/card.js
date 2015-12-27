@@ -2,9 +2,9 @@ import React from 'react';
 import Relay from 'react-relay';
 import classnames from 'classnames';
 
+import shortenURL from '../../helpers/shorten-url';
 import VoteExplanationMutation from '../../mutations/explanation/vote';
 import DeleteExplanationMutation from '../../mutations/explanation/delete';
-import ExplanationContent from './content';
 import {Button} from '../mdl';
 
 const VOTE_ICON_STYLE = {fontSize: 40, marginLeft: -8};
@@ -13,7 +13,7 @@ class ExplanationCard extends React.Component {
 
   render() {
     const {explanation, user} = this.props;
-    const {hasUpvoted, hasDownvoted} = explanation;
+    const {type, content, hasUpvoted, hasDownvoted} = explanation;
     return (
       <div className="mdl-card card-auto-fit"
            style={Object.assign({marginBottom: 8, overflow: 'visible'}, this.props.style)}>
@@ -42,7 +42,15 @@ class ExplanationCard extends React.Component {
             </div>
 
             <div className="mdl-cell mdl-cell--11-col">
-              <ExplanationContent explanation={explanation}/>
+              {type == 'link' ?
+                <div className="explanation">
+                  <a href={content} className="embedly-card" data-card-controls="0"
+                     data-card-chrome="0">
+                    {content.length > 50 ? shortenURL(content) : content}
+                  </a>
+                </div> :
+                <div dangerouslySetInnerHTML={{__html: content}}/>
+              }
             </div>
 
           </div>
@@ -90,10 +98,11 @@ export default Relay.createContainer(ExplanationCard, {
     explanation: () => Relay.QL`
       fragment on Explanation {
         id
+        content
+        type
         votes
         hasUpvoted
         hasDownvoted
-        ${ExplanationContent.getFragment('explanation')}
         ${VoteExplanationMutation.getFragment('explanation')}
       }
     `,

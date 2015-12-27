@@ -7,11 +7,7 @@ class ConceptSummary extends React.Component {
     const {summary, summarySource} = this.props.concept;
     return summarySource ?
       <div>
-        <blockquote>
-          <p style={{whiteSpace: 'pre-wrap', fontSize: 19, lineHeight: '30px'}}>
-            {summary}
-          </p>
-        </blockquote>
+        <blockquote>{summary}</blockquote>
         <em>Source:</em>&nbsp;
         <a href={summarySource}>{summarySource}</a>
       </div> :

@@ -83,12 +83,10 @@ class ConceptPage extends Component {
     const isLearnable = selectedConcept.reqs && selectedConcept.reqs.length;
 
     return (
-      <div style={{display: 'flex', justifyContent: 'center', overflow: 'hidden'}}>
+      <div className="concept-nav-container">
 
-        <div className="mdl-card"
-             style={{width: '60%', maxWidth: navType == 'map' ? '800px' : '500px',
-                    height: '92vh', marginTop: 10, marginLeft: 10,
-                    backgroundColor: 'white'}}>
+        <div className="mdl-card concept-nav"
+             style={{maxWidth: navType == 'map' ? '800px' : '500px'}}>
           <div className="mdl-grid" style={{backgroundColor: 'white', margin: 0,
                         padding: 0, borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
             <div className="mdl-cell mdl-cell--10-col">
@@ -123,8 +121,7 @@ class ConceptPage extends Component {
           </div>
         </div>
 
-        <div className="card-container"
-             style={{width: '100%', height: '92vh', justifyContent: 'center', overflowY: 'auto'}}>
+        <div className="card-container concept-scroller">
           <div style={{marginTop: 10}}>
             {contentLoading}
             {content}

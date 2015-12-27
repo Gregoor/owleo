@@ -1,27 +1,56 @@
 import React, {Component} from 'react';
 import Relay from 'react-relay';
+import _ from 'lodash';
 
-import ConceptCard from './card';
+import ConceptFlow from './flow';
+import ConceptInfo from './info';
 import CardAnimation from '../card-animation';
+import {Spinner} from '../mdl';
 
 class ConceptLearnPage extends Component {
 
+  state = {};
+
+  componentWillMount() {
+    const [selectedConcept] = this.props.viewer.learnPath;
+    this.setState({selectedConcept});
+  }
+
   render() {
-    let delay = 0;
-    let concepts = this.props.viewer.learnPath.map(concept => (
-      <div key={concept.id}
-           style={{marginBottom: 15, transitionDelay: `${delay += 100}ms`}}>
-        <ConceptCard {...{concept}}/>
-      </div>
-    ));
+    const {viewer} = this.props;
+    const {selectedConcept} = this.state;
+
+    let content;
+    if (selectedConcept) content = (
+      <ConceptInfo key={selectedConcept.id} concept={selectedConcept}
+                   includeReqs={false} {...{viewer}}/>
+    );
+    const contentLoading = null;
 
     return (
-      <div className="mdl-grid" style={{maxWidth: '700px'}}>
+      <div className="concept-nav-container">
 
-        <CardAnimation delay={delay}>{concepts}</CardAnimation>
+        <div className="mdl-card concept-nav" style={{maxWidth: '800px'}}>
+          <ConceptFlow concepts={viewer.learnPath} {...{selectedConcept}}
+                       onSelect={this._onSelect.bind(this)} />
+        </div>
+
+        <div className="mdl-grid" style={{maxWidth: '700px'}}>
+          <div className="card-container concept-scroller">
+            <div style={{marginTop: 10}}>
+              {contentLoading}
+              {content}
+            </div>
+          </div>
+        </div>
 
       </div>
     );
+  }
+
+  _onSelect(conceptId) {
+    this.setState({selectedConcept:
+      _.find(this.props.viewer.learnPath, ({id}) => id == conceptId)})
   }
 
 }
@@ -34,9 +63,11 @@ export default Relay.createContainer(ConceptLearnPage, {
     viewer: (vars) => Relay.QL`
       fragment on Viewer {
         learnPath(targetId: $targetId) {
-          id,
-          ${ConceptCard.getFragment('concept')}
+          id
+          ${ConceptInfo.getFragment('concept')}
+          ${ConceptFlow.getFragment('concepts')}
         }
+        ${ConceptInfo.getFragment('viewer')}
       }
     `
   }
