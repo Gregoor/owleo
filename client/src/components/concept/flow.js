@@ -27,6 +27,7 @@ class ConceptFlow extends Component {
 
     background.call(d3.behavior.drag().on('drag', function() {
       const {dx, dy} = d3.event;
+      self.vis.classed('in-transition', false);
       self._setPosition(self.navState.x + dx, self.navState.y + dy);
     }));
 
@@ -51,7 +52,10 @@ class ConceptFlow extends Component {
     const edges = [];
     for (const concept of concepts) {
       for (const req of concept.reqs) {
-        edges.push({source: idMap.get(req.id), target: idMap.get(concept.id)});
+        edges.push({
+          source: idMap.get(req.id), target: idMap.get(concept.id),
+          isContainer: req.id == concept.container.id
+        });
       }
     }
 
@@ -66,7 +70,7 @@ class ConceptFlow extends Component {
     const link = this.vis.selectAll('.link')
       .data(edges)
       .enter().append('path')
-      .attr('class', 'link');
+      .attr('class', d => `link ${d.isContainer? 'is-container' : ''}`);
 
 
     const idsToNodes = this.idsToNodes = new Map();
@@ -75,7 +79,7 @@ class ConceptFlow extends Component {
       .enter().append('rect')
       .classed('node', true)
       .attr({rx: 5, ry: 5})
-      .on('click', d => (self.selfChanged = true) && self.props.onSelect(d.realID))
+      .on('click', d => self.props.onSelect(d.realID))
       .each(function({realID}) { idsToNodes.set(realID, this); });
 
     const margin = 10, pad = 12;
@@ -84,7 +88,7 @@ class ConceptFlow extends Component {
       .enter().append('text')
       .attr('class', 'label')
       .text(d => d.name)
-      .on('click', d => (self.selfChanged = true) && self.props.onSelect(d.realID))
+      .on('click', d => self.props.onSelect(d.realID))
       .each(function(d) {
         const {width, height} = this.getBBox();
         const extra = 2 * margin + 2 * pad;
@@ -131,12 +135,12 @@ class ConceptFlow extends Component {
 
   _focus({id}) {
     const node = this.idsToNodes.get(id);
-    let {x, y} = node.getBBox();
-    if (this.selfChanged) {
-      this.selfChanged = false;
-    } else {
-      this._setPosition(this.width / 2 - x, this.height / 2 - y);
-    }
+    let {x, y, width, height} = node.getBBox();
+    this.vis.classed('in-transition', true);
+    this._setPosition(
+      this.width / 2 - x - width / 2,
+      this.height / 2 - y - height / 2
+    );
     d3.select(this.refs.svg).select('.selected').classed('selected', false);
     node.classList.add('selected');
   }
@@ -156,6 +160,7 @@ export default Relay.createContainer(ConceptFlow, {
         id
         name
         reqs { id }
+        container { id }
       }
     `
   }
