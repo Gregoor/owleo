@@ -45,6 +45,7 @@ class ConceptFlow extends Component {
     const {concepts} = this.props;
 
     const idMap = new Map();
+
     const nodes = [];
     concepts.forEach(({id, name}, i) => {
       nodes.push({id: i, realID: id, name});
@@ -55,6 +56,7 @@ class ConceptFlow extends Component {
     for (const concept of concepts) {
       for (const req of concept.reqs) {
         edges.push({
+          sourceID: req.id, targetID: concept.id,
           source: idMap.get(req.id), target: idMap.get(concept.id),
           isContainer: req.id == concept.container.id
         });
@@ -64,25 +66,31 @@ class ConceptFlow extends Component {
     d3cola
       .avoidOverlaps(true)
       .convergenceThreshold(1e-1)
-      .flowLayout('y', 100)
+      .flowLayout('y', 150)
       .nodes(nodes)
       .links(edges)
-      .jaccardLinkLengths(250);
+      .jaccardLinkLengths(150);
+
+    const idsToEls = this.idsToEls = new Map(concepts.map(({id}) => [id, {
+      rect: null, links: []
+    }]));
 
     const link = this.vis.selectAll('.link')
       .data(edges)
       .enter().append('path')
-      .attr('class', d => `link ${d.isContainer? 'is-container' : ''}`);
+      .attr('class', d => `link ${d.isContainer? 'is-container' : ''}`)
+      .each(function({sourceID, targetID}) {
+        idsToEls.get(sourceID).links.push(this);
+        idsToEls.get(targetID).links.push(this);
+      });
 
-
-    const idsToNodes = this.idsToNodes = new Map();
     const node = this.vis.selectAll('.node')
       .data(nodes)
       .enter().append('rect')
       .classed('node', true)
       .attr({rx: 5, ry: 5})
       .on('click', d => self.props.onSelect(d.realID))
-      .each(function({realID}) { idsToNodes.set(realID, this); });
+      .each(function({realID}) { idsToEls.get(realID).rect = this; });
 
     const margin = 10, pad = 12;
     const label = this.vis.selectAll('.label')
@@ -144,15 +152,16 @@ class ConceptFlow extends Component {
   }
 
   _focus({id}) {
-    const node = this.idsToNodes.get(id);
-    let {x, y, width, height} = node.getBBox();
+    const {rect, links} = this.idsToEls.get(id);
+    let {x, y, width, height} = rect.getBBox();
     this.vis.classed('in-transition', true);
     this._setPosition(
       this.width / 2 - x - width / 2,
       this.height / 2 - y - height / 2
     );
-    d3.select(this.refs.svg).select('.selected').classed('selected', false);
-    node.classList.add('selected');
+    d3.select(this.refs.svg).selectAll('.selected').classed('selected', false);
+    rect.classList.add('selected');
+    d3.selectAll(links).classed('selected', true);
   }
 
   _setPosition(x, y) {
