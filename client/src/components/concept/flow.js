@@ -3,11 +3,13 @@ import Relay from 'react-relay';
 import cola from 'webcola';
 import d3 from 'd3';
 
+import {Spinner} from '../mdl';
+
 import './flow.scss';
 
 class ConceptFlow extends Component {
 
-  state = {};
+  state = {isLoading: true};
 
   componentDidMount() {
     const self = this;
@@ -62,10 +64,10 @@ class ConceptFlow extends Component {
     d3cola
       .avoidOverlaps(true)
       .convergenceThreshold(1e-1)
-      .flowLayout('y', 150)
+      .flowLayout('y', 100)
       .nodes(nodes)
       .links(edges)
-      .jaccardLinkLengths(150);
+      .jaccardLinkLengths(250);
 
     const link = this.vis.selectAll('.link')
       .data(edges)
@@ -122,6 +124,7 @@ class ConceptFlow extends Component {
 
       self.hasRendered = true;
       self._focus(self.props.selectedConcept);
+      self.setState({isLoading: false});
     });
   }
 
@@ -130,7 +133,14 @@ class ConceptFlow extends Component {
   }
 
   render() {
-    return <svg ref="svg" className="flow"/>;
+    const {isLoading}  = this.state;
+    return (
+      <div>
+        {isLoading ? <Spinner/> : ''}
+        <svg ref="svg" className="flow"
+             style={{visibility: isLoading ? 'hidden' : 'visible'}}/>
+      </div>
+    );
   }
 
   _focus({id}) {
