@@ -140,7 +140,7 @@ class ConceptQuery {
       let prefixed = this._prefix('reqs');
       this._addToQuery(
         `
-        OPTIONAL MATCH (${this._alias})-[:CONTAINED_BY|:REQUIRES]->(${prefixed}:Concept)
+        OPTIONAL MATCH (${this._alias})-[:REQUIRES]->(${prefixed}:Concept)
         ${new ConceptQuery(prefixed, this._getAllFields())
           .withFields(reqs).getQueryString({multiple: true})}
       `,
@@ -295,8 +295,21 @@ export default {
     let params = asParams(data);
     params.attrs.id = uuid.v4();
 
+    if (params.container) params.reqs.push(params.container);
+
     return query(
       `
+        MATCH (c1:Concept)-[:REQUIRES*]->(c2:Concept)
+        WHERE c1.id IN {ids} AND c2.id IN {ids}
+        RETURN DISTINCT c2.id AS id
+      `,
+      {ids: params.reqs}
+    ).then(result => {
+      const ids = result.map(({id}) => id);
+      params.reqs = params.reqs.filter(id => !ids.includes(id));
+
+      return query(
+        `
 				CREATE (c:Concept {attrs})
 
 				${subCreates.containConcept(params.container)}
@@ -304,8 +317,11 @@ export default {
 
 				RETURN c.id AS id
 			`,
-      params
-    ).then(([{id}]) => id);
+        params
+      ).then(([{id}]) => id);
+    });
+
+
   },
 
   update(id, data, user) {
