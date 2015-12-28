@@ -229,8 +229,9 @@ class ConceptQuery {
     } else {
       let map = `
         {
-          id: ${alias}.id,
-          ${returnFields.map(([l, a]) => `${l}: ${a}`).join(', ')}
+          ${[
+            `id: ${alias}.id`, ...returnFields.map(([l, a]) => `${l}: ${a}`)
+          ].join(', ')}
         }
       `;
       if (multiple) map = `COLLECT(${map})`;
