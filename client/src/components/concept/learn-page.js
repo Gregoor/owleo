@@ -18,6 +18,8 @@ class ConceptLearnPage extends Component {
 
   render() {
     const {viewer} = this.props;
+    const {learnPath} = viewer;
+    const target = _.last(learnPath);
     const {selectedConcept} = this.state;
 
     let content;
@@ -31,7 +33,16 @@ class ConceptLearnPage extends Component {
       <div className="concept-nav-container">
 
         <div className="mdl-card concept-nav" style={{maxWidth: '800px'}}>
-          <ConceptFlow concepts={viewer.learnPath} {...{selectedConcept}}
+          <div style={{padding: 5, borderBottom: '1px solid black'}}>
+            You are mastering <br/>
+            <h3 style={{margin: 0}}>{target.name}</h3>
+            <span style={{fontSize: 13}}>
+              {_(target.path.slice())
+                .map(({name}) => name).dropRight().reverse()
+              .join(' > ')}
+            </span>
+          </div>
+          <ConceptFlow concepts={learnPath} {...{selectedConcept}}
                        onSelect={this._onSelect.bind(this)} />
         </div>
 
@@ -81,6 +92,8 @@ export default Relay.createContainer(ConceptLearnPage, {
       fragment on Viewer {
         learnPath(targetId: $targetId) {
           id
+          name
+          path { name }
           ${ConceptInfo.getFragment('concept')}
           ${ConceptFlow.getFragment('concepts')}
         }
