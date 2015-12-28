@@ -63,13 +63,15 @@ class ConceptFlow extends Component {
       }
     }
 
+    const distance = concepts.reduce((max, {name}) => Math.max(max, name.length), 0) * 5;
+
     d3cola
       .avoidOverlaps(true)
       .convergenceThreshold(1e-1)
-      .flowLayout('y', 150)
+      .flowLayout('y', distance)
       .nodes(nodes)
       .links(edges)
-      .jaccardLinkLengths(150);
+      .jaccardLinkLengths(distance);
 
     const idsToEls = this.idsToEls = new Map(concepts.map(({id}) => [id, {
       rect: null, links: []
@@ -92,7 +94,7 @@ class ConceptFlow extends Component {
       .on('click', d => self.props.onSelect(d.realID))
       .each(function({realID}) { idsToEls.get(realID).rect = this; });
 
-    const margin = 10, pad = 12;
+    const margin = 5, pad = 6;
     const label = this.vis.selectAll('.label')
       .data(nodes)
       .enter().append('text')
