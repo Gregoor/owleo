@@ -46,12 +46,10 @@ class ConceptLearnPage extends Component {
                        onSelect={this._onSelect.bind(this)} />
         </div>
 
-        <div className="mdl-grid" style={{maxWidth: '700px'}}>
-          <div className="card-container concept-scroller">
-            <div>
-              {contentLoading}
-              {content}
-            </div>
+        <div className="card-container concept-scroller">
+          <div style={{marginTop: 10}}>
+            {contentLoading}
+            {content}
           </div>
         </div>
 
