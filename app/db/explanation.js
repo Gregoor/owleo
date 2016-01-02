@@ -18,7 +18,7 @@ export default {
     )
   },
 
-  create(data) {//, userId) {
+  create(data) {//, userID) {
     let attrs = Object.assign({
       id: uuid.v4(),
       content: sanitizeHtml(data.content, {
@@ -29,20 +29,20 @@ export default {
     return query(
       `
         MATCH (u:User {name: "gregor"})
-        MATCH (c:Concept {id: {conceptId}})
+        MATCH (c:Concept {id: {conceptID}})
 
         CREATE u-[:CREATED]->(e:Explanation {attrs})-[:EXPLAINS]->c
       `,
-      {attrs, conceptId: data.conceptId}//, userId}
+      {attrs, conceptID: data.conceptID}//, userID}
     ).then(() => attrs.id);
   },
 
-  vote(id, voteType, userId) {
-    const params = {id, userId};
+  vote(id, voteType, userID) {
+    const params = {id, userID};
 
     let queries = [{
       query: `
-          MATCH (e:Explanation {id: {id}}), (u:User {id: {userId}})
+          MATCH (e:Explanation {id: {id}}), (u:User {id: {userID}})
           OPTIONAL MATCH u-[upvote:UPVOTED]->e
           OPTIONAL MATCH u-[downvote:DOWNVOTED]->e
           DELETE upvote, downvote
@@ -52,7 +52,7 @@ export default {
 
     if (['UP', 'DOWN'].includes(voteType)) queries.push({
       query: `
-        MATCH (e:Explanation {id: {id}}), (u:User {id: {userId}})
+        MATCH (e:Explanation {id: {id}}), (u:User {id: {userID}})
         CREATE u-[:${voteType}VOTED]->e
       `,
       params
@@ -60,7 +60,7 @@ export default {
 
     queries.push({
       query: `
-        MATCH (e:Explanation {id: {id}}), (u:User {id: {userId}})
+        MATCH (e:Explanation {id: {id}}), (u:User {id: {userID}})
 
         OPTIONAL MATCH u-[upvote:UPVOTED]->e
         WITH e, u, COUNT(DISTINCT upvote) AS hasUpvoted

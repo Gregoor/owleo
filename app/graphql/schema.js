@@ -43,8 +43,9 @@ let ViewerType = new GraphQLObjectType({
         const {id} = args;
         if (!id) return null;
 
-        const findArgs = {id, userId: context.rootValue.user.id};
-        return Concept.find(findArgs, getFieldList(context)).then(([c]) => c);
+        const userID = context.rootValue.user.id;
+        return Concept.find({id}, getFieldList(context), userID)
+          .then(([c]) => c);
       }
     },
     concepts: {
@@ -58,7 +59,9 @@ let ViewerType = new GraphQLObjectType({
         if (args.exclude) {
           args.exclude = args.exclude.map(id => fromGlobalId(id).id);
         }
-        return args.query ? Concept.find(args, getFieldList(context)) : [];
+        return args.query ?
+          Concept.find(args, getFieldList(context), root.rootValue.user.id) :
+          [];
       }
     },
     learnPath: {
@@ -66,9 +69,10 @@ let ViewerType = new GraphQLObjectType({
       args: {targetId: {type: GraphQLString}},
       resolve(root, {targetId}, context) {
         if (targetId) {
+          const userID = context.rootValue.user.id;
           return findLearnPath(fromGlobalId(targetId).id)
             .then(ids => {
-              return Concept.find({ids}, getFieldList(context))
+              return Concept.find({ids}, getFieldList(context), userID)
                 .then(concepts => {
                   let orderedConcepts = [];
                   for (let concept of concepts) {

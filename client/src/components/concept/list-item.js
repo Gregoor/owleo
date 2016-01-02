@@ -54,11 +54,12 @@ class ConceptListItem extends Component {
                              level={level + 1}/>;
     }
 
-    const {name, conceptsCount} = concept;
+    const {name, mastered, conceptsCount} = concept;
 
     return (
       <li style={{listStyleType: 'none', marginLeft: '10px', fontSize: 17}}>
-        <div style={{padding: '10px 0'}} ref="label">
+        <div style={{padding: '10px 0', opacity: mastered ? .4 : 1}}
+             ref="label">
           <button onClick={this.onClickButton.bind(this)}
                   className={classNames('mdl-button mdl-js-button ' +
                     'mdl-button--raised mdl-button--icon',
@@ -68,7 +69,7 @@ class ConceptListItem extends Component {
           </button>
           <Link to={createConceptURL(concept)} onClick={this.onSelect.bind(this)}
                 style={Object.assign({
-                        fontWeight: this.isSelected() ? 600: 'normal'
+                        fontWeight: this.isSelected() ? 600 : 'normal'
                       }, headStyle)}>
             {name}
           </Link>
@@ -125,6 +126,7 @@ export default Relay.createContainer(ConceptListItem, {
         path {
           name
         }
+        mastered
         conceptsCount
         ${ConceptList.getFragment('concept').if(variables.includeSublist)}
       }

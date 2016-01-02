@@ -44,8 +44,9 @@ class ExplanationCard extends React.Component {
             <div className="mdl-cell mdl-cell--11-col">
               {type == 'link' ?
                 <div className="explanation">
-                  <a href={content} className="embedly-card" data-card-controls="0"
-                     data-card-chrome="0">
+                  <a href={content} className="embedly-card"
+                     data-card-controls="0" data-card-chrome="0"
+                     style={{wordWrap: 'break-word'}}>
                     {content.length > 50 ? shortenURL(content) : content}
                   </a>
                 </div> :
@@ -79,8 +80,7 @@ class ExplanationCard extends React.Component {
 
   _onDelete() {
     if (!confirm('Do you really want to delete this explanation?')) return;
-    Relay.Store.update(
-      new DeleteExplanationMutation({id: this.props.explanation.id}),
+    Relay.Store.update(new DeleteExplanationMutation(),
       {
         onSuccess: t => {
           location.reload();

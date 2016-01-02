@@ -5,13 +5,12 @@ import _ from 'lodash';
 import clamp from 'clamp-js';
 
 import history from '../../history';
+import MasterConceptMutation from '../../mutations/concept/master';
 import DeleteConceptMutation from '../../mutations/concept/delete';
 import createConceptURL from '../../helpers/create-concept-url';
 import ConceptBreadcrumbs from './breadcrumbs';
-import ConceptSummary from './summary';
 import ConceptForm from './form';
-import ExplanationCard from '../explanation/card';
-import ExplanationForm from '../explanation/form';
+import ExplanationList from '../explanation/list';
 import CardAnimation from '../card-animation';
 import {Button} from '../mdl';
 
@@ -27,7 +26,7 @@ class Req extends Component {
 
   render() {
     const {concept, isLast} = this.props;
-    const {path, name, summary} = concept;
+    const {name, summary} = concept;
 
     const borderStyle = '1px solid rgba(0, 0, 0, 0.1)';
     return (
@@ -60,7 +59,7 @@ class ConceptInfo extends Component {
     if (this.props.relay.variables.includeForm) {
       return <ConceptForm {...{viewer, concept}}/>;
     }
-    const {id, name, summary, summarySource, reqs} = concept;
+    const {name, mastered, summary, summarySource, reqs} = concept;
     return (
       <div style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
         {concept.path.length < 2 ? '' : (
@@ -70,9 +69,18 @@ class ConceptInfo extends Component {
         )}
         <CardAnimation>
           <div key="concept" className="mdl-card card-auto-fit"
-               style={{overflow: 'visible'}}>
+               style={{overflow: 'visible',
+                       transition: 'background-color 300ms linear',
+                       backgroundColor: mastered ? 'rgb(246, 247, 255)' : 'white'}}>
             <div className="mdl-card__title" style={{paddingBottom: 0}}>
               <h2 className="mdl-card__title-text">{name}</h2>
+            </div>
+            <div className="mdl-card__menu">
+              <Button buttonType={['icon', mastered ? 'accent' : 'greyed']}
+                      title="I fully understand this concept"
+                      onClick={this._onMaster.bind(this)}>
+                <i className="material-icons">check</i>
+              </Button>
             </div>
             {!this.props.includeReqs || _.isEmpty(reqs) ? '' :
               <div style={{paddingTop: 5}}>
@@ -85,7 +93,14 @@ class ConceptInfo extends Component {
             }
             <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
               <div className="section-title">Summary</div>
-              <ConceptSummary concept={concept}/>
+              {summarySource ?
+                <div>
+                  <blockquote>{summary}</blockquote>
+                  <em>Source:</em>&nbsp;
+                  <a href={summarySource}>{summarySource}</a>
+                </div> :
+                <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
+              }
             </div>
             {user ? (
               <div className="mdl-card__actions mdl-card--border">
@@ -99,55 +114,35 @@ class ConceptInfo extends Component {
             ) : ''}
           </div>
         </CardAnimation>
-        {this.renderExplanations()}
+        <ExplanationList {...{user, concept}} />
       </div>
-    );
-  }
-
-  renderExplanations() {
-    let {viewer, concept} = this.props;
-    let {user} = viewer;
-    let delay = 0;
-    let explanations = _(concept.explanations.edges)
-      .map(({node: explanation}) => {
-        return <ExplanationCard key={explanation.id} {...{explanation, user}}
-                                style={{transitionDelay: `${delay += 100}ms`}}/>
-      })
-      .value();
-
-    if (viewer.user) explanations.push(
-      <div key="new" style={{transitionDelay: `${delay += 100}ms`}}>
-        <ExplanationForm {...{concept}}/>
-      </div>
-    );
-
-    if (_.isEmpty(explanations)) return;
-
-    return (
-      <CardAnimation delay={delay}>
-        <h4>Explanations</h4>{explanations}
-      </CardAnimation>
     );
   }
 
   onDelete() {
-    let {concept} = this.props;
+    const {concept} = this.props;
     if (!confirm(`Do you really want to delete "${concept.name}"?`)) return;
 
-    Relay.Store.update(
-      new DeleteConceptMutation({conceptId: concept.id}),
+    Relay.Store.update(new DeleteConceptMutation({concept}),
       {
-        onSuccess: t => {
+        onSuccess: (t) => {
           history.pushState(null, '/concepts');
           location.reload();
         },
-        onFailure: t => console.error(t.getError().source.errors)
+        onFailure: (t) => console.error(t.getError().source.errors)
       }
     );
   }
 
   onEdit() {
     this.props.relay.setVariables({includeForm: true});
+  }
+
+  _onMaster() {
+    const {concept} = this.props;
+    Relay.Store.update(
+      new MasterConceptMutation({concept, mastered: !concept.mastered})
+    );
   }
 
 }
@@ -163,7 +158,7 @@ export default Relay.createContainer(ConceptInfo, {
       fragment on Viewer {
         user {
           id
-          ${ExplanationCard.getFragment('user')}
+          ${ExplanationList.getFragment('user')}
         }
         ${ConceptForm.getFragment('viewer').if(variables.includeForm)}
       }
@@ -172,7 +167,9 @@ export default Relay.createContainer(ConceptInfo, {
       fragment on Concept {
         id
         name
-        ${ConceptSummary.getFragment('concept')}
+        mastered
+        summary
+        summarySource
         path {name}
         reqs {
           id
@@ -183,17 +180,10 @@ export default Relay.createContainer(ConceptInfo, {
           }
         },
         ${ConceptBreadcrumbs.getFragment('concept')}
-        ${ExplanationForm.getFragment('concept')}
-        explanations(first: 10) {
-          edges {
-            node {
-              id
-              votes
-              ${ExplanationCard.getFragment('explanation')}
-            }
-          }
-        }
         ${ConceptForm.getFragment('concept').if(variables.includeForm)}
+        ${ExplanationList.getFragment('concept')}
+        ${MasterConceptMutation.getFragment('concept')}
+        ${DeleteConceptMutation.getFragment('concept')}
       }
     `
   }

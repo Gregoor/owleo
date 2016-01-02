@@ -21,7 +21,7 @@ export default class VoteExplanationMutation extends Relay.Mutation {
   getVariables() {
     const {explanation, voteType} = this.props;
     return {
-      explanationId : explanation.id,
+      explanationID : explanation.id,
       voteType: this._getVoteTypeFor(voteType)
     };
   }

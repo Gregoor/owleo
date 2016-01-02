@@ -10,6 +10,7 @@ type Concept implements Node {
   concepts: [Concept]
   explanations(after: String, first: Int, before: String, last: Int): ExplanationConnection
   explanationsCount: Int
+  mastered: Boolean
 }
 
 input CreateConceptInput {
@@ -22,12 +23,12 @@ input CreateConceptInput {
 }
 
 type CreateConceptPayload {
-  conceptId: ID
+  conceptID: ID
   clientMutationId: String!
 }
 
 input CreateExplanationInput {
-  conceptId: ID!
+  conceptID: ID!
   type: String
   content: String
   clientMutationId: String!
@@ -39,7 +40,7 @@ type CreateExplanationPayload {
 }
 
 input DeleteConceptInput {
-  conceptId: ID!
+  conceptID: ID!
   clientMutationId: String!
 }
 
@@ -49,7 +50,7 @@ type DeleteConceptPayload {
 }
 
 input DeleteExplanationInput {
-  explanationId: ID!
+  explanationID: ID!
   clientMutationId: String!
 }
 
@@ -98,12 +99,23 @@ type LogoutPayload {
   clientMutationId: String!
 }
 
+input MasterConceptInput {
+  conceptID: ID!
+  clientMutationId: String!
+}
+
+type MasterConceptPayload {
+  concept: Concept
+  clientMutationId: String!
+}
+
 type Mutation {
   login(input: LoginInput!): LoginPayload
   logout(input: LogoutInput!): LogoutPayload
   createConcept(input: CreateConceptInput!): CreateConceptPayload
   updateConcept(input: UpdateConceptInput!): UpdateConceptPayload
   deleteConcept(input: DeleteConceptInput!): DeleteConceptPayload
+  masterConcept(input: MasterConceptInput!): MasterConceptPayload
   createExplanation(input: CreateExplanationInput!): CreateExplanationPayload
   deleteExplanation(input: DeleteExplanationInput!): DeleteExplanationPayload
   voteExplanation(input: VoteExplanationInput!): VoteExplanationPayload
@@ -155,7 +167,7 @@ type Viewer {
 }
 
 input VoteExplanationInput {
-  explanationId: ID!
+  explanationID: ID!
   voteType: voteType
   clientMutationId: String!
 }

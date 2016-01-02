@@ -3,12 +3,20 @@ import _ from 'lodash';
 
 export default class DeleteConceptMutation extends Relay.Mutation {
 
+  static fragments = {
+    concept: () => Relay.QL`
+      fragment on Concept {
+        id
+      }
+    `
+  };
+
   getMutation() {
     return Relay.QL`mutation{deleteConcept}`;
   }
 
   getVariables() {
-    return _.pick(this.props, 'conceptId');
+    return {conceptID: this.props.concept.id}
   }
 
   getFatQuery() {

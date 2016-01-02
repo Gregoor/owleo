@@ -93,9 +93,9 @@ class ConceptQuery {
     if (exclude) this.params.exclude = exclude;
   }
 
-  withFields(fields: {}, userId) {
+  withFields(fields: {}, userID) {
     let {
-      id, name, summary, summarySource, conceptsCount,
+      id, name, summary, summarySource, conceptsCount, mastered,
       container, concepts, reqs,  path, explanations, explanationsCount,
       followups
     } = fields;
@@ -111,6 +111,14 @@ class ConceptQuery {
       `OPTIONAL MATCH (${this._alias})<-[:CONTAINED_BY*]-(containees:Concept)`,
       ['conceptsCount', 'COUNT(DISTINCT containees)']
     );
+
+    if (mastered && userID) {
+      this._addToQuery(
+        `OPTIONAL MATCH (user:User {id: {userID}})-[:MASTERED]->(${this._alias})`,
+        ['mastered', 'COUNT(user)']
+      );
+      if (userID) this.params.userID = userID;
+    }
 
     if (concepts) {
       let prefixed = this._prefix('concepts');
@@ -179,7 +187,7 @@ class ConceptQuery {
             (COUNT(upvotes) - COUNT(downvotes)) AS votes, e, explainer
 
 
-          ${!userId ? '' : `
+          ${!userID ? '' : `
             OPTIONAL MATCH (user:User {id: {userId}})
             OPTIONAL MATCH (user)-[upvote:UPVOTED]->(e)
             OPTIONAL MATCH (user)-[downvote:DOWNVOTED]->(e)
@@ -193,12 +201,12 @@ class ConceptQuery {
           COLLECT(DISTINCT {
             id: e.id, type: e.type, content: e.content, paywalled: e.paywalled,
             votes: votes,
-            ${!userId ? '' : `hasUpvoted: hasUpvoted, hasDownvoted: hasDownvoted,`}
+            ${!userID ? '' : `hasUpvoted: hasUpvoted, hasDownvoted: hasDownvoted,`}
             createdAt: e.createdAt, author: {id: explainer.id, name: explainer.name}
           })
         `]
       );
-      if (userId) this.params.userId = userId;
+      if (userID) this.params.userId = userID;
     }
 
     if (explanationsCount) this._addToQuery(
@@ -274,7 +282,7 @@ export default {
 
   ERRORS,
 
-  find(params = {}, fields = {}) {
+  find(params = {}, fields = {}, userID) {
     if (_.isEmpty(params)) return Promise.resolve([]);
     let conceptQuery = new ConceptQuery();
 
@@ -284,7 +292,7 @@ export default {
 
     if (_.isString(params.container)) conceptQuery.isContained(params.container);
 
-    conceptQuery.withFields(fields, params.userId);
+    conceptQuery.withFields(fields, userID);
 
     let queryString = conceptQuery.getQueryString({limit: params.limit});
 
@@ -325,12 +333,12 @@ export default {
   },
 
   update(id, data, user) {
-    let params = _.extend(asParams(data), {id});
-    let {container} = params;
+    const params = _.extend(asParams(data), {id});
+    const {container} = params;
 
     return query(
     `
-      MATCH (c:Concept) WHERE c.id = {id}
+      MATCH (c:Concept {id: {id}})
 
       OPTIONAL MATCH (c)-[containerRel:CONTAINED_BY]
         ->(oldContainer:Concept)
@@ -349,11 +357,27 @@ export default {
     ).then(() => id);
   },
 
+  master(id, userID, mastered) {
+    return query(
+      `
+        MATCH (c:Concept {id: {id}})
+        MATCH (u:User {id: {userID}})
+      ` +
+        (mastered ?
+          'MERGE (u)-[:MASTERED]->(c)' :
+          `
+            MATCH (u)-[r:MASTERED]->(c)
+            DELETE r
+          `
+        ),
+      {id, userID}
+    );
+  },
+
   delete(id) {
     return query(
       `
-				MATCH (c:Concept)
-				WHERE c.id = {id}
+				MATCH (c:Concept {id: {id}})
 				OPTIONAL MATCH c-[r]-()
 				DELETE c, r
 			`,

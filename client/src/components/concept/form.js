@@ -28,7 +28,7 @@ class ConceptForm extends Component {
       buttonLabel = 'Save';
     } else {
       headline = 'Create new concept';
-      buttonLabel = 'Create;'
+      buttonLabel = 'Create';
     }
 
 
@@ -90,8 +90,9 @@ class ConceptForm extends Component {
       isNew ? new CreateConceptMutation(input) : new UpdateConceptMutation(input),
       {
         onSuccess: t => {
+          debugger;
           window.location = '/concepts?id=' +
-            atob(isNew ? t.createConcept.conceptId : concept.id).split(':')[1];
+            atob(isNew ? t.createConcept.conceptID : concept.id).split(':')[1];
         },
         onFailure: t => console.error(t.getError().source.errors)
       }

@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
 
+import MasterConceptMutation from '../../mutations/concept/master';
 import ConceptFlow from './flow';
 import ConceptInfo from './info';
 import CardAnimation from '../card-animation';
@@ -12,8 +13,10 @@ class ConceptLearnPage extends Component {
   state = {};
 
   componentWillMount() {
-    const [selectedConcept] = this.props.viewer.learnPath;
-    this.setState({selectedConcept});
+    const {learnPath} = this.props.viewer;
+    let i = 0;
+    while (i + 1 < learnPath.length && learnPath[i].mastered) i += 1;
+    this.setState({selectedConcept: learnPath[i]});
   }
 
   render() {
@@ -73,6 +76,9 @@ class ConceptLearnPage extends Component {
     const {learnPath} = this.props.viewer;
     const {selectedConcept} = this.state;
     const index = _.findIndex(learnPath, ({id}) => id == selectedConcept.id);
+    Relay.Store.update(
+      new MasterConceptMutation({concept: learnPath[index], mastered: true})
+    );
 
     if (index + 1 < learnPath.length) {
       this.setState({selectedConcept: learnPath[index + 1]});
@@ -91,9 +97,11 @@ export default Relay.createContainer(ConceptLearnPage, {
         learnPath(targetId: $targetId) {
           id
           name
+          mastered
           path { name }
           ${ConceptInfo.getFragment('concept')}
           ${ConceptFlow.getFragment('concepts')}
+          ${MasterConceptMutation.getFragment('concept')}
         }
         ${ConceptInfo.getFragment('viewer')}
       }

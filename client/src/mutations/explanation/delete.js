@@ -3,12 +3,20 @@ import _ from 'lodash';
 
 export default class DeleteExplanationMutation extends Relay.Mutation {
 
+  static fragments = {
+    explanation: () => Relay.QL`
+      fragment on Explanation {
+        id
+      }
+    `
+  };
+
   getMutation() {
     return Relay.QL`mutation{deleteExplanation}`;
   }
 
   getVariables() {
-    return {explanationId: this.props.id}
+    return {explanationID: this.props.explanation.id}
   }
 
   getFatQuery() {

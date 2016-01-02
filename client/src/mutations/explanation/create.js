@@ -16,7 +16,7 @@ export default class CreateExplanationMutation extends Relay.Mutation {
   }
 
   getVariables() {
-    return Object.assign({conceptId: this.props.concept.id},
+    return Object.assign({conceptID: this.props.concept.id},
       _.pick(this.props, 'type', 'content'));
   }
 

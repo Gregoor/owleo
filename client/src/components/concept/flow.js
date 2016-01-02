@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Relay from 'react-relay';
 import cola from 'webcola';
 import d3 from 'd3';
+import _ from 'lodash';
 
 import {Spinner} from '../mdl';
 
@@ -44,6 +45,8 @@ class ConceptFlow extends Component {
 
     const {concepts} = this.props;
 
+    this.conceptsMap = new Map(concepts.map(c => [c.id, c]));
+
     const idMap = new Map();
 
     const nodes = [];
@@ -74,7 +77,7 @@ class ConceptFlow extends Component {
       .jaccardLinkLengths(distance);
 
     const idsToEls = this.idsToEls = new Map(concepts.map(({id}) => [id, {
-      rect: null, links: []
+      rect: null, label: null, links: []
     }]));
 
     const link = this.vis.selectAll('.link')
@@ -82,7 +85,7 @@ class ConceptFlow extends Component {
       .enter().append('path')
       .attr('class', d => `link ${d.isContainer? 'is-container' : ''}`)
       .each(function({sourceID, targetID}) {
-        idsToEls.get(sourceID).links.push(this);
+        //idsToEls.get(sourceID).links.push(this);
         idsToEls.get(targetID).links.push(this);
       });
 
@@ -102,6 +105,7 @@ class ConceptFlow extends Component {
       .text(d => d.name)
       .on('click', d => self.props.onSelect(d.realID))
       .each(function(d) {
+        idsToEls.get(d.realID).label = this;
         const {width, height} = this.getBBox();
         const extra = 2 * margin + 2 * pad;
         d.width = width + extra;
@@ -134,12 +138,17 @@ class ConceptFlow extends Component {
 
       self.hasRendered = true;
       self._focus(self.props.selectedConcept);
+      self._redraw();
       self.setState({isLoading: false});
     });
   }
 
-  componentWillReceiveProps(props) {
-    if (this.hasRendered) this._focus(props.selectedConcept);
+  componentWillReceiveProps({concepts, selectedConcept}) {
+    this.conceptsMap = new Map(concepts.map(c => [c.id, c]));
+    if (this.hasRendered) {
+      this._focus(selectedConcept);
+      this._redraw();
+    }
   }
 
   render() {
@@ -171,6 +180,13 @@ class ConceptFlow extends Component {
     this.vis.style('transform', `translate(${x}px, ${y}px)`);
   }
 
+  _redraw() {
+    for (const [id, {rect, label, links}] of this.idsToEls.entries()) {
+      d3.selectAll([rect, label, ...links])
+        .style('opacity', this.conceptsMap.get(id).mastered ? .5 : 1)
+    }
+  }
+
 }
 
 export default Relay.createContainer(ConceptFlow, {
@@ -180,6 +196,7 @@ export default Relay.createContainer(ConceptFlow, {
       fragment on Concept @relay(plural: true) {
         id
         name
+        mastered
         reqs { id }
         container { id }
       }

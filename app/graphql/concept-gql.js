@@ -60,7 +60,7 @@ let ConceptType = new GraphQLObjectType({
         if (root.concepts) return root.concepts;
         args.container = '';
         if (root[0] && root[0].id) args.container = root[0].id;
-        return Concept.find(args, getFieldList(context));
+        return Concept.find(args, getFieldList(context), context.rootValue.user.id);
       }
     },
     explanations: {
@@ -73,7 +73,8 @@ let ConceptType = new GraphQLObjectType({
         );
       }
     },
-    explanationsCount: {type: GraphQLInt}
+    explanationsCount: {type: GraphQLInt},
+    mastered: {type: GraphQLBoolean, resolve: ({mastered}) => Boolean(mastered)}
   }),
   interfaces: [NodeGQL.interface]
 });
@@ -94,7 +95,7 @@ export default {
         container: {type: GraphQLID},
         reqs: {type: new GraphQLList(GraphQLID)}
       },
-      outputFields: {conceptId: {type: GraphQLID}},
+      outputFields: {conceptID: {type: GraphQLID}},
       mutateAndGetPayload: (input, root) => {
         assertUser(root);
         if (input.container) {
@@ -104,7 +105,7 @@ export default {
           input.reqs = input.reqs.map(req => fromGlobalId(req).id);
         }
         return Concept.create(input).then(id => {
-          return {conceptId: toGlobalId('Concept', id)}
+          return {conceptID: toGlobalId('Concept', id)}
         });
       }
     }),
@@ -133,45 +134,65 @@ export default {
     }),
     deleteConcept: mutationWithClientMutationId({
       name: 'DeleteConcept',
-      inputFields: {conceptId: {type: new GraphQLNonNull(GraphQLID)}},
+      inputFields: {conceptID: {type: new GraphQLNonNull(GraphQLID)}},
       outputFields: {success: {type: GraphQLBoolean}},
       mutateAndGetPayload(input, root) {
         assertUser(root);
-        return Concept.delete(fromGlobalId(input.conceptId).id).then(() => {
+        return Concept.delete(fromGlobalId(input.conceptID).id).then(() => {
           return {success: true};
         });
+      }
+    }),
+    masterConcept: mutationWithClientMutationId({
+      name: 'MasterConcept',
+      inputFields: {
+        conceptID: {type: new GraphQLNonNull(GraphQLID)},
+        mastered: {type: new GraphQLNonNull(GraphQLBoolean)}
+      },
+      outputFields: {
+        concept: {type: ConceptType}
+      },
+      mutateAndGetPayload(input, root) {
+        const {conceptID, mastered} = input;
+        const {id} = fromGlobalId(conceptID);
+        const userID = root.rootValue.user.id;
+        assertUser(root);
+        return Concept.master(id, userID, mastered)
+          .then(() => Concept.find({id}, getFieldList(root).concept, userID))
+          .then(([concept]) => ({concept}));
+
       }
     }),
     createExplanation: mutationWithClientMutationId({
       name: 'CreateExplanation',
       inputFields: {
-        conceptId: {type: new GraphQLNonNull(GraphQLID)},
+        conceptID: {type: new GraphQLNonNull(GraphQLID)},
         type: {type: GraphQLString},
         content: {type: GraphQLString}
       },
       outputFields: {success: {type: GraphQLBoolean}},
       mutateAndGetPayload(input, root) {
         assertUser(root);
-        input.conceptId = fromGlobalId(input.conceptId).id;
+        input.conceptID = fromGlobalId(input.conceptID).id;
         return Explanation.create(input).then(() => ({success: true}));
       }
     }),
     deleteExplanation: mutationWithClientMutationId({
       name: 'DeleteExplanation',
       inputFields: {
-        explanationId: {type: new GraphQLNonNull(GraphQLID)}
+        explanationID: {type: new GraphQLNonNull(GraphQLID)}
       },
       outputFields: {success: {type: GraphQLBoolean}},
       mutateAndGetPayload(input, root) {
         assertUser(root);
-        return Explanation.delete(fromGlobalId(input.explanationId).id)
+        return Explanation.delete(fromGlobalId(input.explanationID).id)
           .then(() => ({success: true}));
       }
     }),
     voteExplanation: mutationWithClientMutationId({
       name: 'VoteExplanation',
       inputFields: {
-        explanationId: {type: new GraphQLNonNull(GraphQLID)},
+        explanationID: {type: new GraphQLNonNull(GraphQLID)},
         voteType: {type: new GraphQLEnumType({
           name: 'voteType',
           values: {'UP':{}, 'DOWN':{}}
@@ -180,10 +201,10 @@ export default {
       outputFields: {
         explanation: {type: new GraphQLNonNull(ExplanationType)}
       },
-      mutateAndGetPayload({explanationId, voteType}, root) {
+      mutateAndGetPayload({explanationID, voteType}, root) {
         assertUser(root);
-        const userId = root.rootValue.user.id;
-        return Explanation.vote(fromGlobalId(explanationId).id, voteType, userId)
+        const userID = root.rootValue.user.id;
+        return Explanation.vote(fromGlobalId(explanationID).id, voteType, userID)
           .then((explanation) => ({explanation}))
       }
     })

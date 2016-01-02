@@ -16,7 +16,7 @@ export default class CreateConceptMutation extends Relay.Mutation {
   getFatQuery() {
     return Relay.QL`
       fragment on CreateConceptPayload {
-        conceptId
+        conceptID
       }
     `;
   }
@@ -26,7 +26,7 @@ export default class CreateConceptMutation extends Relay.Mutation {
       type: 'REQUIRED_CHILDREN',
       children: [Relay.QL`
         fragment on CreateConceptPayload {
-          conceptId
+          conceptID
         }
       `]
     }];
