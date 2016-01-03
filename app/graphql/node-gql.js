@@ -6,8 +6,11 @@ import Concept from '../db/concept';
 let {nodeInterface, nodeField} = nodeDefinitions(
   (globalId, context) => {
     let {type, id} = fromGlobalId(globalId);
+
     return type == 'Concept' ?
-      Concept.find({id}, getFieldList(context)).then(([c]) => c) : null;
+      Concept.find({id}, getFieldList(context), context.rootValue.user.id)
+        .then(([c]) => c) :
+      null;
   },
   (obj) => {
     return require('./concept-gql').type;

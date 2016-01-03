@@ -100,6 +100,8 @@ class ConceptQuery {
       followups
     } = fields;
 
+    if (userID) this.params.userID = userID;
+
     this._addToQuery('',
       ..._(['name', 'summary', 'summarySource'])
         .filter(f => fields[f])
@@ -117,7 +119,6 @@ class ConceptQuery {
         `OPTIONAL MATCH (user:User {id: {userID}})-[:MASTERED]->(${this._alias})`,
         ['mastered', 'COUNT(user)']
       );
-      if (userID) this.params.userID = userID;
     }
 
     if (concepts) {
@@ -126,7 +127,7 @@ class ConceptQuery {
         `
         OPTIONAL MATCH (${prefixed}:Concept)-[:CONTAINED_BY]->(${this._alias})
         ${new ConceptQuery(prefixed, this._getAllFields())
-          .withFields(concepts).getQueryString({multiple: true})}
+          .withFields(concepts, userID).getQueryString({multiple: true})}
       `,
         ['concepts', prefixed]
       );
@@ -138,7 +139,7 @@ class ConceptQuery {
         `
         OPTIONAL MATCH (${this._alias})-[:CONTAINED_BY]->(${prefixed}:Concept)
         ${new ConceptQuery(prefixed, this._getAllFields())
-          .withFields(container).getQueryString()}
+          .withFields(container, userID).getQueryString()}
       `,
         ['container', prefixed]
       );
@@ -150,7 +151,7 @@ class ConceptQuery {
         `
         OPTIONAL MATCH (${this._alias})-[:REQUIRES]->(${prefixed}:Concept)
         ${new ConceptQuery(prefixed, this._getAllFields())
-          .withFields(reqs).getQueryString({multiple: true})}
+          .withFields(reqs, userID).getQueryString({multiple: true})}
       `,
         ['reqs', prefixed]
       );
@@ -162,7 +163,7 @@ class ConceptQuery {
         `
         OPTIONAL MATCH (${prefixed}:Concept)-[:CONTAINED_BY|:REQUIRES]->(${this._alias})
         ${new ConceptQuery(prefixed, this._getAllFields())
-          .withFields(followups).getQueryString({multiple: true})}
+          .withFields(followups, userID).getQueryString({multiple: true})}
         `,
         ['followups', prefixed]
       );
@@ -188,7 +189,7 @@ class ConceptQuery {
 
 
           ${!userID ? '' : `
-            OPTIONAL MATCH (user:User {id: {userId}})
+            OPTIONAL MATCH (user:User {id: {userID}})
             OPTIONAL MATCH (user)-[upvote:UPVOTED]->(e)
             OPTIONAL MATCH (user)-[downvote:DOWNVOTED]->(e)
 
@@ -206,7 +207,6 @@ class ConceptQuery {
           })
         `]
       );
-      if (userID) this.params.userId = userID;
     }
 
     if (explanationsCount) this._addToQuery(
@@ -227,7 +227,6 @@ class ConceptQuery {
     let queryString = this._queryParts.join('\n');
 
     if (_.isEmpty(parentFields)) {
-
       return `${queryString}
         WITH ${asAliases(fields)}
         RETURN DISTINCT ${alias}.id AS id,
