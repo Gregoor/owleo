@@ -1,6 +1,7 @@
 import React from 'react';
 import Relay from 'react-relay';
 import classnames from 'classnames';
+import '../../../lib/embedly';
 
 import shortenURL from '../../helpers/shorten-url';
 import VoteExplanationMutation from '../../mutations/explanation/vote';
