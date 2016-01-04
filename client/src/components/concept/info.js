@@ -1,53 +1,18 @@
-import React, {Component} from 'react';
-import {Link} from 'react-router';
+import React from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
-import clamp from 'clamp-js';
 
 import history from '../../history';
-import MasterConceptMutation from '../../mutations/concept/master';
 import DeleteConceptMutation from '../../mutations/concept/delete';
-import createConceptURL from '../../helpers/create-concept-url';
+import Req from './req';
 import ConceptBreadcrumbs from './breadcrumbs';
+import MasterConceptButton from './master-button';
 import ConceptForm from './form';
 import ExplanationList from '../explanation/list';
 import CardAnimation from '../card-animation';
 import {Button} from '../mdl';
 
-class Req extends Component {
-
-  componentDidMount() {
-    this.clampSummary();
-  }
-
-  componentDidUpdate() {
-    this.clampSummary();
-  }
-
-  render() {
-    const {concept, isLast} = this.props;
-    const {name, summary} = concept;
-
-    const borderStyle = '1px solid rgba(0, 0, 0, 0.1)';
-    return (
-      <div className="mdl-card__supporting-text"
-           style={{borderTop: borderStyle,
-                   borderBottom: isLast ? borderStyle : 'none'}}>
-        <h3 style={{fontSize: 22, margin: 0}}>
-          <Link to={createConceptURL(concept)}>{name}</Link>
-        </h3>
-        <div ref="summary" style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
-      </div>
-    );
-  }
-
-  clampSummary() {
-    clamp(this.refs.summary, {clamp: 2});
-  }
-
-}
-
-class ConceptInfo extends Component {
+class ConceptInfo extends React.Component {
 
   componentDidMount() {
     document.title = this.props.concept.name;
@@ -76,11 +41,7 @@ class ConceptInfo extends Component {
               <h2 className="mdl-card__title-text">{name}</h2>
             </div>
             <div className="mdl-card__menu">
-              <Button buttonType={['icon', mastered ? 'accent' : 'greyed']}
-                      title="I fully understand this concept"
-                      onClick={this._onMaster.bind(this)}>
-                <i className="material-icons">check</i>
-              </Button>
+              <MasterConceptButton concept={concept}/>
             </div>
             {!this.props.includeReqs || _.isEmpty(reqs) ? '' :
               <div style={{paddingTop: 5}}>
@@ -138,13 +99,6 @@ class ConceptInfo extends Component {
     this.props.relay.setVariables({includeForm: true});
   }
 
-  _onMaster() {
-    const {concept} = this.props;
-    Relay.Store.update(
-      new MasterConceptMutation({concept, mastered: !concept.mastered})
-    );
-  }
-
 }
 
 ConceptInfo.defaultProps = {includeReqs: true};
@@ -173,16 +127,12 @@ export default Relay.createContainer(ConceptInfo, {
         path {name}
         reqs {
           id
-          name
-          summary
-          path {
-            name
-          }
+          ${Req.getFragment('concept')}
         },
         ${ConceptBreadcrumbs.getFragment('concept')}
         ${ConceptForm.getFragment('concept').if(variables.includeForm)}
+        ${MasterConceptButton.getFragment('concept')}
         ${ExplanationList.getFragment('concept')}
-        ${MasterConceptMutation.getFragment('concept')}
         ${DeleteConceptMutation.getFragment('concept')}
       }
     `
