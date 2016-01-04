@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Relay from 'react-relay';
 
 import CardAnimation from '../card-animation';
 import ExplanationCard from '../explanation/card';
 import ExplanationForm from '../explanation/form';
 
-class ExplanationList extends Component {
+class ExplanationList extends React.Component {
 
   render() {
     const {user, concept} = this.props;

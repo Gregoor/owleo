@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
@@ -17,7 +17,7 @@ import CardAnimation from '../card-animation';
 
 import './icon-switch.scss';
 
-class ConceptPage extends Component {
+class ConceptPage extends React.Component {
 
   state = {concept: null, query: '', navType: localStorage.navType};
 
@@ -52,7 +52,7 @@ class ConceptPage extends Component {
     let showMap = navType == 'map';
     if (query) {
       list = <SearchResults {...{viewer, query}} selectedId={selectedConcept.id}
-                            onSelect={this._onSearchSelect.bind(this)}/>;
+                            onSelect={this._handleSearchSelect.bind(this)}/>;
     } else if (showMap && this.props.relay.variables.includeMap) {
       list = <ConceptMap concept={conceptRoot}
                          selectedId={hasSelection ? selectedConcept.id : null}/>;
@@ -91,8 +91,8 @@ class ConceptPage extends Component {
                         padding: 0, borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
             <div className="mdl-cell mdl-cell--10-col">
               <TextField label="Search for concepts" ref="search"
-                         onChange={this._onSearchChange.bind(this)}
-                         onKeyUp={this._onSearchKeyUp.bind(this)}
+                         onChange={this._handleSearchChange.bind(this)}
+                         onKeyUp={this._handleSearchKeyUp.bind(this)}
                          outerStyle={{margin: '-20px 0', width: '100%'}}/>
             </div>
             <div className="mdl-cell mdl-cell--2-col">
@@ -101,7 +101,7 @@ class ConceptPage extends Component {
                                                 mdl-js-ripple-effect"
                      style={{width: 'auto', marginRight: '15px'}}>
                 <input type="checkbox" className="mdl-switch__input"
-                       onChange={this._onChangeNav.bind(this)}
+                       onChange={this._handleChangeNav.bind(this)}
                        defaultChecked={showMap}/>
                 <i className={`material-icons on ${showMap ? 'hide' : ''}`}
                    key="list">
@@ -142,11 +142,11 @@ class ConceptPage extends Component {
     );
   }
 
-  _onSearchChange(event) {
+  _handleSearchChange(event) {
     this.setState({query: event.target.value});
   }
 
-  _onSearchKeyUp(event) {
+  _handleSearchKeyUp(event) {
     switch (event.keyCode) {
       case 27/*ESC*/:
         this.setState({query: this.refs.search.setValue('')});
@@ -155,14 +155,14 @@ class ConceptPage extends Component {
     }
   }
 
-  _onSearchSelect() {
+  _handleSearchSelect() {
     this.setState({query: null});
     this.refs.search.value = null;
   }
 
-  _onChangeNav(event) {
-    let switchTo = event.target.checked ? 'map' : 'list';
-    let listMode = switchTo == 'list';
+  _handleChangeNav(event) {
+    const switchTo = event.target.checked ? 'map' : 'list';
+    const listMode = switchTo == 'list';
 
     this.props.relay.setVariables({includeList: listMode, includeMap: !listMode});
     localStorage.setItem('navType', switchTo);

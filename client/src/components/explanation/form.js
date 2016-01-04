@@ -1,10 +1,10 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Relay from 'react-relay';
 
 import CreateExplanationMutation from '../../mutations/explanation/create';
 import {TextField, TextArea, Button} from '../mdl';
 
-class ExplanationForm extends Component {
+class ExplanationForm extends React.Component {
 
   state = {type: 'text'};
 
@@ -12,21 +12,21 @@ class ExplanationForm extends Component {
     let isLink = this.state.type == 'link';
     return (
       <form key="new" className="mdl-card mdl-shadow--2dp card-auto-fit"
-            onSubmit={this._onSubmit.bind(this)}>
+            onSubmit={this._handleSubmit.bind(this)}>
         <div className="mdl-card__actions mdl-card--border">
           <div className="mdl-card__supporting-text">
             <label className="mdl-cell mdl-cell--6-col mdl-radio mdl-js-radio
                           mdl-js-ripple-effect">
               <input type="radio" className="mdl-radio__button"
                      name="type" value="text" defaultChecked
-                     onChange={this._onChangeType.bind(this)}/>
+                     onChange={this._handleChangeType.bind(this)}/>
               <span className="mdl-radio__label">Text</span>
             </label>
             <label className="mdl-cell mdl-cell--6-col mdl-radio mdl-js-radio
                           mdl-js-ripple-effect">
               <input type="radio" className="mdl-radio__button"
                      name="type" value="link"
-                     onChange={this._onChangeType.bind(this)}/>
+                     onChange={this._handleChangeType.bind(this)}/>
               <span className="mdl-radio__label">Link</span>
             </label>
             <TextArea ref="text" label="Explanation text"
@@ -45,12 +45,12 @@ class ExplanationForm extends Component {
     );
   }
 
-  _onChangeType(event) {
+  _handleChangeType(event) {
     let {value} = event.target;
     this.setState({type: value});
   }
 
-  _onSubmit(event) {
+  _handleSubmit(event) {
     event.preventDefault();
     let {type} = this.state;
     let {link, text} = this.refs;
@@ -60,7 +60,6 @@ class ExplanationForm extends Component {
       new CreateExplanationMutation({
         concept, type, content: (type == 'link' ? link : text).getValue()
       }),
-
       {
         onSuccess: t => {
           location.reload();

@@ -65,10 +65,10 @@ class ConceptInfo extends React.Component {
             </div>
             {user ? (
               <div className="mdl-card__actions mdl-card--border">
-                <Button onClick={this.onDelete.bind(this)}>
+                <Button onClick={this._handleDelete.bind(this)}>
                   Delete
                 </Button>
-                <Button onClick={this.onEdit.bind(this)}>
+                <Button onClick={this._handleEdit.bind(this)}>
                   Edit
                 </Button>
               </div>
@@ -80,7 +80,7 @@ class ConceptInfo extends React.Component {
     );
   }
 
-  onDelete() {
+  _handleDelete() {
     const {concept} = this.props;
     if (!confirm(`Do you really want to delete "${concept.name}"?`)) return;
 
@@ -95,7 +95,7 @@ class ConceptInfo extends React.Component {
     );
   }
 
-  onEdit() {
+  _handleEdit() {
     this.props.relay.setVariables({includeForm: true});
   }
 

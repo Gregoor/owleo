@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from 'react';
+import React, {PropTypes} from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
 
@@ -6,7 +6,7 @@ import ConceptListItem from './list-item';
 
 const NODE_STYLE = {borderLeft: '1px solid #e7e7e7', marginLeft: '-25px'};
 
-class ConceptList extends Component {
+class ConceptList extends React.Component {
 
   static propTypes = {
     concept: PropTypes.object.isRequired,

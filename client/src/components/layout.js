@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 import classnames from 'classnames';
 
 import LogoutMutation from '../mutations/user/logout';
 
-class Layout extends Component {
+class Layout extends React.Component {
 
   componentDidUpdate() {
     window.componentHandler.upgradeDom();
@@ -42,7 +42,7 @@ class Layout extends Component {
               {user ?
                 (
                   <a href="" className="mdl-navigation__link"
-                     onClick={this.onLogout.bind(this)}>
+                     onClick={this._handleLogout.bind(this)}>
                     Logout
                     (<span style={{textTransform: 'none'}}>{user.name}</span>)
                   </a>
@@ -64,7 +64,7 @@ class Layout extends Component {
     );
   }
 
-  onLogout(event) {
+  _handleLogout(event) {
     event.preventDefault();
     Relay.Store.update(new LogoutMutation(),
       {

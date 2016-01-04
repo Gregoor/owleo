@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Relay from 'react-relay';
 import { Lifecycle } from 'react-router'
 
@@ -8,19 +8,19 @@ import ConceptSelect from './select/select';
 import CreateConceptMutation from '../../mutations/concept/create';
 import UpdateConceptMutation from '../../mutations/concept/update';
 
-class ConceptForm extends Component {
+class ConceptForm extends React.Component {
 
   state = {summaryLength: 0};
 
   componentWillMount() {
-    let {concept} = this.props;
+    const {concept} = this.props;
 
     if (concept) this.setState({summaryLength: concept.summary.length});
   }
 
   render() {
-    let {viewer, concept} = this.props;
-    let {summaryLength} = this.state;
+    const {viewer, concept} = this.props;
+    const {summaryLength} = this.state;
 
     let headline, buttonLabel;
     if (concept) {
@@ -34,7 +34,7 @@ class ConceptForm extends Component {
 
     let {name, container, reqs, summary, summarySource} = concept || {};
     return (
-      <form onSubmit={this._onSubmit.bind(this)}>
+      <form onSubmit={this._handleSubmit.bind(this)}>
         <div className="mdl-card mdl-shadow--2dp card-auto-fit">
           <div className="mdl-card__title">
             <h2 className="mdl-card__title-text">{headline}</h2>
@@ -47,7 +47,7 @@ class ConceptForm extends Component {
                            multi={true} {...{viewer}} defaultValue={reqs}/>
             <TextArea ref="summary" id="summary" label="Summary"
                       defaultValue={summary}
-                      onChange={this._onSummaryChange.bind(this)}/>
+                      onChange={this._handleSummaryChange.bind(this)}/>
             <p style={summaryLength > 140 ? {color: 'red'} : {}}>
               {summaryLength} characters
             </p>
@@ -68,29 +68,28 @@ class ConceptForm extends Component {
     );
   }
 
-  _onSummaryChange(event) {
+  _handleSummaryChange(event) {
     this.setState({summaryLength: event.target.value.length});
   }
 
-  _onSubmit(event) {
+  _handleSubmit(event) {
     event.preventDefault();
-    let {name, container, reqs, summary, summarySource} = this.refs;
-    let selectedContainer = container.refs.component.getSelected();
-    let input = {
+    const {name, container, reqs, summary, summarySource} = this.refs;
+    const selectedContainer = container.refs.component.getSelected();
+    const input = {
       name: name.getValue(),
       summary: summary.getValue(), summarySrc: summarySource.getValue(),
       container: selectedContainer ? selectedContainer.id : null,
       reqs: reqs.refs.component.getSelected().map(c => c.id)
     };
 
-    let {concept} = this.props;
-    let isNew = !concept;
+    const {concept} = this.props;
+    const isNew = !concept;
     if (!isNew) input.id = concept.id;
     Relay.Store.update(
       isNew ? new CreateConceptMutation(input) : new UpdateConceptMutation(input),
       {
         onSuccess: t => {
-          debugger;
           window.location = '/concepts?id=' +
             atob(isNew ? t.createConcept.conceptID : concept.id).split(':')[1];
         },

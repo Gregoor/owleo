@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 import classNames from 'classnames';
@@ -23,19 +23,19 @@ const buttonStyle = {
   fontSize: '14px', fontWeight: '600'
 };
 
-class ConceptListItem extends Component {
+class ConceptListItem extends React.Component {
 
   state = {isLoading: false};
 
   componentWillMount() {
     const {expanded} = this.props;
-    if (expanded !== undefined) this.setExpanded(expanded);
+    if (expanded !== undefined) this._setExpanded(expanded);
   }
 
   componentWillReceiveProps(props) {
     const {expanded} = props;
     if (expanded !== undefined && this.props.expanded !== expanded) {
-      this.setExpanded(expanded);
+      this._setExpanded(expanded);
     }
   }
 
@@ -60,16 +60,17 @@ class ConceptListItem extends Component {
       <li style={{listStyleType: 'none', marginLeft: '10px', fontSize: 17}}>
         <div style={{padding: '10px 0'}}
              ref="label">
-          <button onClick={this.onClickButton.bind(this)}
+          <button onClick={this._handleButtonClick.bind(this)}
                   className={classNames('mdl-button mdl-js-button ' +
                     'mdl-button--raised mdl-button--icon',
-                    {'mdl-button--colored': this.isInSelection()})}
+                    {'mdl-button--colored': this._isInSelection()})}
                   style={buttonStyle}>
             {conceptsCount || ' '}
           </button>
-          <Link to={createConceptURL(concept)} onClick={this.onSelect.bind(this)}
+          <Link to={createConceptURL(concept)}
+                onClick={this._handleSelect.bind(this)}
                 style={Object.assign({
-                        fontWeight: this.isSelected() ? 600 : 'normal', opacity: mastered ? .4 : 1
+                        fontWeight: this._isSelected() ? 600 : 'normal', opacity: mastered ? .4 : 1
                       }, headStyle)}>
             {name}
           </Link>
@@ -79,26 +80,26 @@ class ConceptListItem extends Component {
     );
   }
 
-  isInSelection() {
+  _isInSelection() {
     const {selectedPath, concept, level} = this.props;
     return !_.isEmpty(selectedPath) && concept.id == selectedPath[level];
   }
 
-  isSelected() {
+  _isSelected() {
     const {selectedPath, level} = this.props;
-    return this.isInSelection() && level + 1 == selectedPath.length;
+    return this._isInSelection() && level + 1 == selectedPath.length;
   }
 
-  onClickButton() {
-    this.setExpanded(!this.props.relay.variables.includeSublist);
+  _handleButtonClick() {
+    this._setExpanded(!this.props.relay.variables.includeSublist);
   }
 
-  onSelect() {
+  _handleSelect() {
     this.props.onSelect(this.props.concept);
-    this.setExpanded(true);
+    this._setExpanded(true);
   }
 
-  setExpanded(state) {
+  _setExpanded(state) {
     if (this.props.concept.conceptsCount == 0) return;
     this.setState({isLoading: true});
     this.props.relay.setVariables({includeSublist: state}, readyState => {

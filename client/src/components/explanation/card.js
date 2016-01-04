@@ -59,7 +59,7 @@ class ExplanationCard extends React.Component {
         </div>
         {user ? (
           <div className="mdl-card__actions mdl-card--border">
-            <Button onClick={this._onDelete.bind(this)}>
+            <Button onClick={this._handleDelete.bind(this)}>
               Delete
             </Button>
           </div>
@@ -79,7 +79,7 @@ class ExplanationCard extends React.Component {
     );
   }
 
-  _onDelete() {
+  _handleDelete() {
     if (!confirm('Do you really want to delete this explanation?')) return;
     Relay.Store.update(new DeleteExplanationMutation(),
       {

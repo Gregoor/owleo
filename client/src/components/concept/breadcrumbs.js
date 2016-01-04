@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 
-class ConceptBreadcrumbs extends Component {
+class ConceptBreadcrumbs extends React.Component {
 
   render() {
-    let {name, path} = this.props.concept;
+    const {name, path} = this.props.concept;
     return (
       <span style={{margin: 0, fontSize: 17}}>
         {path.slice(1).reverse().map(concept => (

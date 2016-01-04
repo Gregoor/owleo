@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Relay from 'react-relay';
 import DocumentTitle from 'react-document-title';
 
@@ -8,7 +8,7 @@ import {Button, TextField} from './mdl';
 
 import './checkbox-fix.scss';
 
-class AuthPage extends Component {
+class AuthPage extends React.Component {
 
   state = {loginMode: true, authFailed: false};
 
@@ -17,7 +17,7 @@ class AuthPage extends Component {
   }
 
   render() {
-    let {loginMode, authFailed} = this.state;
+    const {loginMode, authFailed} = this.state;
 
     let errorText;
     if (authFailed) errorText = (
@@ -33,8 +33,8 @@ class AuthPage extends Component {
           <div className="mdl-card__title">
             <h2 className="mdl-card__title-text">Authentication</h2>
           </div>
-          <form onSubmit={this.onSubmit.bind(this)}
-                onChange={this.onChange.bind(this)}>
+          <form onSubmit={this._handleSubmit.bind(this)}
+                onChange={this._handleChange.bind(this)}>
             <div className="mdl-card__supporting-text">
               {errorText}
               <TextField ref="name" label="Username"/>
@@ -43,7 +43,7 @@ class AuthPage extends Component {
                      htmlFor="is-new">
                 <input type="checkbox" id="is-new" disabled
                        className="mdl-checkbox__input"
-                       onChange={this.onChangeNew.bind(this)}/>
+                       onChange={this._handleChangeNew.bind(this)}/>
                 <span className="mdl-checkbox__label">I'm a new user</span>
               </label>
             </div>
@@ -58,17 +58,17 @@ class AuthPage extends Component {
     );
   }
 
-  onChange() {
+  _handleChange() {
     this.setState({authFailed: false});
   }
 
-  onChangeNew(event) {
+  _handleChangeNew(event) {
     this.setState({loginMode: !event.target.checked});
   }
 
-  onSubmit(event) {
+  _handleSubmit(event) {
     event.preventDefault();
-    let {name, password} = this.refs;
+    const {name, password} = this.refs;
     Relay.Store.update(
       new LoginMutation({
         name: name.getValue(), password: password.getValue()

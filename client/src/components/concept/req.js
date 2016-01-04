@@ -9,11 +9,11 @@ import MasterConceptButton from './master-button';
 class Req extends React.Component {
 
   componentDidMount() {
-    this.clampSummary();
+    this._clampSummary();
   }
 
   componentDidUpdate() {
-    this.clampSummary();
+    this._clampSummary();
   }
 
   render() {
@@ -39,7 +39,7 @@ class Req extends React.Component {
     );
   }
 
-  clampSummary() {
+  _clampSummary() {
     if (!this.props.concept.mastered) clamp(this.refs.summary, {clamp: 2});
   }
 

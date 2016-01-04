@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 import clamp from 'clamp-js'
@@ -6,14 +6,14 @@ import clamp from 'clamp-js'
 import createConceptURL from '../../helpers/create-concept-url';
 import {Spinner} from '../mdl';
 
-class ConceptResult extends Component {
+class ConceptResult extends React.Component {
 
   componentDidMount() {
-    this.clampSummary();
+    this._clampSummary();
   }
 
   componentDidUpdate() {
-    this.clampSummary();
+    this._clampSummary();
   }
 
   render() {
@@ -42,13 +42,13 @@ class ConceptResult extends Component {
     );
   }
 
-  clampSummary() {
+  _clampSummary() {
     clamp(this.refs.summary, {clamp: 2});
   }
 
 }
 
-class SearchResults extends Component {
+class SearchResults extends React.Component {
 
   state = {isTooShort: true, isLoading: false};
 
@@ -68,14 +68,14 @@ class SearchResults extends Component {
     return (
       <div>
         {this.state.isTooShort ?
-          this.renderMessage('A search query must be at least 3 characters') :
-          this.renderList()
+          this._renderMessage('A search query must be at least 3 characters') :
+          this._renderList()
         }
       </div>
     );
   }
 
-  renderMessage(message) {
+  _renderMessage(message) {
     return (
       <div style={{padding: '5px', paddingLeft: '10px'}}>
         <em>{message}</em>
@@ -83,14 +83,14 @@ class SearchResults extends Component {
     );
   }
 
-  renderList() {
+  _renderList() {
     const {viewer, onSelect} = this.props;
     const {concepts} = viewer;
 
     if (this.state.isLoading) return <Spinner/>;
 
     if (!concepts || concepts.length == 0) {
-      return this.renderMessage(
+      return this._renderMessage(
         `No concepts with '${this.props.query}' in the title found`
       );
     }

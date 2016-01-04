@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Relay from 'react-relay';
 import {Spring} from 'react-motion';
 
@@ -8,7 +8,7 @@ import './select.scss';
 
 const ITEM_HEIGHT = 50;
 
-class ConceptSelect extends Component {
+class ConceptSelect extends React.Component {
 
   state = {
     focused: 0, listWidth: 0, listHeight: 0,
@@ -34,7 +34,7 @@ class ConceptSelect extends Component {
   }
 
   componentDidUpdate() {
-    let {width, height} = this.refs.list.getBoundingClientRect();
+    const {width, height} = this.refs.list.getBoundingClientRect();
     if (this.state.listWidth != width || this.state.listHeight != height) {
       this.setState({listWidth: width, listHeight: height});
     }
@@ -47,34 +47,29 @@ class ConceptSelect extends Component {
   }
 
   render() {
-    let {id, label, multi, viewer} = this.props;
-    let {concepts} = viewer;
-    let {query} = this.props.relay.variables;
-    let {focused, listWidth, listHeight, itemsVisible, showList} = this.state;
+    const {id, label, multi, viewer} = this.props;
+    const {concepts} = viewer;
+    const {query} = this.props.relay.variables;
+    const {focused, listWidth, listHeight, itemsVisible, showList} = this.state;
 
-    let selectedItems = multi ? this.selected.map((concept, i) => (
+    const selectedItems = multi ? this.selected.map((concept, i) => (
       <div key={concept.id} className="chip">
         {concept.name}
-        <i className="material-icons" onClick={this._onUnselect.bind(this, i)}>
+        <i className="material-icons" onClick={this._handleUnselect.bind(this, i)}>
           close
         </i>
       </div>
     )) : '';
 
-    let items;
-    if (concepts.length) {
-      items = concepts.map((concept, i) => (
-        <li key={concept.id} className={focused == i ? 'is-focused' : ''}
-            style={{opacity: itemsVisible ? 1 : 0, transitionDelay:
+    const items = concepts.length ? concepts.map((concept, i) => (
+      <li key={concept.id} className={focused == i ? 'is-focused' : ''}
+          style={{opacity: itemsVisible ? 1 : 0, transitionDelay:
                           `${i / ITEM_HEIGHT * concepts.length * .01}s`}}
-            onMouseMove={this._onMouseMove.bind(this, i)}
-            onClick={this._onSelect.bind(this, concept)}>
-          {concept.name}
-        </li>
-      ));
-    } else {
-      items = <li><em>No concepts found</em></li>;
-    }
+          onMouseMove={this._handleMouseMove.bind(this, i)}
+          onClick={this._handleSelect.bind(this, concept)}>
+        {concept.name}
+      </li>
+    )) : <li><em>No concepts found</em></li>;
 
     let defaultValue;
     if (!multi && this.selected[0]) {
@@ -82,13 +77,14 @@ class ConceptSelect extends Component {
     }
 
     return (
-      <div onKeyDown={this._onKeyDown.bind(this)}
-           onBlur={this._onBlur.bind(this)} onFocus={this._onFocus.bind(this)}>
+      <div onKeyDown={this._handleKeyDown.bind(this)}
+           onBlur={this._handleBlur.bind(this)}
+           onFocus={this._handleFocus.bind(this)}>
         <div className="mdl-textfield mdl-js-textfield
                     mdl-textfield--floating-label">
           {selectedItems}
           <input className="mdl-textfield__input" type="text" ref="input"
-                 onChange={this._onChange.bind(this)} {...{id, defaultValue}}/>
+                 onChange={this._handleChange.bind(this)} {...{id, defaultValue}}/>
           <label className={`mdl-textfield__label
                           ${multi && selectedItems.length ? 'has-values' : ''}`}
                  htmlFor={id}>
@@ -112,8 +108,8 @@ class ConceptSelect extends Component {
     return this.props.multi ? this.selected : this.selected[0];
   }
 
-  _onChange(event) {
-    let {value: query} = event.target;
+  _handleChange(event) {
+    const {value: query} = event.target;
     if (query.length < 3) return;
     if (!this.props.multi) this.selected = [];
     if (!query) this.setState({itemsVisible: false});
@@ -121,9 +117,9 @@ class ConceptSelect extends Component {
     this.props.relay.setVariables({query});
   }
 
-  _onKeyDown(event) {
-    let {concepts} = this.props.viewer;
-    let {length} = concepts;
+  _handleKeyDown(event) {
+    const {concepts} = this.props.viewer;
+    const {length} = concepts;
     let {focused} = this.state;
     switch (event.keyCode) {
       case 38/*UP*/:
@@ -134,7 +130,7 @@ class ConceptSelect extends Component {
         focused = (focused + 1) % length;
         break;
       case 13/*ENTER*/:
-        this._onSelect(concepts[focused]);
+        this._handleSelect(concepts[focused]);
         event.preventDefault();
         return;
       case 27/*ESC*/:
@@ -147,21 +143,21 @@ class ConceptSelect extends Component {
     this.setState({focused});
   }
 
-  _onMouseMove(i) {
+  _handleMouseMove(i) {
     if (this.state.focused != i) {
       this.setState({focused: i});
     }
   }
 
-  _onFocus() {
+  _handleFocus() {
     this.setState({showList: true});
   }
 
-  _onBlur() {
+  _handleBlur() {
     setTimeout(() => this.setState({showList: false}), 100);
   }
 
-  _onSelect(concept) {
+  _handleSelect(concept) {
     this.selected.push(concept);
     if (this.props.multi) {
       this.props.relay.setVariables({exclude: this.selected.map(c => c.id)});
@@ -170,7 +166,7 @@ class ConceptSelect extends Component {
     this.setState({showList: false});
   }
 
-  _onUnselect(i) {
+  _handleUnselect(i) {
     this.selected.splice(i, 1);
     this.props.relay.setVariables({exclude: this.selected.map(c => c.id)});
   }

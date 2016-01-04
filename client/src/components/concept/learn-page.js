@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
 
@@ -8,7 +8,7 @@ import ConceptInfo from './info';
 import CardAnimation from '../card-animation';
 import {Button, Spinner} from '../mdl';
 
-class ConceptLearnPage extends Component {
+class ConceptLearnPage extends React.Component {
 
   state = {};
 
@@ -46,7 +46,7 @@ class ConceptLearnPage extends Component {
             </span>
           </div>
           <ConceptFlow concepts={learnPath} {...{selectedConcept}}
-                       onSelect={this._onSelect.bind(this)} />
+                       onSelect={this._handleSelect.bind(this)} />
         </div>
 
         <div className="card-container concept-scroller">
@@ -58,7 +58,8 @@ class ConceptLearnPage extends Component {
 
         <span style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
               title="Got it, show me the next concept!">
-          <Button buttonType="fab colored" onClick={this._onSelectNext.bind(this)}>
+          <Button buttonType="fab colored"
+                  onClick={this._handleSelectNext.bind(this)}>
             <i className="material-icons">check</i>
           </Button>
         </span>
@@ -67,12 +68,12 @@ class ConceptLearnPage extends Component {
     );
   }
 
-  _onSelect(conceptId) {
+  _handleSelect(conceptId) {
     this.setState({selectedConcept:
       _.find(this.props.viewer.learnPath, ({id}) => id == conceptId)})
   }
 
-  _onSelectNext() {
+  _handleSelectNext() {
     const {learnPath} = this.props.viewer;
     const {selectedConcept} = this.state;
     const index = _.findIndex(learnPath, ({id}) => id == selectedConcept.id);

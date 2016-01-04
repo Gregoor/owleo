@@ -1,15 +1,15 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {Link} from 'react-router';
 import classnames from 'classnames';
 
-class TextField extends Component {
+class TextField extends React.Component {
 
   componentDidMount() {
     window.componentHandler.upgradeDom();
   }
 
   render() {
-    let {id, label, type = 'text', outerStyle} = this.props;
+    const {id, label, type = 'text', outerStyle} = this.props;
     return (
       <div className="mdl-textfield mdl-js-textfield
                       mdl-textfield--floating-label" style={outerStyle}>
@@ -30,10 +30,10 @@ class TextField extends Component {
 
 }
 
-class TextArea extends Component {
+class TextArea extends React.Component {
 
   render() {
-    let {id, label, outerStyle} = this.props;
+    const {id, label, outerStyle} = this.props;
     return (
       <div className="mdl-textfield mdl-js-textfield
                     mdl-textfield--floating-label"
@@ -53,14 +53,14 @@ class TextArea extends Component {
 
 const BUTTON_PREFIX = 'mdl-button--';
 const Button = (props) => {
-  let {disabled, buttonType, to} = props;
+  const {disabled, buttonType, to} = props;
 
   let buttonTypeClasses = [];
   if (buttonType) buttonTypeClasses =
     (_.isArray(buttonType) ? buttonType : buttonType.split(' '))
       .map(type => BUTTON_PREFIX + type);
 
-  let className = classnames('mdl-button mdl-js-button mdl-js-ripple-effect',
+  const className = classnames('mdl-button mdl-js-button mdl-js-ripple-effect',
     buttonTypeClasses
   );
 

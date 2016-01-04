@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Relay from 'react-relay';
 import cola from 'webcola';
 import d3 from 'd3';
@@ -8,7 +8,7 @@ import {Spinner} from '../mdl';
 
 import './flow.scss';
 
-class ConceptFlow extends Component {
+class ConceptFlow extends React.Component {
 
   state = {isLoading: true};
 
