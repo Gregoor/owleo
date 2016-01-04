@@ -96,7 +96,9 @@ class SearchResults extends React.Component {
     }
     return (
       <ul style={{listStyleType: 'none', margin: 0, padding: '0 5'}}>
-        {concepts.map((concept) => <ConceptResult {...{concept, onSelect}}/>)}
+        {concepts.map((concept) => {
+          return <ConceptResult key={concept.id} {...{concept, onSelect}}/>;
+        })}
       </ul>
     );
   }
@@ -113,6 +115,7 @@ export default Relay.createContainer(SearchResults, {
         concepts(query: $query) {
           id
           name
+          mastered
           path {
             id
             name
