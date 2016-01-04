@@ -60,7 +60,7 @@ let ViewerType = new GraphQLObjectType({
           args.exclude = args.exclude.map(id => fromGlobalId(id).id);
         }
         return args.query ?
-          Concept.find(args, getFieldList(context), root.rootValue.user.id) :
+          Concept.find(args, getFieldList(context), context.rootValue.user.id) :
           [];
       }
     },

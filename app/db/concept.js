@@ -3,18 +3,14 @@ import uuid from 'node-uuid';
 
 import {db, query} from './connection';
 
-const ERRORS = {
-  CONTAINER_LOOP: Symbol()
-};
-
-let asParams = concept => ({
+const asParams = (concept) => ({
   'attrs': _.pick(concept, 'name', 'summary', 'summarySource'),
   'container': concept.container || '',
   'reqs': concept.reqs || [],
   'explanations': concept.explanations || []
 });
 
-let subCreates = {
+const subCreates = {
   connectConcepts(reqs) {
     return _.isEmpty(reqs) ? '' : `
 			WITH c
@@ -32,22 +28,28 @@ let subCreates = {
   }
 };
 
-let asAliases = (fields) => fields.map(([, alias]) => alias).join(',');
+const recountConcepts = `
+  MATCH (c:Concept)
+  OPTIONAL MATCH (c)<-[:CONTAINED_BY*]-(containees:Concept)
+  WITH c, COUNT(DISTINCT containees) AS conceptsCount
+  SET c.conceptsCount = conceptsCount
+`;
+
+const asAliases = (fields) => fields.map(([, alias]) => alias).join(',');
 const FILTER_FIELDS = ['concepts', 'container', 'reqs', 'explanations'];
-let filterEmptyAndOrder = concepts => {
+const filterEmptyAndOrder = concepts => {
   for (let concept of concepts) {
-    for (let field of FILTER_FIELDS) {
-      let val = concept[field];
+    for (const field of FILTER_FIELDS) {
+      const val = concept[field];
       if (_.isArray(val)) {
-        if (!val[0].id) concept[field] = [];
-        else concept[field] = filterEmptyAndOrder(concept[field]);
+        concept[field] = val[0].id ? filterEmptyAndOrder(concept[field]) : [];
       } else if (_.isObject(val)) {
         if (!val.id) concept[field] = null;
         else filterEmptyAndOrder([concept[field]]);
       }
     }
   }
-  return _.sortBy(concepts, c => -c.conceptsCount);
+  return _.sortBy(concepts, (c) => -c.conceptsCount);
 };
 
 class ConceptQuery {
@@ -103,15 +105,10 @@ class ConceptQuery {
     if (userID) this.params.userID = userID;
 
     this._addToQuery('',
-      ..._(['name', 'summary', 'summarySource'])
+      ..._(['name', 'summary', 'summarySource', 'conceptsCount'])
         .filter(f => fields[f])
         .map(f => [f, `${this._alias}.${f}`])
         .value()
-    );
-
-    if (conceptsCount) this._addToQuery(
-      `OPTIONAL MATCH (${this._alias})<-[:CONTAINED_BY*]-(containees:Concept)`,
-      ['conceptsCount', 'COUNT(DISTINCT containees)']
     );
 
     if (mastered && userID) {
@@ -279,8 +276,6 @@ class ConceptQuery {
 
 export default {
 
-  ERRORS,
-
   find(params = {}, fields = {}, userID) {
     if (_.isEmpty(params)) return Promise.resolve([]);
     let conceptQuery = new ConceptQuery();
@@ -294,6 +289,7 @@ export default {
     conceptQuery.withFields(fields, userID);
 
     let queryString = conceptQuery.getQueryString({limit: params.limit});
+    //console.log('<<<', '\n', params, userID, '\n', queryString, '\n', '>>>', '\n');
 
     return query(queryString, conceptQuery.params).then(filterEmptyAndOrder);
   },
@@ -325,10 +321,9 @@ export default {
 				RETURN c.id AS id
 			`,
         params
-      ).then(([{id}]) => id);
-    });
-
-
+      );
+    })
+    .then(([{id}]) => query(recountConcepts).then(() => id));
   },
 
   update(id, data, user) {
@@ -353,7 +348,9 @@ export default {
       SET c += {attrs}
     `,
       params
-    ).then(() => id);
+    )
+    .then(() => query(recountConcepts))
+    .then(() => id);
   },
 
   master(id, userID, mastered) {
