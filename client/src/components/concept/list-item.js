@@ -58,7 +58,7 @@ class ConceptListItem extends Component {
 
     return (
       <li style={{listStyleType: 'none', marginLeft: '10px', fontSize: 17}}>
-        <div style={{padding: '10px 0', opacity: mastered ? .4 : 1}}
+        <div style={{padding: '10px 0'}}
              ref="label">
           <button onClick={this.onClickButton.bind(this)}
                   className={classNames('mdl-button mdl-js-button ' +
@@ -69,7 +69,7 @@ class ConceptListItem extends Component {
           </button>
           <Link to={createConceptURL(concept)} onClick={this.onSelect.bind(this)}
                 style={Object.assign({
-                        fontWeight: this.isSelected() ? 600 : 'normal'
+                        fontWeight: this.isSelected() ? 600 : 'normal', opacity: mastered ? .4 : 1
                       }, headStyle)}>
             {name}
           </Link>
