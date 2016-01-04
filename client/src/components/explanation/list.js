@@ -23,7 +23,7 @@ class ExplanationList extends Component {
       </div>
     );
 
-    if (_.isEmpty(explanations)) return;
+    if (_.isEmpty(explanations)) return <div/>;
 
     return (
       <CardAnimation delay={delay}>
