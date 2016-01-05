@@ -10,7 +10,7 @@ export default () => (
               boxShadow: 'inset 0 0 2px rgba(0,0,0,.12),inset 0 2px 4px rgba(0,0,0,.24)'
             }}>
       <img src={require('./owl-only.png')}
-           style={{margin: '70px auto 0'}}/>
+           style={{margin: '70px auto 0', width: 166, height: 200}}/>
           <span style={{fontSize: 35, marginTop: 20}}>
             Master new concepts!
           </span>
