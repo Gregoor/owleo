@@ -4,7 +4,8 @@ import {
   GraphQLList,
   GraphQLString,
   GraphQLInt,
-  GraphQLBoolean
+  GraphQLBoolean,
+  GraphQLNonNull
 } from 'graphql';
 
 import {
@@ -28,8 +29,15 @@ let ViewerType = new GraphQLObjectType({
   fields: {
     user: {
       type: UserGQL.type,
-      resolve: (parent, dunno, root) => User.find({id: root.rootValue.user.id})
-  },
+      resolve: (parent, context, root) => {
+        return root.rootValue.getUser().then(({id}) => User.find({id}));
+      }
+    },
+    userExists: {
+      type: GraphQLBoolean,
+      args: {name: {type: new GraphQLNonNull(GraphQLString)}},
+      resolve: (root, {name}) => User.find({name}).then(u => Boolean(u))
+    },
     conceptRoot: {
       type: ConceptGQL.type,
       resolve: () => ({})
@@ -43,8 +51,8 @@ let ViewerType = new GraphQLObjectType({
         const {id} = args;
         if (!id) return null;
 
-        const userID = context.rootValue.user.id;
-        return Concept.find({id}, getFieldList(context), userID)
+        return context.rootValue.getUser()
+          .then(({id: userID}) => Concept.find({id}, getFieldList(context), userID))
           .then(([c]) => c);
       }
     },
@@ -59,8 +67,10 @@ let ViewerType = new GraphQLObjectType({
         if (args.exclude) {
           args.exclude = args.exclude.map(id => fromGlobalId(id).id);
         }
+        const fields = getFieldList(context);
         return args.query ?
-          Concept.find(args, getFieldList(context), context.rootValue.user.id) :
+          context.rootValue.getUser()
+            .then(({id: userID}) => Concept.find(args, fields, userID)) :
           [];
       }
     },
@@ -69,10 +79,11 @@ let ViewerType = new GraphQLObjectType({
       args: {targetId: {type: GraphQLString}},
       resolve(root, {targetId}, context) {
         if (targetId) {
-          const userID = context.rootValue.user.id;
           return findLearnPath(fromGlobalId(targetId).id)
             .then(ids => {
-              return Concept.find({ids}, getFieldList(context), userID)
+              const fields = getFieldList(context);
+              return context.rootValue.getUser()
+                .then(({id: userID}) => Concept.find({ids}, fields, userID))
                 .then(concepts => {
                   let orderedConcepts = [];
                   for (let concept of concepts) {
@@ -102,6 +113,21 @@ export default new GraphQLSchema({
   mutation: new GraphQLObjectType({
     name: 'Mutation',
     fields: Object.assign({
+      register: mutationWithClientMutationId({
+        name: 'Register',
+        inputFields: {
+          name: {type: GraphQLString},
+          password: {type: GraphQLString}
+        },
+        outputFields: {
+          success: {type: GraphQLBoolean}
+        },
+        mutateAndGetPayload(input, root) {
+          return root.rootValue.getUser()
+            .then(({id}) => User.registerGuest(id, input))
+            .then(() => ({success: true}));
+        }
+      }),
       login: mutationWithClientMutationId({
         name: 'Login',
         inputFields: {
@@ -115,7 +141,7 @@ export default new GraphQLSchema({
           return User.authenticate(input).then((user) => {
             if (!user) return new Error('unauthorized');
 
-            root.rootValue.user.id = user.id;
+            root.rootValue.setUser(user.id);
             return {success: true};
           });
         }
@@ -126,7 +152,7 @@ export default new GraphQLSchema({
           success: {type: GraphQLBoolean}
         },
         mutateAndGetPayload(input, root) {
-          root.rootValue.user.id = null;
+          root.rootValue.setUser(null);
           return {success: true};
         }
       })

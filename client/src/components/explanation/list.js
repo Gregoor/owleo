@@ -17,7 +17,7 @@ class ExplanationList extends React.Component {
       })
       .value();
 
-    if (user) explanations.push(
+    if (user && !user.isGuest) explanations.push(
       <div key="new" style={{transitionDelay: `${delay += 100}ms`}}>
         <ExplanationForm {...{concept}}/>
       </div>
@@ -39,6 +39,7 @@ export default Relay.createContainer(ExplanationList, {
   fragments: {
     user: () => Relay.QL`
       fragment on User {
+        isGuest
         ${ExplanationCard.getFragment('user')}
       }
     `,

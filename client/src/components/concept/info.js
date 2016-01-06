@@ -63,7 +63,7 @@ class ConceptInfo extends React.Component {
                 <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
               }
             </div>
-            {user ? (
+            {user && user.admin ? (
               <div className="mdl-card__actions mdl-card--border">
                 <Button onClick={this._handleDelete.bind(this)}>
                   Delete
@@ -112,6 +112,7 @@ export default Relay.createContainer(ConceptInfo, {
       fragment on Viewer {
         user {
           id
+          admin
           ${ExplanationList.getFragment('user')}
         }
         ${ConceptForm.getFragment('viewer').if(variables.includeForm)}

@@ -8,7 +8,10 @@ let {nodeInterface, nodeField} = nodeDefinitions(
     let {type, id} = fromGlobalId(globalId);
 
     return type == 'Concept' ?
-      Concept.find({id}, getFieldList(context), context.rootValue.user.id)
+      context.rootValue.getUser()
+        .then(({id: userID}) => {
+          return Concept.find({id}, getFieldList(context), userID);
+        })
         .then(([c]) => c) :
       null;
   },

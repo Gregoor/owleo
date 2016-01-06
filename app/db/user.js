@@ -21,32 +21,39 @@ export default {
       });
   },
 
-  create(attrs) {
-    let {name, password} = attrs;
+  createGuest() {
+    const id = uuid.v4();
+    return query('CREATE (u:User {data})', {data: {id, isGuest: true}})
+      .then(() => id);
+  },
 
-    return this.find({name}).then(exists => exists ?
-    {'error': ['exists']} :
-      query(
-        `
-          CREATE (u:User {data})
-          RETURN u.id AS id
-        `,
-        {
-          'data': {
-            name,
-            'password_hash': bcrypt.hashSync(password, 12),
-            'id': uuid.v4()
-          }
-        }
-      ).then(dbData => dbData[0]));
+  registerGuest(id, attrs) {
+    const {name, password} = attrs;
+
+    return this.find({name})
+      .then(exists => {
+        if (exists) throw 'exists';
+        const password_hash = bcrypt.hashSync(password, 12);
+        return query(
+          `
+            MATCH (u:User {id: {id}})
+            SET u = {data}
+          `,
+          {id, data: {id, name, password_hash, isGuest: false}}
+        )
+      });
   },
 
   find({id = null, name = null}) {
+    const fields = ['id', 'name', 'admin', 'isGuest']
+      .map(f => `u.${f} AS ${f}`)
+      .join(', ');
+
     return query(
       `
         MATCH (u:User)
         WHERE u.id = {id} OR u.name = {name}
-        RETURN u.id AS id, u.name AS name, u.admin AS admin
+        RETURN ${fields}
         LIMIT 1
       `,
       {id, name}

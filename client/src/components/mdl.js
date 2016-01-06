@@ -5,17 +5,23 @@ import classnames from 'classnames';
 class TextField extends React.Component {
 
   componentDidMount() {
-    window.componentHandler.upgradeDom();
+    window.componentHandler.upgradeElement(this.refs.input);
   }
 
   render() {
-    const {id, label, type = 'text', outerStyle} = this.props;
+    const {id, label, type = 'text', error, outerStyle} = this.props;
+
+    const className = classnames('mdl-textfield', 'mdl-js-textfield',
+      'mdl-textfield--floating-label', {'is-invalid': error});
     return (
-      <div className="mdl-textfield mdl-js-textfield
-                      mdl-textfield--floating-label" style={outerStyle}>
+      <div ref="el" style={outerStyle} className={className}>
         <input ref="input" className="mdl-textfield__input"
                {...this.props} {...{type}}/>
         <label className="mdl-textfield__label" htmlFor={id}>{label}</label>
+        {error ?
+          <span className="mdl-textfield__error">{error}</span> :
+          ''
+        }
       </div>
     );
   }

@@ -19,7 +19,7 @@ try {
 let app = express();
 
 if (config.dev) {
-  let corsResponse = cors({
+  const corsResponse = cors({
     credentials: true,
     origin: (o, callback) => callback(null, true)
   });
@@ -38,13 +38,20 @@ app.use(sessions({
 }));
 app.use(compression());
 app.use(require('body-parser').json());
-app.use('/graphql', graphqlHTTP(request => ({
-  schema: require('./graphql/schema'),
-  graphiql: true,
-  rootValue: {
-    user: request.user
+app.use('/graphql', graphqlHTTP(({user}) => {
+  const userPromise = (user.id ?
+    Promise.resolve(user.id) :
+    User.createGuest().then(id => (user.id = id))
+  ).then((id => User.find({id})));
+  return {
+    schema: require('./graphql/schema'),
+    graphiql: true,
+    rootValue: {
+      getUser: () => userPromise,
+      setUser: (id) => (user.id = id)
+    }
   }
-})));
+}));
 
 app.use(favicon(__dirname + '/../client/favicon.ico'));
 app.use('/static', express.static(__dirname + '/../client/dist/'));

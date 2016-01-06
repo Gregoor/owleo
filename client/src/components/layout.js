@@ -39,7 +39,7 @@ class Layout extends React.Component {
               About
             </Link>
             <nav className="mdl-navigation">
-              {user ?
+              {user && !user.isGuest ?
                 (
                   <a href="" className="mdl-navigation__link"
                      onClick={this._handleLogout.bind(this)}>
@@ -50,7 +50,7 @@ class Layout extends React.Component {
                 (
                   <Link to="/auth" className="mdl-navigation__link"
                         activeClassName="is-active">
-                    Login
+                    Register / Login
                   </Link>
                 )
               }
@@ -84,6 +84,7 @@ export default Relay.createContainer(Layout, {
         user {
           name
           admin
+          isGuest
         }
       }
     `

@@ -101,6 +101,7 @@ type LogoutPayload {
 
 input MasterConceptInput {
   conceptID: ID!
+  mastered: Boolean!
   clientMutationId: String!
 }
 
@@ -110,6 +111,7 @@ type MasterConceptPayload {
 }
 
 type Mutation {
+  register(input: RegisterInput!): RegisterPayload
   login(input: LoginInput!): LoginPayload
   logout(input: LogoutInput!): LogoutPayload
   createConcept(input: CreateConceptInput!): CreateConceptPayload
@@ -130,6 +132,17 @@ type PageInfo {
   hasPreviousPage: Boolean!
   startCursor: String
   endCursor: String
+}
+
+input RegisterInput {
+  name: String
+  password: String
+  clientMutationId: String!
+}
+
+type RegisterPayload {
+  success: Boolean
+  clientMutationId: String!
 }
 
 type RootQuery {
@@ -156,10 +169,12 @@ type User implements Node {
   id: ID!
   name: String
   admin: Boolean
+  isGuest: Boolean
 }
 
 type Viewer {
   user: User
+  userExists(name: String!): Boolean
   conceptRoot: Concept
   concept(id: String): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
