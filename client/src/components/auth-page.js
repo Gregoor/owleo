@@ -1,12 +1,12 @@
 import React from 'react';
 import Relay from 'react-relay';
 import DocumentTitle from 'react-document-title';
+import {
+  Button, Card, CardActions, CardText, CardTitle, Checkbox, Textfield
+} from 'react-mdl';
 
 import history from '../history';
 import LoginMutation from '../mutations/user/login';
-import {Button, TextField} from './mdl';
-
-import './checkbox-fix.scss';
 
 class AuthPage extends React.Component {
 
@@ -20,10 +20,6 @@ class AuthPage extends React.Component {
     this._handleNameChange = this._handleNameChange.bind(this);
     this._handlePwChange = this._handlePwChange.bind(this);
     this._handleSubmit = this._handleSubmit.bind(this);
-  }
-
-  componentDidUpdate() {
-    window.componentHandler.upgradeDom();
   }
 
   render() {
@@ -57,38 +53,30 @@ class AuthPage extends React.Component {
 
     return (
       <DocumentTitle title="Auth">
-        <div className="mdl-card mdl-shadow--2dp" style={{margin: '11px auto'}}>
-          <div className="mdl-card__title">
-            <h2 className="mdl-card__title-text">Authentication</h2>
-          </div>
-          <form style={{marginBottom: 0}} onSubmit={this._handleSubmit}
-                onChange={this._handleFormChange}>
-            <div className="mdl-card__supporting-text">
-              {errorText}
-              <TextField ref="name" label="Username" error={userError}
-                         onChange={this._handleNameChange}/>
-              <TextField ref="password" label="Password" type="password"
-                         onChange={this._handlePwChange}/>
+        <form style={{marginBottom: 0}} onSubmit={this._handleSubmit}
+              onChange={this._handleFormChange}>
+          <Card shadow={2} style={{margin: '11px auto'}}>
+            <CardTitle>Authentication</CardTitle>
+            <CardText>
+              <Textfield ref="name" label="Username" floatingLabel
+                         error={userError} onChange={this._handleNameChange}/>
+              <Textfield ref="password" label="Password" floatingLabel
+                         type="password" onChange={this._handlePwChange}/>
               {loginMode ?
                 <div style={{height: 67}}/> :
-                <TextField label="Repeat password" type="password"/>
+                <Textfield type="password" label="Repeat password"
+                           floatingLabel/>
               }
-              <label className="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
-                     htmlFor="is-new">
-                <input type="checkbox" id="is-new" checked={!loginMode}
-                       className="mdl-checkbox__input"
-                       onChange={this._handleChangeNew}/>
-                <span className="mdl-checkbox__label">I'm a new user</span>
-              </label>
-            </div>
-            <div className="mdl-card__actions mdl-card--border">
-              <Button type="submit" buttonType="accent"
-                      disabled={submitDisabled}>
+              <Checkbox label="I'm a new user" ripple checked={!loginMode}
+                        onChange={this._handleChangeNew}/>
+            </CardText>
+            <CardActions>
+              <Button type="submit" ripple accent disabled={submitDisabled}>
                 {loginMode ? 'Login' : 'Register'}
               </Button>
-            </div>
-          </form>
-        </div>
+            </CardActions>
+          </Card>
+        </form>
       </DocumentTitle>
     );
   }
@@ -121,7 +109,7 @@ class AuthPage extends React.Component {
     const {name, password} = this.refs;
     Relay.Store.update(
       new LoginMutation({
-        name: name.getValue(), password: password.getValue()
+        name: name.refs.input.value, password: password.refs.input.value
       }),
       {
         onSuccess: (t) => {

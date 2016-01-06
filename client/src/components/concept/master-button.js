@@ -1,7 +1,6 @@
 import React from 'react';
 import Relay from 'react-relay';
-
-import {Button} from '../mdl';
+import {IconButton} from 'react-mdl';
 
 import MasterConceptMutation from '../../mutations/concept/master';
 
@@ -10,11 +9,9 @@ class MasterConceptButton extends React.Component {
   render() {
     const {mastered} = this.props.concept;
     return (
-      <Button buttonType={['icon', mastered ? 'accent' : 'greyed']}
-              title="I fully understand this concept"
-              onClick={this._handleClick.bind(this)}>
-        <i className="material-icons">check</i>
-      </Button>
+      <IconButton name="check" accent={mastered}
+                  title="I fully understand this concept"
+                  onClick={this._handleClick.bind(this)}/>
     );
   }
 

@@ -3,6 +3,7 @@ import Relay from 'react-relay';
 import {Router, Route, Redirect} from 'react-router';
 import createBrowserHistory from 'history/lib/createBrowserHistory'
 import {RelayRouter} from 'react-router-relay';
+import {Spinner} from 'react-mdl';
 
 import {BACKEND_URL, DEV_MODE} from '../config.custom';
 import history from '../history';
@@ -12,7 +13,6 @@ import ConceptLearnPage from './concept/learn-page';
 import ConceptForm from './concept/form';
 import AuthPage from './auth-page';
 import AboutPage from './about-page';
-import {Spinner} from './mdl';
 
 Relay.injectNetworkLayer(
   new Relay.DefaultNetworkLayer(BACKEND_URL + 'graphql', {

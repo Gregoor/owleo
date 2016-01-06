@@ -2,9 +2,9 @@ import React from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 import clamp from 'clamp-js'
+import {Spinner} from 'react-mdl';
 
 import createConceptURL from '../../helpers/create-concept-url';
-import {Spinner} from '../mdl';
 
 class ConceptResult extends React.Component {
 
@@ -53,8 +53,9 @@ class SearchResults extends React.Component {
   state = {isTooShort: true, isLoading: false};
 
   componentWillReceiveProps(props) {
-    let {query} = props;
-    let isTooShort = query.length < 3;
+    const {query} = props;
+    if (query == this.props.query) return;
+    const isTooShort = query.length < 3;
     if (!isTooShort) {
       this.setState({isLoading: true});
       this.props.relay.forceFetch({query}, readyState => {

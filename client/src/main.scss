@@ -1,4 +1,4 @@
-@import '~material-design-lite/src/material-design-lite';
+@import '~react-mdl/extra/material.css';
 @import '~react-select/dist/default';
 
 body {
@@ -24,12 +24,6 @@ blockquote {
   color: #FF4081
 }
 
-.card-auto-fit {
-  width: auto;
-  min-height: auto;
-  margin-bottom: 5px;
-}
-
 .chip {
   display: inline-block;
   height: 32px;
@@ -51,6 +45,7 @@ blockquote {
 }
 
 .mdl-card {
+  width: 100%;
   min-height: 0;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,0.34);
 

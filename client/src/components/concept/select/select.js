@@ -1,8 +1,5 @@
 import React from 'react';
 import Relay from 'react-relay';
-import {Spring} from 'react-motion';
-
-import {TextField} from '../../mdl';
 
 import './select.scss';
 

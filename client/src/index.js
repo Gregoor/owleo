@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import '../lib/mdl/material.min';
+import '../node_modules/react-mdl/extra/material';
 
 import App from './components/app';
 

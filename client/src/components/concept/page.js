@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 import classnames from 'classnames';
+import {Card, Cell, FABButton, Grid, Icon, Spinner, Textfield} from 'react-mdl';
 
 import history from '../../history';
 import createConceptURL from '../../helpers/create-concept-url';
@@ -12,7 +13,6 @@ import ConceptInfo from './info';
 import ConceptForm from './form';
 import ConceptMap from './map';
 import OwlPlaceholder from '../owl-placeholder/owl-placeholder';
-import {TextField, Button, Spinner} from '../mdl';
 import CardAnimation from '../card-animation';
 
 import './icon-switch.scss';
@@ -85,17 +85,17 @@ class ConceptPage extends React.Component {
     return (
       <div className="concept-nav-container">
 
-        <div className="mdl-card concept-nav"
-             style={{maxWidth: navType == 'map' ? '800px' : '500px'}}>
-          <div className="mdl-grid" style={{backgroundColor: 'white', margin: 0,
-                        padding: 0, borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
-            <div className="mdl-cell mdl-cell--10-col">
-              <TextField label="Search for concepts" ref="search"
+        <Card className="concept-nav"
+              style={{maxWidth: navType == 'map' ? '800px' : '500px'}}>
+          <Grid style={{backgroundColor: 'white', margin: 0, padding: 0,
+                        borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
+            <Cell col={10}>
+              <Textfield ref="search" label="Search for concepts"
                          onChange={this._handleSearchChange.bind(this)}
                          onKeyUp={this._handleSearchKeyUp.bind(this)}
-                         outerStyle={{margin: '-20px 0', width: '100%'}}/>
-            </div>
-            <div className="mdl-cell mdl-cell--2-col">
+                         style={{margin: '-20px 0', width: '100%'}}/>
+            </Cell>
+            <Cell col={2}>
               <label ref="navSwitch" className="icon-switch mdl-switch
                                                 mdl-js-switch
                                                 mdl-js-ripple-effect"
@@ -103,23 +103,19 @@ class ConceptPage extends React.Component {
                 <input type="checkbox" className="mdl-switch__input"
                        onChange={this._handleChangeNav.bind(this)}
                        defaultChecked={showMap}/>
-                <i className={`material-icons on ${showMap ? 'hide' : ''}`}
-                   key="list">
-                  list
-                </i>
-                <i className={`material-icons off ${!showMap ? 'hide' : ''}`}
-                   key="map">
-                  layers
-                </i>
+                <Icon key="list" name="list"
+                      className={classnames('on', {'hide': showMap})}/>
+                <Icon key="map" name="layers"
+                      className={classnames('off', {'hide': !showMap})}/>
                 <span className="mdl-switch__label"/>
               </label>
-            </div>
-          </div>
-          <div className="mdl-cell mdl-cell--12-col mdl-cell--stretch"
-               style={{overflowY: navType == 'map' ? 'hidden' : 'auto'}}>
+            </Cell>
+          </Grid>
+          <Cell col={12} align="stretch"
+                style={{overflowY: navType == 'map' ? 'hidden' : 'auto'}}>
           {list}
-          </div>
-        </div>
+          </Cell>
+        </Card>
 
         <div className="card-container concept-scroller">
           <div style={{marginTop: 10}}>
@@ -131,10 +127,11 @@ class ConceptPage extends React.Component {
         <span style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
               className={classnames('fab-hideable', {'fab-hidden': !isLearnable})}
               title="Start mastering this concept!">
-          <Button id="learn" to={'/learn/' + selectedConcept.id}
-                    disabled={!isLearnable} buttonType="fab colored">
-            <i className="material-icons">school</i>
-          </Button>
+          <Link to={'/learn/' + selectedConcept.id}>
+            <FABButton id="learn" disabled={!isLearnable} colored ripple>
+                <Icon name="school"/>
+            </FABButton>
+          </Link>
         </span>
 
       </div>
@@ -149,15 +146,14 @@ class ConceptPage extends React.Component {
   _handleSearchKeyUp(event) {
     switch (event.keyCode) {
       case 27/*ESC*/:
-        this.setState({query: this.refs.search.setValue('')});
-        ReactDOM.findDOMNode(this.refs.search).classList.remove('is-dirty');
+        this.setState({query: this.refs.search.refs.input.value = ''});
         break;
     }
   }
 
   _handleSearchSelect() {
     this.setState({query: null});
-    this.refs.search.value = null;
+    this.refs.search.input.value = '';
   }
 
   _handleChangeNav(event) {

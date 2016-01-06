@@ -1,9 +1,11 @@
 import React from 'react';
 import Relay from 'react-relay';
 import { Lifecycle } from 'react-router'
+import {
+  Button, Card, CardActions, CardText, CardTitle, Textfield
+} from 'react-mdl';
 
 import history from '../../history';
-import {Button, TextField, TextArea} from '../mdl';
 import ConceptSelect from './select/select';
 import CreateConceptMutation from '../../mutations/concept/create';
 import UpdateConceptMutation from '../../mutations/concept/update';
@@ -35,35 +37,34 @@ class ConceptForm extends React.Component {
     let {name, container, reqs, summary, summarySource} = concept || {};
     return (
       <form onSubmit={this._handleSubmit.bind(this)}>
-        <div className="mdl-card mdl-shadow--2dp card-auto-fit">
-          <div className="mdl-card__title">
-            <h2 className="mdl-card__title-text">{headline}</h2>
-          </div>
-          <div className="mdl-card__supporting-text">
-            <TextField ref="name" id="name" label="Name" defaultValue={name}/>
+        <Card shadow={2}>
+          <CardTitle>{headline}</CardTitle>
+          <CardText>
+            <Textfield ref="name" label="Name" floatingLabel
+                       defaultValue={name}/>
             <ConceptSelect ref="container" name="container" label="Container"
                            {...{viewer}} defaultValue={[container]}/>
             <ConceptSelect ref="reqs" name="reqs" label="Requirements"
                            multi={true} {...{viewer}} defaultValue={reqs}/>
-            <TextArea ref="summary" id="summary" label="Summary"
+            <Textfield ref="summary" label="Summary" floatingLabel rows={3}
                       defaultValue={summary}
                       onChange={this._handleSummaryChange.bind(this)}/>
             <p style={summaryLength > 140 ? {color: 'red'} : {}}>
               {summaryLength} characters
             </p>
 
-            <TextField ref="summarySource" id="summarySrc"
+            <Textfield ref="summarySource" id="summarySrc"
                        label="Source of summary" defaultValue={summarySource}/>
-          </div>
-          <div className="mdl-card__actions mdl-card--border">
-            <Button type="button" onClick={this.props.onAbort}>
+          </CardText>
+          <CardActions>
+            <Button ripple onClick={this.props.onAbort}>
             Abort
             </Button>
-            <Button type="submit" buttonType="primary">
+            <Button type="submit" ripple primary>
               {buttonLabel}
             </Button>
-          </div>
-        </div>
+          </CardActions>
+        </Card>
       </form>
     );
   }

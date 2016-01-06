@@ -1,8 +1,10 @@
 import React from 'react';
 import Relay from 'react-relay';
+import {
+  Button, Card, CardActions, CardText, Radio, RadioGroup, Textfield
+} from 'react-mdl';
 
 import CreateExplanationMutation from '../../mutations/explanation/create';
-import {TextField, TextArea, Button} from '../mdl';
 
 class ExplanationForm extends React.Component {
 
@@ -11,37 +13,28 @@ class ExplanationForm extends React.Component {
   render() {
     let isLink = this.state.type == 'link';
     return (
-      <form key="new" className="mdl-card mdl-shadow--2dp card-auto-fit"
-            onSubmit={this._handleSubmit.bind(this)}>
-        <div className="mdl-card__actions mdl-card--border">
-          <div className="mdl-card__supporting-text">
-            <label className="mdl-cell mdl-cell--6-col mdl-radio mdl-js-radio
-                          mdl-js-ripple-effect">
-              <input type="radio" className="mdl-radio__button"
-                     name="type" value="text" defaultChecked
-                     onChange={this._handleChangeType.bind(this)}/>
-              <span className="mdl-radio__label">Text</span>
-            </label>
-            <label className="mdl-cell mdl-cell--6-col mdl-radio mdl-js-radio
-                          mdl-js-ripple-effect">
-              <input type="radio" className="mdl-radio__button"
-                     name="type" value="link"
-                     onChange={this._handleChangeType.bind(this)}/>
-              <span className="mdl-radio__label">Link</span>
-            </label>
-            <TextArea ref="text" label="Explanation text"
-                      outerStyle={{display: isLink ? 'none' : 'block'}}/>
-            <TextField ref="link" label="URL" type="url"
-                       outerStyle={{
-                                    width: '100%',
-                                    display: isLink ? 'block' : 'none'
-                      }}/>
-          </div>
-          <Button type="submit" buttonType="primary">
-            Add new explanation
-          </Button>
-        </div>
-      </form>
+      <Card shadow={2}>
+        <form onSubmit={this._handleSubmit.bind(this)}>
+          <CardText>
+            <RadioGroup name="type" value="text"
+                        onChange={this._handleChangeType.bind(this)}
+                        style={{display: 'flex', justifyContent: 'space-around'}}>
+                <Radio ripple defaultChecked value="text">Text</Radio>
+                <Radio ripple value="link">Link</Radio>
+            </RadioGroup>
+            <Textfield ref="text" label="Explanation text" rows={3}
+                       style={{width: '100%', display: isLink ? 'none' : 'block'}}/>
+            <Textfield ref="link" label="URL" type="url"
+                       style={{width: '100%',
+                               display: isLink ? 'block' : 'none'}}/>
+          </CardText>
+          <CardActions className="mdl-card__actions mdl-card--border">
+            <Button type="submit" primary>
+              Add new explanation
+            </Button>
+          </CardActions>
+        </form>
+      </Card>
     );
   }
 

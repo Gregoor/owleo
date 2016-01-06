@@ -3,10 +3,10 @@ import {Link} from 'react-router';
 import Relay from 'react-relay';
 import classNames from 'classnames';
 import _ from 'lodash';
+import {Button, Spinner} from 'react-mdl';
 
 import createConceptURL from '../../helpers/create-concept-url';
 import ConceptList from './list';
-import {Spinner} from '../mdl';
 
 
 const headStyle = {
@@ -39,10 +39,6 @@ class ConceptListItem extends React.Component {
     }
   }
 
-  componentDidUpdate() {
-    window.componentHandler.upgradeDom();
-  }
-
   render() {
     const {concept, level} = this.props;
 
@@ -60,13 +56,11 @@ class ConceptListItem extends React.Component {
       <li style={{listStyleType: 'none', marginLeft: '10px', fontSize: 17}}>
         <div style={{padding: '10px 0'}}
              ref="label">
-          <button onClick={this._handleButtonClick.bind(this)}
-                  className={classNames('mdl-button mdl-js-button ' +
-                    'mdl-button--raised mdl-button--icon',
-                    {'mdl-button--colored': this._isInSelection()})}
-                  style={buttonStyle}>
+          <Button colored={this._isInSelection()} style={buttonStyle} raised
+                  className="mdl-button--icon"
+                  onClick={this._handleButtonClick.bind(this)}>
             {conceptsCount || ' '}
-          </button>
+          </Button>
           <Link to={createConceptURL(concept)}
                 onClick={this._handleSelect.bind(this)}
                 style={Object.assign({

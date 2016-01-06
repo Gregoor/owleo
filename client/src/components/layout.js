@@ -2,10 +2,11 @@ import React from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 import classnames from 'classnames';
+import {Layout, Header, Navigation, Content} from 'react-mdl';
 
 import LogoutMutation from '../mutations/user/logout';
 
-class Layout extends React.Component {
+class AppLayout extends React.Component {
 
   componentDidUpdate() {
     window.componentHandler.upgradeDom();
@@ -17,14 +18,10 @@ class Layout extends React.Component {
     const isConceptRoute = root == 'concepts' && next != 'new';
 
     return (
-      <div className="mdl-layout">
-        <header className="mdl-layout__header">
-          <div className="mdl-layout__header-row">
-            <div  className="mdl-layout-title">
-              owleo
-            </div>
-            <div className="mdl-layout-spacer"/>
-            {!user || !user.admin ? '' : (
+      <Layout>
+        <Header title="owleo">
+          <Navigation>
+            {!user || !user.admin ? <span/> : (
               <Link to="/concepts/new" className="mdl-navigation__link"
                     activeClassName="is-active">
                 New Concept
@@ -38,29 +35,25 @@ class Layout extends React.Component {
                   activeClassName="is-active">
               About
             </Link>
-            <nav className="mdl-navigation">
-              {user && !user.isGuest ?
-                (
-                  <a href="" className="mdl-navigation__link"
-                     onClick={this._handleLogout.bind(this)}>
-                    Logout
-                    (<span style={{textTransform: 'none'}}>{user.name}</span>)
-                  </a>
-                ) :
-                (
-                  <Link to="/auth" className="mdl-navigation__link"
-                        activeClassName="is-active">
-                    Register / Login
-                  </Link>
-                )
-              }
-            </nav>
-          </div>
-        </header>
-        <main className="mdl-layout__content">
-          {this.props.children}
-        </main>
-      </div>
+            {user && !user.isGuest ?
+              (
+                <a href="" className="mdl-navigation__link"
+                   onClick={this._handleLogout.bind(this)}>
+                  Logout
+                  (<span style={{textTransform: 'none'}}>{user.name}</span>)
+                </a>
+              ) :
+              (
+                <Link to="/auth" className="mdl-navigation__link"
+                      activeClassName="is-active">
+                  Register / Login
+                </Link>
+              )
+            }
+          </Navigation>
+        </Header>
+        <Content>{this.props.children}</Content>
+      </Layout>
     );
   }
 
@@ -76,7 +69,7 @@ class Layout extends React.Component {
 
 }
 
-export default Relay.createContainer(Layout, {
+export default Relay.createContainer(AppLayout, {
 
   fragments: {
     viewer: () => Relay.QL`

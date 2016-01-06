@@ -1,12 +1,13 @@
 import React from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
+import {FABButton, Spinner} from 'react-mdl';
 
 import MasterConceptMutation from '../../mutations/concept/master';
 import ConceptFlow from './flow';
 import ConceptInfo from './info';
 import CardAnimation from '../card-animation';
-import {Button, Spinner} from '../mdl';
+//import {Button, Spinner} from '../mdl';
 
 class ConceptLearnPage extends React.Component {
 
@@ -58,10 +59,9 @@ class ConceptLearnPage extends React.Component {
 
         <span style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
               title="Got it, show me the next concept!">
-          <Button buttonType="fab colored"
-                  onClick={this._handleSelectNext.bind(this)}>
+          <FABButton colored onClick={this._handleSelectNext.bind(this)}>
             <i className="material-icons">check</i>
-          </Button>
+          </FABButton>
         </span>
 
       </div>

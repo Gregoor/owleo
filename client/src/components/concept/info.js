@@ -1,6 +1,9 @@
 import React from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
+import {
+  Card, CardActions, CardMenu, CardText, CardTitle, Cell, Button
+} from 'react-mdl';
 
 import history from '../../history';
 import DeleteConceptMutation from '../../mutations/concept/delete';
@@ -10,7 +13,6 @@ import MasterConceptButton from './master-button';
 import ConceptForm from './form';
 import ExplanationList from '../explanation/list';
 import CardAnimation from '../card-animation';
-import {Button} from '../mdl';
 
 class ConceptInfo extends React.Component {
 
@@ -28,21 +30,17 @@ class ConceptInfo extends React.Component {
     return (
       <div style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
         {concept.path.length < 2 ? '' : (
-          <div className="mdl-cell mdl-cell--12-col">
+          <Cell col={12}>
             <ConceptBreadcrumbs concept={concept}/>
-          </div>
+          </Cell>
         )}
         <CardAnimation>
-          <div key="concept" className="mdl-card card-auto-fit"
+          <Card key="concept"
                style={{overflow: 'visible',
                        transition: 'background-color 300ms linear',
                        backgroundColor: mastered ? 'rgb(246, 247, 255)' : 'white'}}>
-            <div className="mdl-card__title" style={{paddingBottom: 0}}>
-              <h2 className="mdl-card__title-text">{name}</h2>
-            </div>
-            <div className="mdl-card__menu">
-              <MasterConceptButton concept={concept}/>
-            </div>
+            <CardTitle style={{paddingBottom: 0}}>{name}</CardTitle>
+            <CardMenu><MasterConceptButton concept={concept}/></CardMenu>
             {!this.props.includeReqs || _.isEmpty(reqs) ? '' :
               <div style={{paddingTop: 5}}>
                 <div className="section-title">Requirements</div>
@@ -52,7 +50,7 @@ class ConceptInfo extends React.Component {
                 ))}
               </div>
             }
-            <div className="mdl-card__supporting-text" style={{paddingTop: 5}}>
+            <CardText style={{paddingTop: 5}}>
               <div className="section-title">Summary</div>
               {summarySource ?
                 <div>
@@ -62,18 +60,18 @@ class ConceptInfo extends React.Component {
                 </div> :
                 <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
               }
-            </div>
+            </CardText>
             {user && user.admin ? (
-              <div className="mdl-card__actions mdl-card--border">
+              <CardActions>
                 <Button onClick={this._handleDelete.bind(this)}>
                   Delete
                 </Button>
                 <Button onClick={this._handleEdit.bind(this)}>
                   Edit
                 </Button>
-              </div>
+              </CardActions>
             ) : ''}
-          </div>
+          </Card>
         </CardAnimation>
         <ExplanationList {...{user, concept}} />
       </div>

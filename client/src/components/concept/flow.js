@@ -3,8 +3,7 @@ import Relay from 'react-relay';
 import cola from 'webcola';
 import d3 from 'd3';
 import _ from 'lodash';
-
-import {Spinner} from '../mdl';
+import {Spinner} from 'react-mdl';
 
 import './flow.scss';
 
