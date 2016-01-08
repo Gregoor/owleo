@@ -2,16 +2,14 @@ import React from 'react';
 import Relay from 'react-relay';
 import DocumentTitle from 'react-document-title';
 import {
-  Button, Card, CardActions, CardText, CardTitle, Checkbox, Icon,
-  ProgressBar, Spinner, Textfield
+  Button, Card, CardActions, CardText, CardTitle, Checkbox, ProgressBar,
+  Spinner, Textfield
 } from 'react-mdl';
 import _ from 'lodash';
 
 import history from '../history';
 import LoginMutation from '../mutations/user/login';
-
-const Check = () => <Icon name="check_circle" style={{color: '#4CAF50'}}/>;
-const Cross = () => <Icon name="cancel" style={{color: '#DE3226'}}/>;
+import {Check, Cross} from './icons';
 
 class AuthPage extends React.Component {
 
