@@ -159,8 +159,11 @@ export default {
         const {id} = fromGlobalId(conceptID);
         return assertUser(root)
           .then(() => root.rootValue.getUser())
-          .then(({id: userID}) => Concept.master(id, userID, mastered))
-          .then(() => Concept.find({id}, getFieldList(root).concept, userID))
+          .then(({id: userID}) => {
+            const fields = getFieldList(root);
+            return Concept.master(id, userID, mastered)
+              .then(() => Concept.find({id}, fields.concept, userID))
+          })
           .then(([concept]) => ({concept}));
 
       }
