@@ -2,7 +2,7 @@ import React from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
 import {
-  Card, CardActions, CardMenu, CardText, CardTitle, Cell, Button
+  Card, CardActions, CardMenu, CardText, CardTitle, Cell, Button, FABButton
 } from 'react-mdl';
 
 import history from '../../history';
@@ -29,18 +29,19 @@ class ConceptInfo extends React.Component {
     const {name, mastered, summary, summarySource, reqs} = concept;
     return (
       <div style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
-        {concept.path.length < 2 ? '' : (
+        {concept.path.length < 2 ? <div style={{height: 28}}/> : (
           <Cell col={12}>
             <ConceptBreadcrumbs concept={concept}/>
           </Cell>
         )}
         <CardAnimation>
           <Card key="concept"
-               style={{overflow: 'visible',
-                       transition: 'background-color 300ms linear',
-                       backgroundColor: mastered ? 'rgb(246, 247, 255)' : 'white'}}>
+               style={{overflow: 'visible'}}>
             <CardTitle style={{paddingBottom: 0}}>{name}</CardTitle>
-            <CardMenu><MasterConceptButton concept={concept}/></CardMenu>
+            <CardMenu>
+              <MasterConceptButton concept={concept} style={{marginTop: -45}}
+                                   onMaster={this.props.onMaster}/>
+            </CardMenu>
             {!this.props.includeReqs || _.isEmpty(reqs) ? '' :
               <div style={{paddingTop: 5}}>
                 <div className="section-title">Requirements</div>
@@ -99,7 +100,7 @@ class ConceptInfo extends React.Component {
 
 }
 
-ConceptInfo.defaultProps = {includeReqs: true};
+ConceptInfo.defaultProps = {includeReqs: true, onMaster: _.noop};
 
 export default Relay.createContainer(ConceptInfo, {
 

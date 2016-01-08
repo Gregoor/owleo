@@ -23,18 +23,21 @@ class Req extends React.Component {
     const borderStyle = '1px solid rgba(0, 0, 0, 0.1)';
     return (
       <div className="mdl-card__supporting-text"
-           style={{borderTop: borderStyle,
-                   backgroundColor: mastered ? 'rgb(246, 247, 255)' : 'white',
-                   borderBottom: isLast ? borderStyle : 'none'}}>
+           style={{borderTop: borderStyle, overflow: 'hidden',
+                   borderBottom: isLast ? borderStyle : 'none',
+                   height: mastered ? 40 : 96,
+                   transition: 'height 300ms ease-in-out'}}>
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <h3 style={{fontSize: 22, margin: 0}}>
             <Link to={createConceptURL(concept)}>{name}</Link>
           </h3>
-          <MasterConceptButton concept={concept}/>
+          <MasterConceptButton concept={concept} mini style={{margin: '0 10'}}/>
         </div>
-        {mastered ? '' :
-          <div ref="summary" style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
-        }
+        <div ref="summary" style={{whiteSpace: 'pre-wrap',
+                                   opacity: mastered ? 0 : 1,
+                                   transition: 'opacity 300ms linear'}}>
+          {summary}
+        </div>
       </div>
     );
   }

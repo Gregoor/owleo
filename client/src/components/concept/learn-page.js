@@ -1,13 +1,11 @@
 import React from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
-import {FABButton, Spinner} from 'react-mdl';
+import {Spinner} from 'react-mdl';
 
-import MasterConceptMutation from '../../mutations/concept/master';
 import ConceptFlow from './flow';
 import ConceptInfo from './info';
 import CardAnimation from '../card-animation';
-//import {Button, Spinner} from '../mdl';
 
 class ConceptLearnPage extends React.Component {
 
@@ -29,7 +27,8 @@ class ConceptLearnPage extends React.Component {
     let content;
     if (selectedConcept) content = (
       <ConceptInfo key={selectedConcept.id} concept={selectedConcept}
-                   includeReqs={false} {...{viewer}}/>
+                   includeReqs={false} {...{viewer}}
+                   onMaster={this._handleSelectNext.bind(this)}/>
     );
     const contentLoading = null;
 
@@ -57,13 +56,6 @@ class ConceptLearnPage extends React.Component {
           </div>
         </div>
 
-        <span style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
-              title="Got it, show me the next concept!">
-          <FABButton colored onClick={this._handleSelectNext.bind(this)}>
-            <i className="material-icons">check</i>
-          </FABButton>
-        </span>
-
       </div>
     );
   }
@@ -77,9 +69,6 @@ class ConceptLearnPage extends React.Component {
     const {learnPath} = this.props.viewer;
     const {selectedConcept} = this.state;
     const index = _.findIndex(learnPath, ({id}) => id == selectedConcept.id);
-    Relay.Store.update(
-      new MasterConceptMutation({concept: learnPath[index], mastered: true})
-    );
 
     if (index + 1 < learnPath.length) {
       this.setState({selectedConcept: learnPath[index + 1]});
@@ -102,7 +91,6 @@ export default Relay.createContainer(ConceptLearnPage, {
           path { name }
           ${ConceptInfo.getFragment('concept')}
           ${ConceptFlow.getFragment('concepts')}
-          ${MasterConceptMutation.getFragment('concept')}
         }
         ${ConceptInfo.getFragment('viewer')}
       }
