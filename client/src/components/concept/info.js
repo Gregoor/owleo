@@ -36,8 +36,7 @@ class ConceptInfo extends React.Component {
           </Cell>
         )}
         <CardAnimation>
-          <Card key="concept"
-               style={{overflow: 'visible'}}>
+          <Card key="concept" style={{overflow: 'visible'}}>
             <CardTitle style={{paddingBottom: 0}}>
               {this.props.nameAsLink ?
                 (
@@ -45,7 +44,9 @@ class ConceptInfo extends React.Component {
                         style={{fontSize: 28}}>
                     {name}
                   </Link>
-                ): name}
+                ) :
+                name
+              }
             </CardTitle>
             <CardMenu>
               <MasterConceptButton concept={concept} style={{marginTop: -45}}
@@ -66,7 +67,7 @@ class ConceptInfo extends React.Component {
                 <div>
                   <blockquote>{summary}</blockquote>
                   <em>Source:</em>&nbsp;
-                  <a href={summarySource}>{summarySource}</a>
+                  <a href={summarySource} target="_blank">{summarySource}</a>
                 </div> :
                 <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
               }
