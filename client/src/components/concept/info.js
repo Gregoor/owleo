@@ -1,5 +1,6 @@
 import React from 'react';
 import Relay from 'react-relay';
+import {Link} from 'react-router';
 import _ from 'lodash';
 import {
   Card, CardActions, CardMenu, CardText, CardTitle, Cell, Button, FABButton
@@ -26,7 +27,7 @@ class ConceptInfo extends React.Component {
     if (this.props.relay.variables.includeForm) {
       return <ConceptForm {...{viewer, concept}}/>;
     }
-    const {name, mastered, summary, summarySource, reqs} = concept;
+    const {id, name, summary, summarySource, reqs} = concept;
     return (
       <div style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
         {concept.path.length < 2 ? <div style={{height: 28}}/> : (
@@ -37,7 +38,15 @@ class ConceptInfo extends React.Component {
         <CardAnimation>
           <Card key="concept"
                style={{overflow: 'visible'}}>
-            <CardTitle style={{paddingBottom: 0}}>{name}</CardTitle>
+            <CardTitle style={{paddingBottom: 0}}>
+              {this.props.nameAsLink ?
+                (
+                  <Link to="/concepts" query={{id: atob(id).split(':')[1]}}
+                        style={{fontSize: 28}}>
+                    {name}
+                  </Link>
+                ): name}
+            </CardTitle>
             <CardMenu>
               <MasterConceptButton concept={concept} style={{marginTop: -45}}
                                    onMaster={this.props.onMaster}/>
@@ -46,7 +55,7 @@ class ConceptInfo extends React.Component {
               <div style={{paddingTop: 5}}>
                 <div className="section-title">Requirements</div>
                 {reqs.map((concept, i) => (
-                  <Req key={concept.id} concept={concept}
+                  <Req key={id} concept={concept}
                        isLast={i + 1 == reqs.length}/>
                 ))}
               </div>
@@ -100,7 +109,9 @@ class ConceptInfo extends React.Component {
 
 }
 
-ConceptInfo.defaultProps = {includeReqs: true, onMaster: _.noop};
+ConceptInfo.defaultProps = {
+  includeReqs: true, nameAsLink: false, onMaster: _.noop
+};
 
 export default Relay.createContainer(ConceptInfo, {
 
@@ -121,7 +132,6 @@ export default Relay.createContainer(ConceptInfo, {
       fragment on Concept {
         id
         name
-        mastered
         summary
         summarySource
         path {name}

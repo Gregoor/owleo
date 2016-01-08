@@ -35,7 +35,7 @@ class ConceptLearnPage extends React.Component {
     let content;
     if (selectedConcept) content = (
       <ConceptInfo key={selectedConcept.id} concept={selectedConcept}
-                   includeReqs={false} {...{viewer}}
+                   nameAsLink={true} includeReqs={false} {...{viewer}}
                    onMaster={this._handleSelectNext.bind(this)}/>
     );
     const contentLoading = null;
