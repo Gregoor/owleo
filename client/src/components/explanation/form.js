@@ -51,7 +51,7 @@ class ExplanationForm extends React.Component {
     let {concept} = this.props;
     Relay.Store.update(
       new CreateExplanationMutation({
-        concept, type, content: (type == 'link' ? link : text).getValue()
+        concept, type, content: (type == 'link' ? link : text).refs.input.value
       }),
       {
         onSuccess: t => {
