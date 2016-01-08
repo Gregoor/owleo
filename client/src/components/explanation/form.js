@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Relay from 'react-relay';
 import {
   Button, Card, CardActions, CardText, Radio, RadioGroup, Textfield
@@ -19,8 +20,10 @@ class ExplanationForm extends React.Component {
             <RadioGroup name="type" value="text"
                         onChange={this._handleChangeType.bind(this)}
                         style={{display: 'flex', justifyContent: 'space-around'}}>
-                <Radio ripple defaultChecked value="text">Text</Radio>
-                <Radio ripple value="link">Link</Radio>
+                <Radio ref="textRadio" ripple defaultChecked value="text">
+                  Text
+                </Radio>
+                <Radio ref="linkRadio" ripple value="link">Link</Radio>
             </RadioGroup>
             <Textfield ref="text" label="Explanation text" rows={3}
                        style={{width: '100%', display: isLink ? 'none' : 'block'}}/>
@@ -39,7 +42,20 @@ class ExplanationForm extends React.Component {
   }
 
   _handleChangeType(event) {
-    let {value} = event.target;
+    const {value} = event.target;
+
+    const CHECKED_CLASS_NAME = 'is-checked';
+    const textNode = ReactDOM.findDOMNode(this.refs.textRadio);
+    const linkNode = ReactDOM.findDOMNode(this.refs.linkRadio);
+
+    if (value == 'link') {
+      textNode.classList.remove(CHECKED_CLASS_NAME);
+      linkNode.classList.add(CHECKED_CLASS_NAME);
+    } else {
+      linkNode.classList.remove(CHECKED_CLASS_NAME);
+      textNode.classList.add(CHECKED_CLASS_NAME);
+    }
+
     this.setState({type: value});
   }
 
