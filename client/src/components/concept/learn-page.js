@@ -3,6 +3,7 @@ import Relay from 'react-relay';
 import _ from 'lodash';
 import {Spinner} from 'react-mdl';
 
+import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptFlow from './flow';
 import ConceptInfo from './info';
 import CardAnimation from '../card-animation';
@@ -39,11 +40,7 @@ class ConceptLearnPage extends React.Component {
           <div style={{padding: 5, borderBottom: '1px solid black'}}>
             You are mastering <br/>
             <h3 style={{margin: 0}}>{target.name}</h3>
-            <span style={{fontSize: 13}}>
-              {_(target.path.slice())
-                .map(({name}) => name).dropRight().reverse()
-              .join(' > ')}
-            </span>
+            <ConceptBreadcrumbs concept={target}/>
           </div>
           <ConceptFlow concepts={learnPath} {...{selectedConcept}}
                        onSelect={this._handleSelect.bind(this)} />
@@ -88,7 +85,7 @@ export default Relay.createContainer(ConceptLearnPage, {
           id
           name
           mastered
-          path { name }
+          ${ConceptBreadcrumbs.getFragment('concept')}
           ${ConceptInfo.getFragment('concept')}
           ${ConceptFlow.getFragment('concepts')}
         }
