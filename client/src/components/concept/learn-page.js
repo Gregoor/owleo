@@ -1,7 +1,7 @@
 import React from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
-import {Spinner} from 'react-mdl';
+import {Icon} from 'react-mdl';
 
 import ConceptBreadcrumbs from './breadcrumbs';
 import ConceptFlow from './flow';
@@ -25,6 +25,13 @@ class ConceptLearnPage extends React.Component {
     const target = _.last(learnPath);
     const {selectedConcept} = this.state;
 
+    const masteredAll = learnPath.every(c => c.mastered);
+
+    let masteredAllIcon;
+    if (masteredAll) masteredAllIcon = (
+      <Icon name="done_all" className="accent-color"/>
+    ) ;
+
     let content;
     if (selectedConcept) content = (
       <ConceptInfo key={selectedConcept.id} concept={selectedConcept}
@@ -38,8 +45,11 @@ class ConceptLearnPage extends React.Component {
 
         <div className="mdl-card concept-nav" style={{maxWidth: '800px'}}>
           <div style={{padding: 5, borderBottom: '1px solid black'}}>
-            You are mastering <br/>
-            <h3 style={{margin: 0}}>{target.name}</h3>
+            {masteredAll ? 'You have mastered' : 'You are mastering'}
+            <br/>
+            <h3 style={{margin: 0}}>
+              {target.name} {masteredAllIcon}
+            </h3>
             <ConceptBreadcrumbs concept={target}/>
           </div>
           <ConceptFlow concepts={learnPath} {...{selectedConcept}}
