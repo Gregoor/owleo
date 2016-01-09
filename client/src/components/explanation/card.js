@@ -15,13 +15,14 @@ class ExplanationCard extends React.Component {
   render() {
     const {explanation, user} = this.props;
     const {type, content, hasUpvoted, hasDownvoted} = explanation;
+    const {isGuest} = user;
     return (
       <Card style={Object.assign({marginBottom: 8, overflow: 'visible'},
                                  this.props.style)}>
         <CardText style={{display: 'flex'}}>
           <div style={{display: 'flex', flexDirection: 'column',
                        alignItems: 'center', width: 35}}>
-            <Button ripple disabled={!user} accent={hasUpvoted}
+            <Button ripple disabled={isGuest} accent={hasUpvoted}
                     className="mdl-button--icon"
                     onClick={this._commitVote.bind(this, 'UP')}
                     title={'It explains the concept well ' +
@@ -29,7 +30,7 @@ class ExplanationCard extends React.Component {
               <Icon name="arrow_drop_up" style={VOTE_ICON_STYLE}/>
             </Button>
             <div>{explanation.votes}</div>
-            <Button ripple disabled={!user} accent={hasDownvoted}
+            <Button ripple disabled={isGuest} accent={hasDownvoted}
                     className="mdl-button--icon"
                     onClick={this._commitVote.bind(this, 'DOWN')}
                     title={'It explains the concept badly ' +
@@ -39,7 +40,7 @@ class ExplanationCard extends React.Component {
           </div>
 
           {type == 'link' ?
-            <div className="explanation">
+            <div className="explanation" style={{marginLeft: 8}}>
               <a href={content} className="embedly-card"
                  data-card-controls="0" data-card-chrome="0"
                  style={{wordWrap: 'break-word'}}>
@@ -50,13 +51,13 @@ class ExplanationCard extends React.Component {
                  style={{margin: 8}}/>
           }
         </CardText>
-        {user ? (
+        {isGuest ? '' : (
           <CardActions>
             <Button onClick={this._handleDelete.bind(this)}>
               Delete
             </Button>
           </CardActions>
-        ) : ''}
+        )}
       </Card>
     );
   }
@@ -103,6 +104,7 @@ export default Relay.createContainer(ExplanationCard, {
     user: () => Relay.QL`
       fragment on User {
         id
+        isGuest
       }
     `
   }
