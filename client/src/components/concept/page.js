@@ -113,7 +113,7 @@ class ConceptPage extends React.Component {
           </Grid>
           <Cell col={12} align="stretch"
                 style={{overflowY: navType == 'map' ? 'hidden' : 'auto'}}>
-          {list}
+            {list}
           </Cell>
         </Card>
 
@@ -166,13 +166,15 @@ class ConceptPage extends React.Component {
   }
 
   _setSelected({viewer, location}) {
-    const {id} = location.query;
     const {selectedConcept} = viewer;
 
-    if (id && selectedConcept && id == selectedConcept.id && id != this.state.selectedId) {
-      this.props.history.replaceState('', createConceptURL(selectedConcept));
+    if (selectedConcept) {
+      const url = createConceptURL(selectedConcept);
+      const {pathname, search} = this.props.location;
+      if (pathname + search != url) this.props.history.replaceState('', url);
     }
 
+    const {id} = location.query;
     if (id) {
       this.setState({selectedId: id});
       if (id == this.state.selectedId) return;
