@@ -35,6 +35,7 @@ class ConceptInfo extends React.Component {
             <ConceptBreadcrumbs concept={concept}/>
           </Cell>
         )}
+        <div style={{height: 25}}/>
         <CardAnimation>
           <Card key="concept" style={{overflow: 'visible'}}>
             <CardTitle style={{paddingBottom: 0}}>
