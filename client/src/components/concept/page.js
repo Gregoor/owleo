@@ -58,14 +58,14 @@ class ConceptPage extends React.Component {
                          selectedId={hasSelection ? selectedConcept.id : null}/>;
     } else if (!showMap && this.props.relay.variables.includeList) {
       list = <ConceptList concept={conceptRoot} selectedPath={selectedPath}/>;
-    } else list = <Spinner/>;
+    } else list = <Spinner style={{left: '50%', top: '5px'}}/>;
 
     let emptyOwl = false;
     let content;
     let contentLoading;
     let animateContent = false;
     if (this.state.isLoading) {
-      contentLoading = <Spinner/>;
+      contentLoading = <Spinner style={{left: '50%', top: '5px'}}/>;
       animateContent = true;
     } else if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
