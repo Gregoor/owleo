@@ -157,15 +157,12 @@ export default {
       mutateAndGetPayload(input, root) {
         const {conceptID, mastered} = input;
         const {id} = fromGlobalId(conceptID);
-        return assertUser(root)
-          .then(() => root.rootValue.getUser())
-          .then(({id: userID}) => {
+        return root.rootValue.getUser().then(({id: userID}) => {
             const fields = getFieldList(root);
             return Concept.master(id, userID, mastered)
               .then(() => Concept.find({id}, fields.concept, userID))
           })
           .then(([concept]) => ({concept}));
-
       }
     }),
     createExplanation: mutationWithClientMutationId({
