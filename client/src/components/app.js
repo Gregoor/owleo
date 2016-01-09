@@ -24,7 +24,10 @@ const ViewerQuery = {
   viewer: () => Relay.QL`query RootQuery { viewer }`
 };
 
-const commonProps = {renderLoading: () => <Spinner/>, queries: ViewerQuery};
+const commonProps = {
+  renderLoading: () => <Spinner style={{left: '50%', top: '5px'}}/>,
+  queries: ViewerQuery
+};
 
 const CreateConceptForm = ({viewer}) => (
   <ConceptForm viewer={viewer} concept={null}/>
