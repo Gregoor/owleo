@@ -167,14 +167,14 @@ class ConceptPage extends React.Component {
 
   _setSelected({viewer, location}) {
     const {selectedConcept} = viewer;
+    const {id} = location.query;
 
-    if (selectedConcept) {
+    if (id && selectedConcept && id == atob(selectedConcept.id).split(':')[1]) {
       const url = createConceptURL(selectedConcept);
       const {pathname, search} = this.props.location;
       if (pathname + search != url) this.props.history.replaceState('', url);
     }
 
-    const {id} = location.query;
     if (id) {
       this.setState({selectedId: id});
       if (id == this.state.selectedId) return;
