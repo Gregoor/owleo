@@ -107,6 +107,7 @@ input MasterConceptInput {
 
 type MasterConceptPayload {
   concept: Concept
+  user: User
   clientMutationId: String!
 }
 
@@ -170,6 +171,7 @@ type User implements Node {
   name: String
   admin: Boolean
   isGuest: Boolean
+  masteredConceptsCount: Int
 }
 
 type Viewer {

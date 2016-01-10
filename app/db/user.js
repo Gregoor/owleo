@@ -53,7 +53,8 @@ export default {
       `
         MATCH (u:User)
         WHERE u.id = {id} OR u.name = {name}
-        RETURN ${fields}
+        OPTIONAL MATCH (u)-[:MASTERED]->(c:Concept)
+        RETURN ${fields}, COUNT(DISTINCT c) AS masteredConceptsCount
         LIMIT 1
       `,
       {id, name}

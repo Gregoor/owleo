@@ -1,4 +1,6 @@
-import {GraphQLObjectType, GraphQLString, GraphQLBoolean} from 'graphql';
+import {
+  GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLBoolean
+} from 'graphql';
 import {globalIdField} from 'graphql-relay';
 
 import NodeGQL from './node-gql';
@@ -10,7 +12,8 @@ export default {
       id: globalIdField('User'),
       name: {type: GraphQLString},
       admin: {type: GraphQLBoolean},
-      isGuest: {type: GraphQLBoolean, resolve: ({isGuest}) => Boolean(isGuest)}
+      isGuest: {type: GraphQLBoolean, resolve: ({isGuest}) => Boolean(isGuest)},
+      masteredConceptsCount: {type: GraphQLInt}
     }),
     interfaces: [NodeGQL.interface]
   })

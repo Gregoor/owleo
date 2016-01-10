@@ -15,6 +15,7 @@ import {
 import _ from 'lodash';
 
 import Concept from '../db/concept';
+import User from '../db/user';
 import Explanation from '../db/explanation';
 import getFieldList from './get-field-list';
 import NodeGQL from './node-gql';
@@ -152,7 +153,8 @@ export default {
         mastered: {type: new GraphQLNonNull(GraphQLBoolean)}
       },
       outputFields: {
-        concept: {type: ConceptType}
+        concept: {type: ConceptType},
+        user: {type: UserGQL.type}
       },
       mutateAndGetPayload(input, root) {
         const {conceptID, mastered} = input;
@@ -160,9 +162,12 @@ export default {
         return root.rootValue.getUser().then(({id: userID}) => {
             const fields = getFieldList(root);
             return Concept.master(id, userID, mastered)
-              .then(() => Concept.find({id}, fields.concept, userID))
+              .then(() => Promise.all([
+                Concept.find({id}, fields.concept, userID),
+                User.find({id: userID}, fields.user)
+              ]));
           })
-          .then(([concept]) => ({concept}));
+          .then(([[concept], user]) => ({concept, user}));
       }
     }),
     createExplanation: mutationWithClientMutationId({
