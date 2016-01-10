@@ -6,6 +6,7 @@ import {
   Spinner, Textfield
 } from 'react-mdl';
 import _ from 'lodash';
+import pluralize from 'pluralize';
 
 import history from '../history';
 import LoginMutation from '../mutations/user/login';
@@ -34,7 +35,7 @@ class AuthPage extends React.Component {
       loginMode, isAuthenticating, authFailed, isCheckingName, nameEmpty,
       pwEmpty, pwRepeatEmpty, pwMismatch
     } = this.state;
-    const {userExists} = this.props.viewer;
+    const {user, userExists} = this.props.viewer;
 
     const isValidName = loginMode ? userExists : !userExists;
 
@@ -76,11 +77,14 @@ class AuthPage extends React.Component {
 
     return (
       <DocumentTitle title="Auth">
-        <form style={{marginBottom: 0}} onSubmit={this._handleSubmit}
-              onChange={this._handleFormChange}>
-          <Card shadow={2} style={{margin: '11px auto', maxWidth: 360}}>
+        <form style={{margin: '11px auto', maxWidth: 360}}
+              onSubmit={this._handleSubmit} onChange={this._handleFormChange}>
+          <Card shadow={2}>
             <CardTitle>Authentication</CardTitle>
             <CardText>
+              {user.isGuest ? '' :
+                `You're currently logged in as ${user.name}.`
+              }
               <Textfield ref="name" label="Username" floatingLabel
                          error={nameError} onChange={this._handleNameChange}
                          style={{marginBottom: 10}}/>
@@ -118,6 +122,15 @@ class AuthPage extends React.Component {
               }
             </CardActions>
           </Card>
+          {user.isGuest && user.masteredConceptsCount ? (
+            <Card style={{marginTop: 10}}>
+              <CardText>
+                Registering will save the&nbsp;
+                {pluralize('concept', user.masteredConceptsCount, true)}&nbsp;
+                you already learned.
+              </CardText>
+            </Card>
+          ) : ''}
         </form>
       </DocumentTitle>
     );
@@ -202,6 +215,8 @@ export default Relay.createContainer(AuthPage, {
       fragment on Viewer {
         user {
           name
+          isGuest
+          masteredConceptsCount
         }
         userExists(name: $name)
       }
