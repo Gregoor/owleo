@@ -65,7 +65,7 @@ class ConceptFlow extends React.Component {
       }
     }
 
-    const distance = concepts.reduce((max, {name}) => Math.max(max, name.length), 0) * 5;
+    const distance = concepts.reduce((max, {name}) => Math.max(max, name.length), 0) * 6;
 
     d3cola
       .avoidOverlaps(true)
