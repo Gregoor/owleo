@@ -8,10 +8,6 @@ import LogoutMutation from '../mutations/user/logout';
 
 class AppLayout extends React.Component {
 
-  componentDidUpdate() {
-    window.componentHandler.upgradeDom();
-  }
-
   render() {
     const {user} = this.props.viewer;
     const [, root, next] = this.props.location.pathname.split('/');
