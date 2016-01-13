@@ -65,7 +65,7 @@ class ConceptPage extends React.Component {
     let contentLoading;
     let animateContent = false;
     if (this.state.isLoading) {
-      contentLoading = <Spinner style={{left: '50%', top: '5px'}}/>;
+      contentLoading = <Spinner key="loading" style={{left: '50%', top: '5px'}}/>;
       animateContent = true;
     } else if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
