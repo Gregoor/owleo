@@ -6,14 +6,14 @@ import {
   Card, CardActions, CardMenu, CardText, CardTitle, Cell, Button, FABButton
 } from 'react-mdl';
 
-import history from '../../history';
-import DeleteConceptMutation from '../../mutations/concept/delete';
+import history from '../../../history';
+import DeleteConceptMutation from '../../../mutations/concept/delete';
 import Req from './req';
-import ConceptBreadcrumbs from './breadcrumbs';
+import ConceptBreadcrumbs from './../breadcrumbs';
 import MasterConceptButton from './master-button';
-import ConceptForm from './form';
-import ExplanationList from '../explanation/list';
-import CardAnimation from '../card-animation';
+import ConceptForm from './../form';
+import ExplanationList from '../../explanation/list';
+import CardAnimation from '../../card-animation';
 
 class ConceptInfo extends React.Component {
 

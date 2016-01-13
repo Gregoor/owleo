@@ -2,9 +2,9 @@ import React, {PropTypes} from 'react';
 import Relay from 'react-relay';
 import {History} from 'react-router';
 
-import '../../../lib/foamtree/carrotsearch.foamtree';
+import '../../../../lib/foamtree/carrotsearch.foamtree.js';
 
-import createConceptURL from '../../helpers/create-concept-url';
+import createConceptURL from '../../../helpers/create-concept-url';
 
 
 const ConceptMap = React.createClass({

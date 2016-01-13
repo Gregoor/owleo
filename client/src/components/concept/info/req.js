@@ -3,7 +3,7 @@ import {Link} from 'react-router';
 import Relay from 'react-relay';
 import clamp from 'clamp-js';
 
-import createConceptURL from '../../helpers/create-concept-url';
+import createConceptURL from '../../../helpers/create-concept-url';
 import MasterConceptButton from './master-button';
 
 class Req extends React.Component {

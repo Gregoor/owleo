@@ -8,9 +8,9 @@ import {
 import _ from 'lodash';
 import pluralize from 'pluralize';
 
-import history from '../history';
-import LoginMutation from '../mutations/user/login';
-import {Check, Cross} from './icons';
+import history from '../../history';
+import LoginMutation from '../../mutations/user/login';
+import {Check, Cross} from './../icons';
 
 class AuthPage extends React.Component {
 

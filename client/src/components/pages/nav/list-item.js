@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import {Button, Spinner} from 'react-mdl';
 
-import createConceptURL from '../../helpers/create-concept-url';
+import createConceptURL from '../../../helpers/create-concept-url';
 import ConceptList from './list';
 
 

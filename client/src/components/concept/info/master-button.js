@@ -3,7 +3,7 @@ import Relay from 'react-relay';
 import {FABButton, Icon} from 'react-mdl';
 import _ from 'lodash';
 
-import MasterConceptMutation from '../../mutations/concept/master';
+import MasterConceptMutation from '../../../mutations/concept/master';
 
 class MasterConceptButton extends React.Component {
 

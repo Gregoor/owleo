@@ -8,11 +8,11 @@ import {Spinner} from 'react-mdl';
 import {BACKEND_URL, DEV_MODE} from '../config.custom';
 import history from '../history';
 import Layout from './layout';
-import ConceptPage from './concept/page';
-import ConceptLearnPage from './concept/learn-page';
+import ConceptPage from './pages/nav/index';
+import ConceptLearnPage from './pages/learn/';
 import ConceptForm from './concept/form';
-import AuthPage from './auth-page';
-import AboutPage from './about-page';
+import AuthPage from './pages/auth';
+import AboutPage from './pages/about';
 
 Relay.injectNetworkLayer(
   new Relay.DefaultNetworkLayer(BACKEND_URL + 'graphql', {

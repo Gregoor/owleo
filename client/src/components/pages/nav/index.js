@@ -5,17 +5,17 @@ import {Link} from 'react-router';
 import classnames from 'classnames';
 import {Card, Cell, FABButton, Grid, Icon, Spinner, Textfield} from 'react-mdl';
 
-import history from '../../history';
-import createConceptURL from '../../helpers/create-concept-url';
-import SearchResults from './results';
+import history from '../../../history';
+import createConceptURL from '../../../helpers/create-concept-url';
+import SearchResults from './../../concept/results';
 import ConceptList from './list';
-import ConceptInfo from './info';
-import ConceptForm from './form';
+import ConceptInfo from '../../concept/info/';
+import ConceptForm from './../../concept/form';
 import ConceptMap from './map';
-import OwlPlaceholder from '../owl-placeholder/owl-placeholder';
-import CardAnimation from '../card-animation';
+import OwlPlaceholder from '../../owl-placeholder/';
+import CardAnimation from './../../card-animation';
 
-import './icon-switch.scss';
+import './../../concept/icon-switch.scss';
 
 class ConceptPage extends React.Component {
 
@@ -86,7 +86,7 @@ class ConceptPage extends React.Component {
       <div className="concept-nav-container">
 
         <Card className="concept-nav"
-              style={{maxWidth: navType == 'map' ? '800px' : '500px'}}>
+              style={{width: '100%', maxWidth: navType == 'map' ? '800px' : '500px'}}>
           <Grid style={{backgroundColor: 'white', margin: 0, padding: 0,
                         borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
             <Cell col={10}>

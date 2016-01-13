@@ -3,10 +3,10 @@ import Relay from 'react-relay';
 import _ from 'lodash';
 import {Icon} from 'react-mdl';
 
-import ConceptBreadcrumbs from './breadcrumbs';
+import ConceptBreadcrumbs from '../../concept/breadcrumbs';
 import ConceptFlow from './flow';
-import ConceptInfo from './info';
-import CardAnimation from '../card-animation';
+import ConceptInfo from '../../concept/info/';
+import CardAnimation from '../../card-animation';
 
 class ConceptLearnPage extends React.Component {
 
