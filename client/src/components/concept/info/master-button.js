@@ -1,7 +1,8 @@
 import React from 'react';
 import Relay from 'react-relay';
-import {FABButton, Icon, IconButton} from 'react-mdl';
 import _ from 'lodash';
+import classnames from 'classnames';
+import {FABButton, Icon, IconButton} from 'react-mdl';
 
 import MasterConceptMutation from '../../../mutations/concept/master';
 
@@ -11,14 +12,19 @@ class MasterConceptButton extends React.Component {
     const {concept, raised} = this.props;
     const {mastered} = concept;
 
-    if (!raised)
-    return (
-      <FABButton accent={mastered} title="I fully understand this concept"
-                 onClick={this._handleClick.bind(this)}
-                 {..._.omit(this.props, 'relay', 'concept')}>
-        <Icon name="check"/>
-      </FABButton>
-    )
+    const props = Object.assign(
+      {
+        accent: mastered,
+        title: 'I fully understand this concept',
+        onClick: this._handleClick.bind(this)
+      },
+      _.omit(this.props, 'relay', 'concept')
+    );
+
+    return raised ?
+      <FABButton {...props} ripple><Icon name="check"/></FABButton> :
+      <IconButton name="check" {...props} ripple
+                  className={classnames({'mdl-button--greyed': !mastered})}/>;
   }
 
   _handleClick() {
@@ -31,7 +37,7 @@ class MasterConceptButton extends React.Component {
 
 }
 
-MasterConceptButton.defaultProps = {onMaster: _.noop};
+MasterConceptButton.defaultProps = {raised: true, onMaster: _.noop};
 
 export default Relay.createContainer(MasterConceptButton, {
 

@@ -32,6 +32,7 @@ class ConceptSimpleList extends React.Component {
     const {concept} = viewer;
     const {showSpinner, isLoading} = this.state;
 
+    if (showSpinner && isLoading || !concept) console.log(this.state, concept);
     if (showSpinner && isLoading || !concept) return (
       <div style={{marginLeft: '50%', marginTop: 5, overflow: 'hidden'}}>
         <Spinner/>
@@ -50,8 +51,7 @@ class ConceptSimpleList extends React.Component {
           : ''}
         </div>
         <ul className="mdl-list"
-            style={{width: '100%', height: '100%', margin: 0,
-                    overflowY: 'auto'}}>
+            style={{height: '100%', margin: 0, overflowY: 'auto'}}>
           {concepts.map((c) => (
             <li key={c.id} className="mdl-list__item">
               <span className="mdl-list__item-primary-content">
@@ -72,9 +72,9 @@ class ConceptSimpleList extends React.Component {
                   {c.name}
                 </Link>
               </span>
-              <a className="mdl-list__item-secondary-action" href="#">
+              <span className="mdl-list__item-secondary-action">
                 <MasterConceptButton concept={c} mini raised={false}/>
-              </a>
+              </span>
             </li>
 
           ))}
