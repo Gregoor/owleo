@@ -32,7 +32,6 @@ class ConceptSimpleList extends React.Component {
     const {concept} = viewer;
     const {showSpinner, isLoading} = this.state;
 
-    if (showSpinner && isLoading || !concept) console.log(this.state, concept);
     if (showSpinner && isLoading || !concept) return (
       <div style={{marginLeft: '50%', marginTop: 5, overflow: 'hidden'}}>
         <Spinner/>
