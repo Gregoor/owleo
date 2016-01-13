@@ -49,7 +49,7 @@ class ConceptPage extends React.Component {
     let list;
     if (query) {
       list = <SearchResults {...{viewer, query}} selectedId={selectedConcept.id}
-                            onSelect={this._handleSearchSelect.bind(this)}/>;
+                            onSelect={this._clearSearch.bind(this)}/>;
     } else if (navType == 'simpleList' && includeSimpleList) {
       list = <ConceptSimpleList viewer={viewer}
                                 selectedId={hasSelection ? selectedConcept.id : null}/>;
@@ -139,15 +139,16 @@ class ConceptPage extends React.Component {
   _handleSearchKeyUp(event) {
     switch (event.keyCode) {
       case 27/*ESC*/:
-        this.setState({query: this.refs.search.refs.input.value = ''});
+        this._clearSearch();
         break;
     }
   }
 
-  _handleSearchSelect(event) {
-    event.preventDefault();
+  _clearSearch() {
     this.setState({query: null});
-    this.refs.search.refs.input.value = '';
+    const {search} = this.refs;
+    search.refs.input.value = '';
+    ReactDOM.findDOMNode(search).classList.remove('is-dirty');
   }
 
   _handleChangeNav(event) {

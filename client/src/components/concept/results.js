@@ -23,10 +23,8 @@ class ConceptResult extends React.Component {
       <li style={{borderBottom: '1px solid rgba(0, 0, 0, 0.1)', padding: '10 0',
                   overflow: 'hidden'}}>
         <Link className="mdl-js-ripple-effect" to={createConceptURL(concept)}
-              onClick={onSelect} style={{
-                    display: 'block', textDecoration: 'none',
-                    color: 'black'
-                  }}>
+              onClick={(event) => { onSelect(); }}
+              style={{display: 'block', textDecoration: 'none', color: 'black'}}>
               <span style={{fontWeight: 200}}>
                 {path.slice(1).reverse().map(({name}) =>
                   [<span>{name}</span>, ' > ']
