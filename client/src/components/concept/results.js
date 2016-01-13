@@ -20,7 +20,7 @@ class ConceptResult extends React.Component {
     const {concept, onSelect} = this.props;
     const {path, name, summary} = concept;
     return (
-      <li style={{borderBottom: '1px solid rgba(0, 0, 0, 0.1)', padding: '10 0',
+      <li style={{borderBottom: '1px solid rgba(0, 0, 0, 0.1)', padding: 10,
                   overflow: 'hidden'}}>
         <Link className="mdl-js-ripple-effect" to={createConceptURL(concept)}
               onClick={(event) => { onSelect(); }}
