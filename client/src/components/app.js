@@ -20,6 +20,10 @@ Relay.injectNetworkLayer(
   })
 );
 
+if (!['simpleList', 'deepList', 'map'].includes(localStorage.navType)) {
+  localStorage.removeItem('navType');
+}
+
 const ViewerQuery = {
   viewer: () => Relay.QL`query RootQuery { viewer }`
 };

@@ -41,7 +41,8 @@ class ConceptSimpleList extends React.Component {
     const {concepts} = concept;
 
     return (
-      <div style={{display: 'flex', flexDirection: 'column', height: '86.5vh', overflowY: 'hidden'}}>
+      <div style={{display: 'flex', flexDirection: 'column', height: '86.5vh',
+                   overflowY: 'hidden'}}>
           <div style={{minHeight: 20, padding: 10}}>
           {concept.name ?
             <ConceptBreadcrumbs concept={concept} showHome leafAsLink
@@ -49,7 +50,8 @@ class ConceptSimpleList extends React.Component {
           : ''}
         </div>
         <ul className="mdl-list"
-            style={{width: '100%', height: '100%', margin: 0, overflowY: 'auto'}}>
+            style={{width: '100%', height: '100%', margin: 0,
+                    overflowY: 'auto'}}>
           {concepts.map((c) => (
             <li key={c.id} className="mdl-list__item">
               <span className="mdl-list__item-primary-content">
@@ -65,7 +67,8 @@ class ConceptSimpleList extends React.Component {
                 </span>
                 <Link to={createConceptURL(c)}
                       onClick={this._maybeDontShowSpinner.bind(this, c.conceptsCount)}
-                      style={{fontSize: 17, fontWeight: selectedId == c.id ? 800 : 500}}>
+                      style={{fontSize: 17,
+                              fontWeight: selectedId == c.id ? 800 : 500}}>
                   {c.name}
                 </Link>
               </span>

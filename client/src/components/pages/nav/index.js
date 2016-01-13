@@ -19,7 +19,7 @@ import CardAnimation from './../../card-animation';
 
 class ConceptPage extends React.Component {
 
-  state = {concept: null, query: '', navType: localStorage.navType};
+  state = {concept: null, query: '', navType: localStorage.navType || 'simpleList'};
 
   componentWillMount() {
     this._setSelected(this.props);
@@ -50,15 +50,14 @@ class ConceptPage extends React.Component {
     if (query) {
       list = <SearchResults {...{viewer, query}} selectedId={selectedConcept.id}
                             onSelect={this._handleSearchSelect.bind(this)}/>;
-    } else if (navType == 'map' && includeMap) {
-      list = <ConceptMap concept={conceptRoot}
-                         selectedId={hasSelection ? selectedConcept.id : null}/>;
-    } else if (navType == 'deepList' && includeDeepList) {
-      list = <ConceptList concept={conceptRoot} selectedPath={selectedPath}/>;
     } else if (navType == 'simpleList' && includeSimpleList) {
       list = <ConceptSimpleList viewer={viewer}
                                 selectedId={hasSelection ? selectedConcept.id : null}/>;
-
+    } else if (navType == 'deepList' && includeDeepList) {
+      list = <ConceptList concept={conceptRoot} selectedPath={selectedPath}/>;
+    } else if (navType == 'map' && includeMap) {
+      list = <ConceptMap concept={conceptRoot}
+                         selectedId={hasSelection ? selectedConcept.id : null}/>;
     } else list = <Spinner style={{left: '50%', top: '5px'}}/>;
 
     let emptyOwl = false;
@@ -154,8 +153,8 @@ class ConceptPage extends React.Component {
     const {value} = event.target;
 
     this.props.relay.setVariables({
-      includeDeepList: value == 'deepList',
       includeSimpleList: value == 'simpleList',
+      includeDeepList: value == 'deepList',
       includeMap: value == 'map'
     });
     localStorage.setItem('navType', value);
@@ -192,8 +191,8 @@ export default Relay.createContainer(ConceptPage, {
 
   initialVariables: {
     selectedId: null,
-    includeDeepList: !localStorage.navType || localStorage.navType == 'deepList',
-    includeSimpleList: localStorage.navType == 'simpleList',
+    includeSimpleList: !localStorage.navType || localStorage.navType == 'simpleList',
+    includeDeepList: localStorage.navType == 'deepList',
     includeMap: localStorage.navType == 'map'
   },
 
