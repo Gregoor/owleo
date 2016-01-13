@@ -178,7 +178,7 @@ type Viewer {
   user: User
   userExists(name: String!): Boolean
   conceptRoot: Concept
-  concept(id: String): Concept
+  concept(id: String, fetchContainerIfEmpty: Boolean): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
   learnPath(targetId: String): [Concept]
 }

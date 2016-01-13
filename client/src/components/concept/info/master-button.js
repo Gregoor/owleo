@@ -1,6 +1,6 @@
 import React from 'react';
 import Relay from 'react-relay';
-import {FABButton, Icon} from 'react-mdl';
+import {FABButton, Icon, IconButton} from 'react-mdl';
 import _ from 'lodash';
 
 import MasterConceptMutation from '../../../mutations/concept/master';
@@ -8,7 +8,10 @@ import MasterConceptMutation from '../../../mutations/concept/master';
 class MasterConceptButton extends React.Component {
 
   render() {
-    const {mastered} = this.props.concept;
+    const {concept, raised} = this.props;
+    const {mastered} = concept;
+
+    if (!raised)
     return (
       <FABButton accent={mastered} title="I fully understand this concept"
                  onClick={this._handleClick.bind(this)}

@@ -7,6 +7,7 @@ import {
   GraphQLBoolean,
   GraphQLNonNull
 } from 'graphql';
+import _ from 'lodash';
 
 import {
   fromGlobalId,
@@ -45,15 +46,35 @@ let ViewerType = new GraphQLObjectType({
     concept: {
       type: ConceptGQL.type,
       args: {
-        id: {type: GraphQLString}
+        id: {type: GraphQLString},
+        fetchContainerIfEmpty: {type: GraphQLBoolean}
       },
       resolve(root, args, context) {
-        const {id} = args;
-        if (!id) return null;
+        const {id, fetchContainerIfEmpty} = args;
+        if (!_.isString(id) && !id) return null;
+
+        let fields = getFieldList(context);
 
         return context.rootValue.getUser()
-          .then(({id: userID}) => Concept.find({id}, getFieldList(context), userID))
-          .then(([c]) => c);
+          .then(({id: userID}) => {
+
+            if (id.length == 0) {
+              return Concept.find({container: ''}, fields.concepts, userID)
+                .then(concepts => ({concepts}));
+            }
+
+            if (fetchContainerIfEmpty) {
+              Object.assign(fields, {conceptsCount: true, container: {id: true}});
+            }
+
+            return Concept.find({id}, fields, userID)
+              .then(([concept]) => {
+                return fetchContainerIfEmpty && concept.conceptsCount == 0 ?
+                  Concept.find({id: concept.container.id}, fields, userID)
+                    .then(([c]) => c) :
+                  concept
+              });
+          });
       }
     },
     concepts: {
