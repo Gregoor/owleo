@@ -144,9 +144,10 @@ class ConceptPage extends React.Component {
     }
   }
 
-  _handleSearchSelect() {
+  _handleSearchSelect(event) {
+    event.preventDefault();
     this.setState({query: null});
-    this.refs.search.input.value = '';
+    this.refs.search.refs.input.value = '';
   }
 
   _handleChangeNav(event) {
