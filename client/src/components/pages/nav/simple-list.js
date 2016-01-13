@@ -17,7 +17,7 @@ class ConceptSimpleList extends React.Component {
     selectedId: PropTypes.string
   };
 
-  state = {isLoading: true};
+  state = {showSpinner: true, isLoading: true};
 
   componentWillMount() {
     this._fetchConcept(this.props);
@@ -30,9 +30,9 @@ class ConceptSimpleList extends React.Component {
   render() {
     const {viewer, selectedId} = this.props;
     const {concept} = viewer;
-    const {isLoading} = this.state;
+    const {showSpinner, isLoading} = this.state;
 
-    if (this._showSpinner && isLoading || !concept) return (
+    if (showSpinner && isLoading || !concept) return (
       <div style={{marginLeft: '50%', marginTop: 5, overflow: 'hidden'}}>
         <Spinner/>
       </div>
@@ -90,13 +90,13 @@ class ConceptSimpleList extends React.Component {
       (readyState) => {
         if (readyState.done) {
           this.setState({isLoading: false});
-          setTimeout(() => this._showSpinner = true, 300);
+          setTimeout(() => this.setState({showSpinner: true}), 300);
         }
       });
   }
 
   _maybeDontShowSpinner(conceptsCount) {
-    this._showSpinner = conceptsCount > 0;
+    this.setState({showSpinner: conceptsCount > 0});
   }
 
 }
