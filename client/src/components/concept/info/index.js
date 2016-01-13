@@ -57,7 +57,7 @@ class ConceptInfo extends React.Component {
               <div style={{paddingTop: 5}}>
                 <div className="section-title">Requirements</div>
                 {reqs.map((concept, i) => (
-                  <Req key={id} concept={concept}
+                  <Req key={concept.id} concept={concept}
                        isLast={i + 1 == reqs.length}/>
                 ))}
               </div>
