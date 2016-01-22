@@ -1,8 +1,8 @@
 import React from 'react';
 import Relay from 'react-relay';
-import { Lifecycle } from 'react-router'
+import {Lifecycle} from 'react-router'
 import {
-  Button, Card, CardActions, CardText, CardTitle, Textfield
+  Button, Card, CardActions, CardText, CardTitle, ProgressBar, Textfield
 } from 'react-mdl';
 
 import history from '../../history';
@@ -12,7 +12,7 @@ import UpdateConceptMutation from '../../mutations/concept/update';
 
 class ConceptForm extends React.Component {
 
-  state = {summaryLength: 0};
+  state = {summaryLength: 0, isLoading: false};
 
   componentWillMount() {
     const {concept} = this.props;
@@ -22,7 +22,7 @@ class ConceptForm extends React.Component {
 
   render() {
     const {viewer, concept} = this.props;
-    const {summaryLength} = this.state;
+    const {summaryLength, isLoading} = this.state;
 
     let headline, buttonLabel;
     if (concept) {
@@ -33,13 +33,14 @@ class ConceptForm extends React.Component {
       buttonLabel = 'Create';
     }
 
-
-    let {name, container, reqs, summary, summarySource} = concept || {};
+    const {name, container, reqs, summary, summarySource} = concept || {};
     return (
-      <form onSubmit={this._handleSubmit.bind(this)}>
+      <form onSubmit={this._handleSubmit.bind(this)}
+            style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
         <Card shadow={2}>
           <CardTitle>{headline}</CardTitle>
-          <CardText>
+          <CardText style={{display: 'flex', flexDirection: 'column',
+                            alignItems: 'center'}}>
             <Textfield ref="name" label="Name" floatingLabel
                        defaultValue={name}/>
             <ConceptSelect ref="container" name="container" label="Container"
@@ -60,8 +61,12 @@ class ConceptForm extends React.Component {
             <Button ripple onClick={this.props.onAbort}>
             Abort
             </Button>
-            <Button type="submit" ripple primary>
+            <Button type="submit" ripple primary disabled={isLoading}>
               {buttonLabel}
+              {isLoading ?
+                <ProgressBar indeterminate style={{width: '100%', marginTop: -5}}/> :
+                ''
+              }
             </Button>
           </CardActions>
         </Card>
@@ -78,8 +83,9 @@ class ConceptForm extends React.Component {
     const {name, container, reqs, summary, summarySource} = this.refs;
     const selectedContainer = container.refs.component.getSelected();
     const input = {
-      name: name.getValue(),
-      summary: summary.getValue(), summarySrc: summarySource.getValue(),
+      name: name.refs.input.value,
+      summary: summary.refs.input.value,
+      summarySrc: summarySource.refs.input.value,
       container: selectedContainer ? selectedContainer.id : null,
       reqs: reqs.refs.component.getSelected().map(c => c.id)
     };
@@ -87,6 +93,7 @@ class ConceptForm extends React.Component {
     const {concept} = this.props;
     const isNew = !concept;
     if (!isNew) input.id = concept.id;
+    this.setState({isLoading: true});
     Relay.Store.update(
       isNew ? new CreateConceptMutation(input) : new UpdateConceptMutation(input),
       {
@@ -94,7 +101,10 @@ class ConceptForm extends React.Component {
           window.location = '/concepts?id=' +
             atob(isNew ? t.createConcept.conceptID : concept.id).split(':')[1];
         },
-        onFailure: t => console.error(t.getError().source.errors)
+        onFailure: t => {
+          console.error(t.getError().source.errors);
+          this.setState({isLoading: false});
+        }
       }
     );
   }
