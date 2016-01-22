@@ -69,10 +69,13 @@ let ViewerType = new GraphQLObjectType({
 
             return Concept.find({id}, fields, userID)
               .then(([concept]) => {
-                return fetchContainerIfEmpty && concept.conceptsCount == 0 ?
-                  Concept.find({id: concept.container.id}, fields, userID)
-                    .then(([c]) => c) :
-                  concept
+                if (!(fetchContainerIfEmpty && concept.conceptsCount == 0)) {
+                  return concept;
+                }
+                return (concept.container ?
+                    Concept.find({id: concept.container.id}, fields, userID) :
+                    Concept.find({container: ''}, fields.concepts, userID)
+                  ).then(([c]) => c)
               });
           });
       }
