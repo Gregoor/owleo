@@ -96,7 +96,8 @@ class ConceptPage extends React.Component {
                          style={{margin: '-20px 0', width: '100%'}}/>
             </Cell>
             <Cell col={3}>
-              <select onChange={this._handleChangeNav.bind(this)}>
+              <select onChange={this._handleChangeNav.bind(this)}
+                      defaultValue={navType}>
                 <option value="simpleList">Simple List</option>
                 <option value="deepList">Deep List</option>
                 <option value="map">Map</option>
