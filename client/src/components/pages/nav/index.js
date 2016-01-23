@@ -86,16 +86,16 @@ class ConceptPage extends React.Component {
       <div className="concept-nav-container">
 
         <Card className="concept-nav"
-              style={{width: '100%', maxWidth: '500px'}}>
+              style={{width: '100%', maxWidth: '350px'}}>
           <Grid style={{backgroundColor: 'white', margin: 0, padding: 0,
                         borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
-            <Cell col={9}>
+            <Cell col={8}>
               <Textfield ref="search" label="Search for concepts"
                          onChange={this._handleSearchChange.bind(this)}
                          onKeyUp={this._handleSearchKeyUp.bind(this)}
                          style={{margin: '-20px 0', width: '100%'}}/>
             </Cell>
-            <Cell col={3}>
+            <Cell col={4}>
               <select onChange={this._handleChangeNav.bind(this)}
                       defaultValue={navType}>
                 <option value="simpleList">Simple List</option>
