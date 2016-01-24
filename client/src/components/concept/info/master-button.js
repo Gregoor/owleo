@@ -29,10 +29,9 @@ class MasterConceptButton extends React.Component {
 
   _handleClick() {
     const {concept} = this.props;
-    Relay.Store.update(
-      new MasterConceptMutation({concept, mastered: !concept.mastered})
-    );
-    this.props.onMaster();
+    const mastered = !concept.mastered;
+    Relay.Store.update(new MasterConceptMutation({concept, mastered}));
+    if (mastered) this.props.onMaster();
   }
 
 }
