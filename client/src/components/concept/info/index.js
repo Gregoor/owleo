@@ -14,6 +14,7 @@ import MasterConceptButton from './master-button';
 import ConceptForm from './../form';
 import ExplanationList from '../../explanation/list';
 import CardAnimation from '../../card-animation';
+import shortenURL from '../../../helpers/shorten-url';
 
 class ConceptInfo extends React.Component {
 
@@ -68,7 +69,11 @@ class ConceptInfo extends React.Component {
                 <div>
                   <blockquote>{summary}</blockquote>
                   <em>Source:</em>&nbsp;
-                  <a href={summarySource} target="_blank">{summarySource}</a>
+                  <a href={summarySource} target="_blank">
+                    {summarySource.length > 60 ?
+                      shortenURL(summarySource) :
+                      summarySource}
+                  </a>
                 </div> :
                 <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
               }
