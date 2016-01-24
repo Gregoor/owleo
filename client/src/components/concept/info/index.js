@@ -30,7 +30,7 @@ class ConceptInfo extends React.Component {
     }
     const {id, name, summary, summarySource, reqs} = concept;
     return (
-      <div style={{margin: '0 auto', width: '100%', maxWidth: '700px'}}>
+      <div style={{margin: '0 auto'}}>
         {concept.path.length < 2 ? <div style={{height: 28}}/> : (
           <Cell col={12}>
             <ConceptBreadcrumbs concept={concept}/>
