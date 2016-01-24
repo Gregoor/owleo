@@ -88,7 +88,6 @@ class ExplanationForm extends React.Component {
     const {concept} = this.props;
     const content = type == 'link' ?
       link.refs.input.value : quill.getEditor().getHTML();
-    debugger;
     Relay.Store.update(
       new CreateExplanationMutation({concept, type, content}),
       {
