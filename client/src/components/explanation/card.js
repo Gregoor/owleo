@@ -75,7 +75,8 @@ class ExplanationCard extends React.Component {
 
   _handleDelete() {
     if (!confirm('Do you really want to delete this explanation?')) return;
-    Relay.Store.update(new DeleteExplanationMutation(),
+    const {explanation} = this.props;
+    Relay.Store.update(new DeleteExplanationMutation({explanation}),
       {
         onSuccess: t => {
           location.reload();
@@ -99,6 +100,7 @@ export default Relay.createContainer(ExplanationCard, {
         hasUpvoted
         hasDownvoted
         ${VoteExplanationMutation.getFragment('explanation')}
+        ${DeleteExplanationMutation.getFragment('explanation')}
       }
     `,
     user: () => Relay.QL`
