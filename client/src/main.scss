@@ -142,10 +142,11 @@ $timingFn: cubic-bezier(.62,.28,.23,.99);
 
 $nav-width: 350px;
 $nav-margin: 10px;
-
 .nav-negative-margin {
-  display: flex;
-  margin-left: -($nav-width + $nav-margin);
+  @media(min-width: 1450px) {
+    display: flex;
+    margin-left: -($nav-width + $nav-margin);
+  }
 }
 
 .concept-nav {
