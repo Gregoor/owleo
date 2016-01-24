@@ -43,7 +43,7 @@ class ConceptLearnPage extends React.Component {
     return (
       <div className="concept-nav-container">
 
-        <div className="mdl-card concept-nav" style={{maxWidth: '800px'}}>
+        <div className="mdl-card concept-nav" style={{maxWidth: '350px'}}>
           <div style={{padding: 5, borderBottom: '1px solid black'}}>
             {masteredAll ? 'You have mastered' : 'You are mastering'}
             <br/>
