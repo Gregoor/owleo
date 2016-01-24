@@ -22,7 +22,7 @@ export default {
     let attrs = Object.assign({
       id: uuid.v4(),
       content: sanitizeHtml(data.content, {
-        'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u']
+        'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u', 'img']
       }),
       createdAt: Date.now()
     }, _.pick(data, 'type', 'paywalled'));

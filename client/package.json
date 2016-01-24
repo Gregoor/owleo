@@ -45,6 +45,7 @@
     "react-dom": "^0.14.6",
     "react-mdl": "^1.0.4",
     "react-motion": "^0.2.7",
+    "react-quill": "^0.3.0",
     "react-relay": "^0.5.0",
     "react-router": "^1.0.3",
     "react-router-relay": "^0.8.0",

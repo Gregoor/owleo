@@ -4,8 +4,23 @@ import Relay from 'react-relay';
 import {
   Button, Card, CardActions, CardText, Radio, RadioGroup, Textfield
 } from 'react-mdl';
+import ReactQuill from 'react-quill';
 
 import CreateExplanationMutation from '../../mutations/explanation/create';
+
+const toolbar = [
+  {label: 'Text', type: 'group', items: [
+    {type: 'bold', label: 'Bold'},
+    {type: 'italic', label: 'Italic'},
+    {type: 'underline', label: 'Underline'}
+  ]},
+  {label: 'Blocks', type: 'group', items: [
+    {type: 'bullet', label: 'Bullet'},
+    {type: 'separator'},
+    {type: 'list', label: 'List'}
+  ]},
+  {label: 'Image', type: 'image'}
+];
 
 class ExplanationForm extends React.Component {
 
@@ -20,13 +35,19 @@ class ExplanationForm extends React.Component {
             <RadioGroup name="type" value="text"
                         onChange={this._handleChangeType.bind(this)}
                         style={{display: 'flex', justifyContent: 'space-around'}}>
-                <Radio ref="textRadio" ripple defaultChecked value="text">
-                  Text
-                </Radio>
-                <Radio ref="linkRadio" ripple value="link">Link</Radio>
+              <Radio ref="textRadio" ripple defaultChecked value="text">
+                Text
+              </Radio>
+              <Radio ref="linkRadio" ripple value="link">Link</Radio>
             </RadioGroup>
-            <Textfield ref="text" label="Explanation text" rows={3}
-                       style={{width: '100%', display: isLink ? 'none' : 'block'}}/>
+            <ReactQuill ref="quill" label="Explanation text" theme="snow"
+                        modules={{'image-tooltip': true}}
+                        toolbar={toolbar}
+                        styles={{
+                          '.quill':
+                            {width: '100%', display: isLink ? 'none' : 'block'},
+                          '.quill-contents': {height: 320}
+                        }}/>
             <Textfield ref="link" label="URL" type="url"
                        style={{width: '100%',
                                display: isLink ? 'block' : 'none'}}/>
@@ -61,14 +82,15 @@ class ExplanationForm extends React.Component {
 
   _handleSubmit(event) {
     event.preventDefault();
-    let {type} = this.state;
-    let {link, text} = this.refs;
+    const {type} = this.state;
+    const {link, quill} = this.refs;
 
-    let {concept} = this.props;
+    const {concept} = this.props;
+    const content = type == 'link' ?
+      link.refs.input.value : quill.getEditor().getHTML();
+    debugger;
     Relay.Store.update(
-      new CreateExplanationMutation({
-        concept, type, content: (type == 'link' ? link : text).refs.input.value
-      }),
+      new CreateExplanationMutation({concept, type, content}),
       {
         onSuccess: t => {
           location.reload();
