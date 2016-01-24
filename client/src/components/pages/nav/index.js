@@ -85,38 +85,42 @@ class ConceptPage extends React.Component {
     return (
       <div className="concept-nav-container">
 
-        <Card className="concept-nav"
-              style={{width: '100%', maxWidth: '350px'}}>
-          <Grid style={{backgroundColor: 'white', margin: 0, padding: 0,
-                        borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
-            <Cell col={8}>
-              <Textfield ref="search" label="Search for concepts"
-                         onChange={this._handleSearchChange.bind(this)}
-                         onKeyUp={this._handleSearchKeyUp.bind(this)}
-                         style={{margin: '-20px 0', width: '100%'}}/>
-            </Cell>
-            <Cell col={4}>
-              <select onChange={this._handleChangeNav.bind(this)}
-                      defaultValue={navType}>
-                <option value="simpleList">Simple List</option>
-                <option value="deepList">Deep List</option>
-                <option value="map">Map</option>
-              </select>
-            </Cell>
-          </Grid>
-          <Cell col={12} align="stretch"
-                style={{width: '100%', margin: 0,
-                        overflowY: navType == 'map' ? 'hidden' : 'auto'}}>
-            {list}
-          </Cell>
-        </Card>
+        <div className="nav-negative-margin">
 
-        <div className="card-container concept-scroller">
-          <div style={{marginTop: 10}}>
-            {contentLoading}
-            {content}
+          <Card className="concept-nav">
+            <Grid style={{backgroundColor: 'white', margin: 0, padding: 0,
+                          borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
+              <Cell col={8}>
+                <Textfield ref="search" label="Search for concepts"
+                           onChange={this._handleSearchChange.bind(this)}
+                           onKeyUp={this._handleSearchKeyUp.bind(this)}
+                           style={{margin: '-20px 0', width: '100%'}}/>
+              </Cell>
+              <Cell col={4}>
+                <select onChange={this._handleChangeNav.bind(this)}
+                        defaultValue={navType}>
+                  <option value="simpleList">Simple List</option>
+                  <option value="deepList">Deep List</option>
+                  <option value="map">Map</option>
+                </select>
+              </Cell>
+            </Grid>
+            <Cell col={12} align="stretch"
+                  style={{width: '100%', margin: 0,
+                          overflowY: navType == 'map' ? 'hidden' : 'auto'}}>
+              {list}
+            </Cell>
+          </Card>
+
+          <div className="card-container concept-scroller">
+            <div style={{marginTop: 10}}>
+              {contentLoading}
+              {content}
+            </div>
           </div>
+
         </div>
+
 
         <span style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
               className={classnames('fab-hideable', {'fab-hidden': !isLearnable})}

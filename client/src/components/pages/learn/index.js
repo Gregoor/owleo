@@ -43,24 +43,28 @@ class ConceptLearnPage extends React.Component {
     return (
       <div className="concept-nav-container">
 
-        <div className="mdl-card concept-nav" style={{maxWidth: '350px'}}>
-          <div style={{padding: 5, borderBottom: '1px solid black'}}>
-            {masteredAll ? 'You have mastered' : 'You are mastering'}
-            <br/>
-            <h3 style={{margin: 0}}>
-              {target.name} {masteredAllIcon}
-            </h3>
-            <ConceptBreadcrumbs concept={target}/>
-          </div>
-          <ConceptFlow concepts={learnPath} {...{selectedConcept}}
-                       onSelect={this._handleSelect.bind(this)} />
-        </div>
+        <div className="nav-negative-margin">
 
-        <div className="card-container concept-scroller">
-          <div style={{marginTop: 10}}>
-            {contentLoading}
-            {content}
+          <div className="mdl-card concept-nav">
+            <div style={{padding: 5, borderBottom: '1px solid black'}}>
+              {masteredAll ? 'You have mastered' : 'You are mastering'}
+              <br/>
+              <h3 style={{margin: 0}}>
+                {target.name} {masteredAllIcon}
+              </h3>
+              <ConceptBreadcrumbs concept={target}/>
+            </div>
+            <ConceptFlow concepts={learnPath} {...{selectedConcept}}
+                         onSelect={this._handleSelect.bind(this)} />
           </div>
+
+          <div className="card-container concept-scroller">
+            <div style={{marginTop: 10}}>
+              {contentLoading}
+              {content}
+            </div>
+          </div>
+
         </div>
 
       </div>

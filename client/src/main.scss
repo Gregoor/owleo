@@ -138,20 +138,27 @@ $timingFn: cubic-bezier(.62,.28,.23,.99);
 .concept-nav-container {
   display: flex;
   justify-content: center;
-  overflow: hidden;
+}
+
+$nav-width: 350px;
+$nav-margin: 10px;
+
+.nav-negative-margin {
+  display: flex;
+  margin-left: -($nav-width + $nav-margin);
 }
 
 .concept-nav {
+  position: fixed;
   height: 91vh;
-  margin: 10px;
+  max-width: $nav-width;
+  margin: $nav-margin;
   background-color: white;
 }
 
 .concept-scroller {
-  width: 100%;
-  height: 91vh;
+  margin-left: $nav-width + $nav-margin + 10px;
   justify-content: center;
-  overflow-y: auto;
 }
 
 //div {
