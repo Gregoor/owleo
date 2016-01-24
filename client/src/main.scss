@@ -1,6 +1,8 @@
 @import '~react-mdl/extra/material.css';
 @import '~react-select/dist/default';
 
+$readable-font-size: 19px;
+
 body {
   background-color: #FAFAFA;
   font-family: Roboto, Helvetica, Arial, sans-serif;
@@ -72,7 +74,7 @@ form {
 
   .mdl-card__supporting-text {
     width: auto;
-    font-size: 19px;
+    font-size: $readable-font-size;
     line-height: 30px;
   }
 
@@ -118,6 +120,10 @@ $timingFn: cubic-bezier(.62,.28,.23,.99);
 
 .mdl-card__supporting-text > .explanation > a {
   font-size: 15px;
+}
+
+.ql-editor > div {
+  font-size: $readable-font-size;
 }
 
 .fab-hideable {
