@@ -85,7 +85,7 @@ class ConceptForm extends React.Component {
     const input = {
       name: name.refs.input.value,
       summary: summary.refs.input.value,
-      summarySrc: summarySource.refs.input.value,
+      summarySource: summarySource.refs.input.value,
       container: selectedContainer ? selectedContainer.id : null,
       reqs: reqs.refs.component.getSelected().map(c => c.id)
     };
