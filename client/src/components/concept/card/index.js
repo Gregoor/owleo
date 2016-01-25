@@ -3,7 +3,8 @@ import Relay from 'react-relay';
 import {Link} from 'react-router';
 import _ from 'lodash';
 import {
-  Card, CardActions, CardMenu, CardText, CardTitle, Cell, Button, FABButton
+  Card, CardMenu, CardText, CardTitle, Cell, FABButton, IconButton,
+  Menu, MenuItem
 } from 'react-mdl';
 
 import history from '../../../history';
@@ -53,6 +54,17 @@ class ConceptCard extends React.Component {
             <CardMenu>
               <MasterConceptButton concept={concept} style={{marginTop: -45}}
                                    onMaster={this.props.onMaster}/>
+              <IconButton name="more_vert" id="concept-menu"/>
+              {user && user.admin ? (
+                <Menu target="concept-menu">
+                  <MenuItem ripple onClick={this._handleEdit.bind(this)}>
+                    Edit
+                  </MenuItem>
+                  <MenuItem ripple onClick={this._handleDelete.bind(this)}>
+                    Delete
+                  </MenuItem>
+                </Menu>
+              ) : ''}
             </CardMenu>
             {!this.props.includeReqs || _.isEmpty(reqs) ? '' :
               <div style={{paddingTop: 5}}>
@@ -78,16 +90,6 @@ class ConceptCard extends React.Component {
                 <div style={{whiteSpace: 'pre-wrap'}}>{summary}</div>
               }
             </CardText>
-            {user && user.admin ? (
-              <CardActions>
-                <Button onClick={this._handleDelete.bind(this)}>
-                  Delete
-                </Button>
-                <Button onClick={this._handleEdit.bind(this)}>
-                  Edit
-                </Button>
-              </CardActions>
-            ) : ''}
           </Card>
         </CardAnimation>
         <ExplanationList {...{user, concept}} />
