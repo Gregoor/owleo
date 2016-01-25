@@ -8,7 +8,7 @@ import {Card, Cell, FABButton, Grid, Icon, Spinner, Textfield} from 'react-mdl';
 import history from '../../../history';
 import createConceptURL from '../../../helpers/create-concept-url';
 import ConceptSimpleList from './simple-list';
-import ConceptList from './list';
+import ConceptDeepList from './deep-list';
 import ConceptMap from './map';
 import SearchResults from './../../concept/results';
 import ConceptInfo from '../../concept/info/';
@@ -33,11 +33,11 @@ class ConceptPage extends React.Component {
     const {viewer, relay} = this.props;
     let {conceptRoot, selectedConcept} = viewer;
     const {
-      selectedId, includeDeepList, includeSimpleList, includeMap
+      selectedID, includeDeepList, includeSimpleList, includeMap
       } = relay.variables;
     const {query, navType} = this.state;
 
-    const hasSelection = selectedConcept && selectedId && this.state.selectedId;
+    const hasSelection = selectedConcept && selectedID && this.state.selectedID;
 
     if (!hasSelection) {
       selectedConcept = {};
@@ -48,16 +48,16 @@ class ConceptPage extends React.Component {
 
     let list;
     if (query) {
-      list = <SearchResults {...{viewer, query}} selectedId={selectedConcept.id}
+      list = <SearchResults {...{viewer, query}} selectedID={selectedConcept.id}
                             onSelect={this._clearSearch.bind(this)}/>;
     } else if (navType == 'simpleList' && includeSimpleList) {
       list = <ConceptSimpleList viewer={viewer}
-                                selectedId={hasSelection ? selectedConcept.id : null}/>;
+                                selectedID={hasSelection ? selectedConcept.id : null}/>;
     } else if (navType == 'deepList' && includeDeepList) {
-      list = <ConceptList concept={conceptRoot} selectedPath={selectedPath}/>;
+      list = <ConceptDeepList concept={conceptRoot} selectedPath={selectedPath}/>;
     } else if (navType == 'map' && includeMap) {
       list = <ConceptMap concept={conceptRoot}
-                         selectedId={hasSelection ? selectedConcept.id : null}/>;
+                         selectedID={hasSelection ? selectedConcept.id : null}/>;
     } else list = <Spinner style={{left: '50%', top: '5px'}}/>;
 
     let emptyOwl = false;
@@ -179,16 +179,16 @@ class ConceptPage extends React.Component {
     }
 
     if (id) {
-      this.setState({selectedId: id});
-      if (id == this.state.selectedId) return;
+      this.setState({selectedID: id});
+      if (id == this.state.selectedID) return;
       this.setState({isLoading: true});
-      this.props.relay.setVariables({selectedId: id},
+      this.props.relay.setVariables({selectedID: id},
         readyState => {
           if (readyState.done) this.setState({isLoading: false});
         });
-    } else if (this.state.selectedId) {
-      this.setState({selectedId: null});
-      this.props.relay.setVariables({selectedId: null});
+    } else if (this.state.selectedID) {
+      this.setState({selectedID: null});
+      this.props.relay.setVariables({selectedID: null});
     }
   }
 
@@ -197,7 +197,7 @@ class ConceptPage extends React.Component {
 export default Relay.createContainer(ConceptPage, {
 
   initialVariables: {
-    selectedId: null,
+    selectedID: null,
     includeSimpleList: !localStorage.navType || localStorage.navType == 'simpleList',
     includeDeepList: localStorage.navType == 'deepList',
     includeMap: localStorage.navType == 'map'
@@ -211,10 +211,10 @@ export default Relay.createContainer(ConceptPage, {
           admin
         }
         conceptRoot {
-          ${ConceptList.getFragment('concept').if(vars.includeDeepList)}
+          ${ConceptDeepList.getFragment('concept').if(vars.includeDeepList)}
           ${ConceptMap.getFragment('concept').if(vars.includeMap)}
         }
-        selectedConcept: concept(id: $selectedId) {
+        selectedConcept: concept(id: $selectedID) {
           id
           reqs { id }
           path {

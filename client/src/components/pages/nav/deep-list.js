@@ -2,11 +2,11 @@ import React, {PropTypes} from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
 
-import ConceptListItem from './list-item';
+import ConceptDeepListItem from './deep-list-item';
 
 const NODE_STYLE = {borderLeft: '1px solid #e7e7e7', marginLeft: '-25px'};
 
-class ConceptList extends React.Component {
+class ConceptDeepList extends React.Component {
 
   static propTypes = {
     concept: PropTypes.object.isRequired,
@@ -24,7 +24,7 @@ class ConceptList extends React.Component {
           const expanded = !_.isEmpty(selectedPath) && concept.id == selectedPath[level] ?
             true :
             undefined;
-          return <ConceptListItem {...this.props} key={concept.id}
+          return <ConceptDeepListItem {...this.props} key={concept.id}
                                   concept={concept} expanded={expanded}/>
         })}
       </ul>
@@ -33,18 +33,18 @@ class ConceptList extends React.Component {
 
 }
 
-ConceptList.defaultProps = {
+ConceptDeepList.defaultProps = {
   level: 0
 };
 
-export default Relay.createContainer(ConceptList, {
+export default Relay.createContainer(ConceptDeepList, {
 
   fragments: {
     concept: () =>  Relay.QL`
       fragment on Concept {
         concepts {
           id
-          ${ConceptListItem.getFragment('concept')}
+          ${ConceptDeepListItem.getFragment('concept')}
         }
       }
     `

@@ -1,12 +1,9 @@
 import React, {PropTypes} from 'react';
 import Relay from 'react-relay';
-import {Link} from 'react-router';
-import _ from 'lodash';
 import {Spinner} from 'react-mdl';
 
-import createConceptURL from '../../../helpers/create-concept-url';
 import ConceptBreadcrumbs from '../../concept/breadcrumbs';
-import MasterConceptButton from '../../concept/info/master-button';
+import ConceptSimpleListItem from './simple-list-item';
 
 import './mdl-list.scss';
 
@@ -14,7 +11,7 @@ class ConceptSimpleList extends React.Component {
 
   static propTypes = {
     viewer: PropTypes.object.isRequired,
-    selectedId: PropTypes.string
+    selectedID: PropTypes.string
   };
 
   state = {showSpinner: true, isLoading: true};
@@ -28,7 +25,7 @@ class ConceptSimpleList extends React.Component {
   }
 
   render() {
-    const {viewer, selectedId} = this.props;
+    const {viewer, selectedID} = this.props;
     const {concept} = viewer;
     const {showSpinner, isLoading} = this.state;
 
@@ -46,62 +43,29 @@ class ConceptSimpleList extends React.Component {
           <div style={{minHeight: 20, padding: 10}}>
           {concept.name ?
             <ConceptBreadcrumbs concept={concept} showHome leafAsLink
-                                leafStyle={{fontWeight: concept.id == selectedId ? 800 : 500}}/>
+                                leafStyle={{fontWeight: concept.id == selectedID ? 800 : 500}}/>
           : ''}
         </div>
         <ul className="mdl-list"
             style={{height: '100%', margin: 0, overflowY: 'auto'}}>
-          {concepts.map(this._renderItem.bind(this))}
+          {concepts.map((concept) => (
+            <ConceptSimpleListItem {...{concept, selectedID}}/>
+          ))}
         </ul>
       </div>
     );
   }
 
-  _renderItem(concept) {
-    const isSelected = this.props.selectedId == concept.id;
-    const {id, name, conceptsCount} = concept;
-    return (
-      <li key={id} className="mdl-list__item">
-        <span className="mdl-list__item-primary-content">
-          <Link to={createConceptURL(concept)}
-                onClick={this._maybeDontShowSpinner.bind(this, conceptsCount)}
-                style={{textDecoration: 'none', color: 'black'}}>
-            <span style={{display: 'inline-block', width: 26, height: 26,
-                          textAlign: 'center', verticalAlign: 'middle',
-                          borderStyle: 'solid', borderWidth: 2,
-                          borderColor: isSelected ? '#FF4081' : 'rgba(0, 0, 0, .2)',
-                          marginRight: 10, borderRadius: 100}}>
-              <span style={{display: 'inline-block', marginTop: 2, fontSize: 14, fontWeight: 600}}>
-                {conceptsCount || ''}
-              </span>
-            </span>
-            <span style={{fontSize: 17,
-                          fontWeight: isSelected ? 600 : 'normal'}}>
-              {name}
-            </span>
-          </Link>
-        </span>
-        <span className="mdl-list__item-secondary-action">
-            <MasterConceptButton concept={concept} mini raised={false}/>
-        </span>
-      </li>
-    );
-  }
-
-  _fetchConcept({selectedId}) {
+  _fetchConcept({selectedID}) {
     this.setState({isLoading: true});
     this.props.relay.setVariables(
-      {id: selectedId ? atob(selectedId).split(':')[1] : ''},
+      {id: selectedID ? atob(selectedID).split(':')[1] : ''},
       (readyState) => {
         if (readyState.done) {
           this.setState({isLoading: false});
           setTimeout(() => this.setState({showSpinner: true}), 300);
         }
       });
-  }
-
-  _maybeDontShowSpinner(conceptsCount) {
-    this.setState({showSpinner: conceptsCount > 0});
   }
 
 }
@@ -118,11 +82,7 @@ export default Relay.createContainer(ConceptSimpleList, {
           id
           name
           concepts {
-            id
-            name
-            path { name }
-            conceptsCount
-            ${MasterConceptButton.getFragment('concept')}
+            ${ConceptSimpleListItem.getFragment('concept')}
           }
           ${ConceptBreadcrumbs.getFragment('concept')}
         }

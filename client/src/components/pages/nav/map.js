@@ -32,7 +32,7 @@ const ConceptMap = React.createClass({
       //rainbowStartColor: '#F0F0F0',
       //rainbowEndColor: '#9E9E9E'
     });
-    this._expose(this.props.selectedId);
+    this._expose(this.props.selectedID);
 
     window.addEventListener('resize', () => {
       foamtree.resize();
@@ -41,9 +41,9 @@ const ConceptMap = React.createClass({
   },
 
   componentWillReceiveProps(props) {
-    if (this.props.selectedId != props.selectedId) {
+    if (this.props.selectedID != props.selectedID) {
       if (this._internalChange) this._internalChange = false;
-      else this._expose(props.selectedId);
+      else this._expose(props.selectedID);
     }
   },
 

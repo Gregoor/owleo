@@ -6,7 +6,7 @@ import _ from 'lodash';
 import {Button, Spinner} from 'react-mdl';
 
 import createConceptURL from '../../../helpers/create-concept-url';
-import ConceptList from './list';
+import ConceptDeepList from './deep-list';
 
 
 const headStyle = {
@@ -23,7 +23,7 @@ const buttonStyle = {
   fontSize: '14px', fontWeight: '600'
 };
 
-class ConceptListItem extends React.Component {
+class ConceptDeepListItem extends React.Component {
 
   state = {isLoading: false};
 
@@ -46,7 +46,7 @@ class ConceptListItem extends React.Component {
     if (this.state.isLoading) {
       sublist = <Spinner style={{left: 'initial', top: 'initial'}}/>;
     } else if (this.props.relay.variables.includeSublist) {
-      sublist = <ConceptList {...this.props} concept={concept}
+      sublist = <ConceptDeepList {...this.props} concept={concept}
                              level={level + 1}/>;
     }
 
@@ -103,11 +103,11 @@ class ConceptListItem extends React.Component {
 
 }
 
-ConceptListItem.defaultProps = {
+ConceptDeepListItem.defaultProps = {
   onSelect: _.noop
 };
 
-export default Relay.createContainer(ConceptListItem, {
+export default Relay.createContainer(ConceptDeepListItem, {
 
   initialVariables: {
     includeSublist: false
@@ -123,7 +123,7 @@ export default Relay.createContainer(ConceptListItem, {
         }
         mastered
         conceptsCount
-        ${ConceptList.getFragment('concept').if(variables.includeSublist)}
+        ${ConceptDeepList.getFragment('concept').if(variables.includeSublist)}
       }
     `
   }
