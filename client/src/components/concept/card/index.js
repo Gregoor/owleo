@@ -27,7 +27,8 @@ class ConceptCard extends React.Component {
     const {viewer, concept} = this.props;
     const {user} = viewer;
     if (this.props.relay.variables.includeForm) {
-      return <ConceptForm {...{viewer, concept}}/>;
+      return <ConceptForm {...{viewer, concept}}
+          onAbort={() => this.props.relay.setVariables({includeForm: false})}/>;
     }
     const {id, name, summary, summarySource, reqs} = concept;
     return (

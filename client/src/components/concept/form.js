@@ -58,8 +58,8 @@ class ConceptForm extends React.Component {
                        label="Source of summary" defaultValue={summarySource}/>
           </CardText>
           <CardActions>
-            <Button ripple onClick={this.props.onAbort}>
-            Abort
+            <Button type="button" ripple onClick={this.props.onAbort}>
+              Abort
             </Button>
             <Button type="submit" ripple primary disabled={isLoading}>
               {buttonLabel}
