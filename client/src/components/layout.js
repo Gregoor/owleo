@@ -51,7 +51,7 @@ class AppLayout extends React.Component {
 
     return (
       <Layout fixedHeader>
-        <Header title="owleo">
+        <Header title={this._renderTitle()}>
           <Navigation>{links}</Navigation>
         </Header>
         <Drawer>
@@ -59,6 +59,15 @@ class AppLayout extends React.Component {
         </Drawer>
         <Content>{this.props.children}</Content>
       </Layout>
+    );
+  }
+
+  _renderTitle() {
+    return (
+      <Link to="/" className="mdl-navigation__link"
+            style={{padding: 0, fontSize: 20, fontWeight: 400}}>
+        owleo
+      </Link>
     );
   }
 
