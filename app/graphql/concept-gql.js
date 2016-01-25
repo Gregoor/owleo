@@ -185,6 +185,23 @@ export default {
           .then(() => ({success: true}));
       }
     }),
+    updateExplanation: mutationWithClientMutationId({
+      name: 'UpdateExplanation',
+      inputFields: {
+        explanationID: {type: new GraphQLNonNull(GraphQLID)},
+        type: {type: GraphQLString},
+        content: {type: GraphQLString}
+      },
+      outputFields: {explanation: {type: ExplanationType}},
+      mutateAndGetPayload(input, root) {
+        const explanationID = fromGlobalId(input.explanationID).id;
+        const data = _.pick(input, 'type', 'content');
+        return assertUser(root)
+          .then(() => Explanation.update(explanationID, data))
+          .then(() => Explanation.find({id: explanationID}))
+          .then(([explanation]) => ({explanation}));
+      }
+    }),
     deleteExplanation: mutationWithClientMutationId({
       name: 'DeleteExplanation',
       inputFields: {

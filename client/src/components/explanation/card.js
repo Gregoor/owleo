@@ -1,21 +1,40 @@
 import React from 'react';
 import Relay from 'react-relay';
 import classnames from 'classnames';
-import {Button, Card, CardActions, CardText, Icon} from 'react-mdl';
+import {
+  Button, Card, CardActions, CardMenu, CardText, Icon, IconButton,
+  Menu, MenuItem
+} from 'react-mdl';
 import '../../../lib/embedly';
 
-import shortenURL from '../../helpers/shorten-url';
 import VoteExplanationMutation from '../../mutations/explanation/vote';
 import DeleteExplanationMutation from '../../mutations/explanation/delete';
+import ExplanationForm from './form';
+import shortenURL from '../../helpers/shorten-url';
 
 const VOTE_ICON_STYLE = {fontSize: 40, marginLeft: -8};
 
 class ExplanationCard extends React.Component {
 
+  state = {isEditing: false};
+
+  componentWillMount() {
+    this._handleEdit = this._handleEdit.bind(this);
+    this._handleDelete = this._handleDelete.bind(this);
+  }
+
   render() {
     const {explanation, user} = this.props;
+
+    if (this.state.isEditing) return (
+      <ExplanationForm {...{explanation}} concept={null}
+                       onDone={() => this.setState({isEditing: false})}/>
+    );
     const {type, content, hasUpvoted, hasDownvoted} = explanation;
     const {isGuest} = user;
+
+    const rand = Math.random();
+
     return (
       <Card style={Object.assign({marginBottom: 8, overflow: 'visible'},
                                  this.props.style)}>
@@ -51,12 +70,14 @@ class ExplanationCard extends React.Component {
                  style={{margin: 8}}/>
           }
         </CardText>
-        {isGuest ? '' : (
-          <CardActions>
-            <Button onClick={this._handleDelete.bind(this)}>
-              Delete
-            </Button>
-          </CardActions>
+        {!user.admin ? '' : (
+          <CardMenu>
+            <IconButton name="more_vert" id={'explanation-menu' + rand} />
+            <Menu target={'explanation-menu' + rand}>
+              <MenuItem ripple onClick={this._handleEdit}>Edit</MenuItem>
+              <MenuItem ripple onClick={this._handleDelete}>Delete</MenuItem>
+            </Menu>
+          </CardMenu>
         )}
       </Card>
     );
@@ -71,6 +92,10 @@ class ExplanationCard extends React.Component {
         onFailure: t => console.error(t.getError().source.errors)
       }
     );
+  }
+
+  _handleEdit() {
+    this.setState({isEditing: true});
   }
 
   _handleDelete() {
@@ -101,12 +126,13 @@ export default Relay.createContainer(ExplanationCard, {
         hasDownvoted
         ${VoteExplanationMutation.getFragment('explanation')}
         ${DeleteExplanationMutation.getFragment('explanation')}
+        ${ExplanationForm.getFragment('explanation')}
       }
     `,
     user: () => Relay.QL`
       fragment on User {
         id
-        isGuest
+        admin
       }
     `
   }

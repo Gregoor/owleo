@@ -19,7 +19,7 @@ class ExplanationList extends React.Component {
 
     if (user && !user.isGuest) explanations.push(
       <div key="new" style={{transitionDelay: `${delay += 100}ms`}}>
-        <ExplanationForm {...{concept}}/>
+        <ExplanationForm {...{concept}} explanation={null}/>
       </div>
     );
 

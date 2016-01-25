@@ -5,8 +5,10 @@ import {
   Button, Card, CardActions, CardText, Radio, RadioGroup, Textfield
 } from 'react-mdl';
 import ReactQuill from 'react-quill';
+import _ from 'lodash';
 
 import CreateExplanationMutation from '../../mutations/explanation/create';
+import UpdateExplanationMutation from '../../mutations/explanation/update';
 
 const toolbar = [
   {label: 'Text', type: 'group', items: [
@@ -26,14 +28,20 @@ class ExplanationForm extends React.Component {
 
   state = {type: 'text'};
 
+  componentWillMount() {
+    const {explanation} = this.props;
+    if (explanation) this.setState({type: explanation.type});
+  }
+
   render() {
-    let isLink = this.state.type == 'link';
+    const {explanation} = this.props;
+    const defaultContent = explanation ? explanation.content : '';
+    const isLink = this.state.type == 'link';
     return (
-      <Card shadow={2}>
+      <Card shadow={2} style={{marginBottom: 8}}>
         <form onSubmit={this._handleSubmit.bind(this)}>
           <CardText>
             <RadioGroup name="type" value="text"
-                        onChange={this._handleChangeType.bind(this)}
                         style={{display: 'flex', justifyContent: 'space-around'}}>
               <Radio ref="textRadio" ripple defaultChecked value="text">
                 Text
@@ -43,18 +51,24 @@ class ExplanationForm extends React.Component {
             <ReactQuill ref="quill" label="Explanation text" theme="snow"
                         modules={{'image-tooltip': true}}
                         toolbar={toolbar}
+                        defaultValue={defaultContent}
                         styles={{
                           '.quill':
                             {width: '100%', display: isLink ? 'none' : 'block'},
                           '.quill-contents': {height: 320}
                         }}/>
-            <Textfield ref="link" label="URL" type="url"
-                       style={{width: '100%',
-                               display: isLink ? 'block' : 'none'}}/>
+            <Textfield ref="link" label="URL"
+                       defaultValue={defaultContent} style={{width: '100%',
+                                          display: isLink ? 'block' : 'none'}}/>
           </CardText>
           <CardActions className="mdl-card__actions mdl-card--border">
+            {!explanation ? '' : (
+              <Button type="button" onClick={() => this.props.onDone()}>
+                Cancel
+              </Button>
+            )}
             <Button type="submit" primary>
-              Add new explanation
+              {explanation ? 'Update explanation' : 'Add new explanation'}
             </Button>
           </CardActions>
         </form>
@@ -62,37 +76,23 @@ class ExplanationForm extends React.Component {
     );
   }
 
-  _handleChangeType(event) {
-    const {value} = event.target;
-
-    const CHECKED_CLASS_NAME = 'is-checked';
-    const textNode = ReactDOM.findDOMNode(this.refs.textRadio);
-    const linkNode = ReactDOM.findDOMNode(this.refs.linkRadio);
-
-    if (value == 'link') {
-      textNode.classList.remove(CHECKED_CLASS_NAME);
-      linkNode.classList.add(CHECKED_CLASS_NAME);
-    } else {
-      linkNode.classList.remove(CHECKED_CLASS_NAME);
-      textNode.classList.add(CHECKED_CLASS_NAME);
-    }
-
-    this.setState({type: value});
-  }
-
   _handleSubmit(event) {
     event.preventDefault();
     const {type} = this.state;
     const {link, quill} = this.refs;
 
-    const {concept} = this.props;
+    const {concept, explanation} = this.props;
     const content = type == 'link' ?
       link.refs.input.value : quill.getEditor().getHTML();
+
     Relay.Store.update(
-      new CreateExplanationMutation({concept, type, content}),
+      concept ?
+        new CreateExplanationMutation({concept, type, content}) :
+        new UpdateExplanationMutation({explanation, type, content})
+      ,
       {
         onSuccess: t => {
-          location.reload();
+          concept ? location.reload() : this.props.onDone();
         },
         onFailure: t => console.error(t.getError().source.errors)
       }
@@ -101,12 +101,23 @@ class ExplanationForm extends React.Component {
 
 }
 
+ExplanationForm.defaultProps = {onDone: _.noop};
+
 export default Relay.createContainer(ExplanationForm, {
 
   fragments: {
+
     concept: () => Relay.QL`
       fragment on Concept {
         ${CreateExplanationMutation.getFragment('concept')}
+      }
+    `,
+
+    explanation: () => Relay.QL`
+      fragment on Explanation {
+        type
+        content
+        ${UpdateExplanationMutation.getFragment('explanation')}
       }
     `
   }

@@ -120,6 +120,7 @@ type Mutation {
   deleteConcept(input: DeleteConceptInput!): DeleteConceptPayload
   masterConcept(input: MasterConceptInput!): MasterConceptPayload
   createExplanation(input: CreateExplanationInput!): CreateExplanationPayload
+  updateExplanation(input: UpdateExplanationInput!): UpdateExplanationPayload
   deleteExplanation(input: DeleteExplanationInput!): DeleteExplanationPayload
   voteExplanation(input: VoteExplanationInput!): VoteExplanationPayload
 }
@@ -163,6 +164,18 @@ input UpdateConceptInput {
 
 type UpdateConceptPayload {
   success: Boolean
+  clientMutationId: String!
+}
+
+input UpdateExplanationInput {
+  explanationID: ID!
+  type: String
+  content: String
+  clientMutationId: String!
+}
+
+type UpdateExplanationPayload {
+  explanation: Explanation
   clientMutationId: String!
 }
 

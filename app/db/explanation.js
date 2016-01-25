@@ -4,6 +4,10 @@ import sanitizeHtml from 'sanitize-html';
 
 import {db, query} from './connection';
 
+const sanitizeContent = (content) => sanitizeHtml(content, {
+  'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u', 'img']
+});
+
 export default {
 
   find({id}) {
@@ -19,12 +23,11 @@ export default {
   },
 
   create(data) {//, userID) {
-    let attrs = Object.assign({
+    const attrs = Object.assign({
       id: uuid.v4(),
-      content: sanitizeHtml(data.content, {
-        'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u', 'img']
-      }),
-      createdAt: Date.now()
+      content: sanitizeContent(data.content),
+      createdAt: Date.now(),
+      updatedAt: Date.now()
     }, _.pick(data, 'type', 'paywalled'));
     return query(
       `
@@ -35,6 +38,17 @@ export default {
       `,
       {attrs, conceptID: data.conceptID}//, userID}
     ).then(() => attrs.id);
+  },
+
+  update(id, data) {
+    const attrs = Object.assign({
+      content: sanitizeContent(data.content),
+      updatedAt: Date.now()
+    }, _.pick(data, 'type', 'paywalled'));
+    return query(
+      'MATCH (e:Explanation {id: {id}}) SET e += {attrs}',
+      {id, attrs}
+    );
   },
 
   vote(id, voteType, userID) {
