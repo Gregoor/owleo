@@ -4,6 +4,7 @@ import {Link} from 'react-router';
 
 import createConceptURL from '../../../helpers/create-concept-url';
 import MasterConceptButton from '../../concept/info/master-button';
+import {PRIMARY} from '../../../colors';
 
 import './mdl-list.scss';
 
@@ -27,7 +28,7 @@ class ConceptSimpleListItem extends React.Component {
             <span style={{display: 'inline-block', width: 26, height: 26,
                           textAlign: 'center', verticalAlign: 'middle',
                           borderStyle: 'solid', borderWidth: 2,
-                          borderColor: isSelected ? '#FF4081' : 'rgba(0, 0, 0, .2)',
+                          borderColor: isSelected ? PRIMARY : 'rgba(0, 0, 0, .2)',
                           marginRight: 10, borderRadius: 100}}>
               <span style={{display: 'inline-block', marginTop: 2, fontSize: 14, fontWeight: 600}}>
                 {conceptsCount || ''}
