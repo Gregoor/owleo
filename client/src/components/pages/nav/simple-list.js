@@ -51,34 +51,40 @@ class ConceptSimpleList extends React.Component {
         </div>
         <ul className="mdl-list"
             style={{height: '100%', margin: 0, overflowY: 'auto'}}>
-          {concepts.map((c) => (
-            <li key={c.id} className="mdl-list__item">
-              <span className="mdl-list__item-primary-content">
-                <span style={{display: 'inline-block', width: 30, height: 30,
-                              textAlign: 'center', verticalAlign: 'middle',
-                              borderStyle: 'solid',
-                              borderWidth: selectedId == c.id ? 3 : 2,
-                              borderColor: selectedId == c.id ? '#FF4081' : 'rgba(0, 0, 0, .2)',
-                              marginRight: 5, borderRadius: 100}}>
-                  <span style={{display: 'inline-block', marginTop: 3}}>
-                    {c.conceptsCount || ''}
-                  </span>
-                </span>
-                <Link to={createConceptURL(c)}
-                      onClick={this._maybeDontShowSpinner.bind(this, c.conceptsCount)}
-                      style={{fontSize: 17,
-                              fontWeight: selectedId == c.id ? 800 : 500}}>
-                  {c.name}
-                </Link>
-              </span>
-              <span className="mdl-list__item-secondary-action">
-                <MasterConceptButton concept={c} mini raised={false}/>
-              </span>
-            </li>
-
-          ))}
+          {concepts.map(this._renderItem.bind(this))}
         </ul>
       </div>
+    );
+  }
+
+  _renderItem(concept) {
+    const isSelected = this.props.selectedId == concept.id;
+    const {id, name, conceptsCount} = concept;
+    return (
+      <li key={id} className="mdl-list__item">
+        <span className="mdl-list__item-primary-content">
+          <Link to={createConceptURL(concept)}
+                onClick={this._maybeDontShowSpinner.bind(this, conceptsCount)}
+                style={{textDecoration: 'none', color: 'black'}}>
+            <span style={{display: 'inline-block', width: 26, height: 26,
+                          textAlign: 'center', verticalAlign: 'middle',
+                          borderStyle: 'solid', borderWidth: 2,
+                          borderColor: isSelected ? '#FF4081' : 'rgba(0, 0, 0, .2)',
+                          marginRight: 10, borderRadius: 100}}>
+              <span style={{display: 'inline-block', marginTop: 2, fontSize: 14, fontWeight: 600}}>
+                {conceptsCount || ''}
+              </span>
+            </span>
+            <span style={{fontSize: 17,
+                          fontWeight: isSelected ? 600 : 'normal'}}>
+              {name}
+            </span>
+          </Link>
+        </span>
+        <span className="mdl-list__item-secondary-action">
+            <MasterConceptButton concept={concept} mini raised={false}/>
+        </span>
+      </li>
     );
   }
 
