@@ -11,10 +11,10 @@ import ConceptSimpleList from './simple-list';
 import ConceptDeepList from './deep-list';
 import ConceptMap from './map';
 import SearchResults from './../../concept/results';
-import ConceptInfo from '../../concept/info/';
-import ConceptForm from './../../concept/form';
+import ConceptCard from '../../concept/card/';
+import ConceptForm from '../../concept/form';
 import OwlPlaceholder from '../../owl-placeholder/';
-import CardAnimation from './../../card-animation';
+import CardAnimation from '../../card-animation';
 
 
 class ConceptPage extends React.Component {
@@ -70,7 +70,7 @@ class ConceptPage extends React.Component {
     } else if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
     } else if (hasSelection) {
-      content = <ConceptInfo key={selectedConcept.id}
+      content = <ConceptCard key={selectedConcept.id}
                              {...{viewer, concept: selectedConcept}}/>;
       animateContent = true;
     } else {
@@ -221,12 +221,12 @@ export default Relay.createContainer(ConceptPage, {
             id
             name
           }
-          ${ConceptInfo.getFragment('concept')}
+          ${ConceptCard.getFragment('concept')}
         }
         ${ConceptSimpleList.getFragment('viewer').if(vars.includeSimpleList)}
         ${SearchResults.getFragment('viewer')}
         ${ConceptForm.getFragment('viewer')}
-        ${ConceptInfo.getFragment('viewer')}
+        ${ConceptCard.getFragment('viewer')}
       }
     `
   }

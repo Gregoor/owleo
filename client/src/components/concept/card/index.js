@@ -16,7 +16,7 @@ import ExplanationList from '../../explanation/list';
 import CardAnimation from '../../card-animation';
 import shortenURL from '../../../helpers/shorten-url';
 
-class ConceptInfo extends React.Component {
+class ConceptCard extends React.Component {
 
   componentDidMount() {
     document.title = this.props.concept.name;
@@ -116,11 +116,11 @@ class ConceptInfo extends React.Component {
 
 }
 
-ConceptInfo.defaultProps = {
+ConceptCard.defaultProps = {
   includeReqs: true, nameAsLink: false, onMaster: _.noop
 };
 
-export default Relay.createContainer(ConceptInfo, {
+export default Relay.createContainer(ConceptCard, {
 
   initialVariables: {includeForm: false},
 

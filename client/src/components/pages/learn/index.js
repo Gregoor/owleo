@@ -5,7 +5,7 @@ import {Icon} from 'react-mdl';
 
 import ConceptBreadcrumbs from '../../concept/breadcrumbs';
 import ConceptFlow from './flow';
-import ConceptInfo from '../../concept/info/';
+import ConceptCard from '../../concept/card/';
 import CardAnimation from '../../card-animation';
 
 class ConceptLearnPage extends React.Component {
@@ -34,7 +34,7 @@ class ConceptLearnPage extends React.Component {
 
     let content;
     if (selectedConcept) content = (
-      <ConceptInfo key={selectedConcept.id} concept={selectedConcept}
+      <ConceptCard key={selectedConcept.id} concept={selectedConcept}
                    nameAsLink={true} includeReqs={false} {...{viewer}}
                    onMaster={this._handleSelectNext.bind(this)}/>
     );
@@ -100,10 +100,10 @@ export default Relay.createContainer(ConceptLearnPage, {
           name
           mastered
           ${ConceptBreadcrumbs.getFragment('concept')}
-          ${ConceptInfo.getFragment('concept')}
+          ${ConceptCard.getFragment('concept')}
           ${ConceptFlow.getFragment('concepts')}
         }
-        ${ConceptInfo.getFragment('viewer')}
+        ${ConceptCard.getFragment('viewer')}
       }
     `
   }
