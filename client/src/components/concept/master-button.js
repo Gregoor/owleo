@@ -4,7 +4,7 @@ import _ from 'lodash';
 import classnames from 'classnames';
 import {FABButton, Icon, IconButton} from 'react-mdl';
 
-import MasterConceptMutation from '../../../mutations/concept/master';
+import MasterConceptMutation from '../../mutations/concept/master';
 
 class MasterConceptButton extends React.Component {
 

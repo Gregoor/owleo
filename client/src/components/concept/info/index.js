@@ -10,7 +10,7 @@ import history from '../../../history';
 import DeleteConceptMutation from '../../../mutations/concept/delete';
 import Req from './req';
 import ConceptBreadcrumbs from './../breadcrumbs';
-import MasterConceptButton from './master-button';
+import MasterConceptButton from '../master-button';
 import ConceptForm from './../form';
 import ExplanationList from '../../explanation/list';
 import CardAnimation from '../../card-animation';

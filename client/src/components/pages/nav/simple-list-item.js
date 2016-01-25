@@ -3,7 +3,7 @@ import Relay from 'react-relay';
 import {Link} from 'react-router';
 
 import createConceptURL from '../../../helpers/create-concept-url';
-import MasterConceptButton from '../../concept/info/master-button';
+import MasterConceptButton from '../../concept/master-button';
 import {PRIMARY} from '../../../colors';
 
 import './mdl-list.scss';
