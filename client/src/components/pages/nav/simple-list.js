@@ -42,14 +42,15 @@ class ConceptSimpleList extends React.Component {
                    overflowY: 'hidden'}}>
           <div style={{minHeight: 20, padding: 10}}>
           {concept.name ?
-            <ConceptBreadcrumbs concept={concept} showHome leafAsLink
+            <ConceptBreadcrumbs concept={concept} showHome
+                                leafAsLink
                                 leafStyle={{fontWeight: concept.id == selectedID ? 800 : 500}}/>
           : ''}
         </div>
         <ul className="mdl-list"
             style={{height: '100%', margin: 0, overflowY: 'auto'}}>
           {concepts.map((concept) => (
-            <ConceptSimpleListItem {...{concept, selectedID}}/>
+            <ConceptSimpleListItem key={concept.id} {...{concept, selectedID}}/>
           ))}
         </ul>
       </div>
@@ -82,6 +83,7 @@ export default Relay.createContainer(ConceptSimpleList, {
           id
           name
           concepts {
+            id
             ${ConceptSimpleListItem.getFragment('concept')}
           }
           ${ConceptBreadcrumbs.getFragment('concept')}

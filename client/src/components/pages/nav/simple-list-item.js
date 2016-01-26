@@ -17,10 +17,10 @@ class ConceptSimpleListItem extends React.Component {
 
   render() {
     const {concept, selectedID} = this.props;
-    const isSelected = selectedID == concept.id;
     const {id, name, conceptsCount} = concept;
+    const isSelected = selectedID == id;
     return (
-      <li key={id} className="mdl-list__item">
+      <li className="mdl-list__item">
         <span className="mdl-list__item-primary-content">
           <Link to={createConceptURL(concept)}
                 onClick={this._maybeDontShowSpinner.bind(this, conceptsCount)}
