@@ -55,16 +55,19 @@ class ConceptCard extends React.Component {
             <CardMenu>
               <MasterConceptButton concept={concept} style={{marginTop: -45}}
                                    onMaster={this.props.onMaster}/>
-              <IconButton name="more_vert" id="concept-menu"/>
               {user && user.admin ? (
-                <Menu target="concept-menu">
-                  <MenuItem ripple onClick={this._handleEdit.bind(this)}>
-                    Edit
-                  </MenuItem>
-                  <MenuItem ripple onClick={this._handleDelete.bind(this)}>
-                    Delete
-                  </MenuItem>
-                </Menu>
+                <div>
+                  <IconButton name="more_vert" id="concept-menu"
+                              style={{marginLeft: 24}}/>
+                  <Menu target="concept-menu">
+                    <MenuItem ripple onClick={this._handleEdit.bind(this)}>
+                      Edit
+                    </MenuItem>
+                    <MenuItem ripple onClick={this._handleDelete.bind(this)}>
+                      Delete
+                    </MenuItem>
+                  </Menu>
+                </div>
               ) : ''}
             </CardMenu>
             {!this.props.includeReqs || _.isEmpty(reqs) ? '' :
