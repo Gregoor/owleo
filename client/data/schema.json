@@ -212,6 +212,16 @@
                     "ofType": null
                   },
                   "defaultValue": null
+                },
+                {
+                  "name": "mastered",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
                 }
               ],
               "type": {
@@ -1728,10 +1738,10 @@
           "fields": null,
           "inputFields": [
             {
-              "name": "conceptID",
+              "name": "conceptIDs",
               "description": null,
               "type": {
-                "kind": "NON_NULL",
+                "kind": "LIST",
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
@@ -1780,13 +1790,17 @@
           "description": null,
           "fields": [
             {
-              "name": "concept",
+              "name": "concepts",
               "description": null,
               "args": [],
               "type": {
-                "kind": "OBJECT",
-                "name": "Concept",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Concept",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null

@@ -36,7 +36,8 @@ let ExplanationType = new GraphQLObjectType({
       type: GraphQLBoolean,
       resolve: ({hasDownvoted}) => Boolean(hasDownvoted)
     },
-    author: {type: UserGQL.type}
+    author: {type: UserGQL.type},
+
   })
 });
 
@@ -149,25 +150,25 @@ export default {
     masterConcept: mutationWithClientMutationId({
       name: 'MasterConcept',
       inputFields: {
-        conceptID: {type: new GraphQLNonNull(GraphQLID)},
+        conceptIDs: {type: new GraphQLList(GraphQLID)},
         mastered: {type: new GraphQLNonNull(GraphQLBoolean)}
       },
       outputFields: {
-        concept: {type: ConceptType},
+        concepts: {type: new GraphQLList(ConceptType)},
         user: {type: UserGQL.type}
       },
       mutateAndGetPayload(input, root) {
-        const {conceptID, mastered} = input;
-        const {id} = fromGlobalId(conceptID);
+        const {conceptIDs, mastered} = input;
+        const ids = conceptIDs.map((id) => fromGlobalId(id).id);
         return root.rootValue.getUser().then(({id: userID}) => {
             const fields = getFieldList(root);
-            return Concept.master(id, userID, mastered)
+            return Concept.master(ids, userID, mastered)
               .then(() => Promise.all([
-                Concept.find({id}, fields.concept, userID),
+                Concept.find({ids}, fields.concepts, userID),
                 User.find({id: userID}, fields.user)
               ]));
           })
-          .then(([[concept], user]) => ({concept, user}));
+          .then(([concepts, user]) => ({concepts, user}));
       }
     }),
     createExplanation: mutationWithClientMutationId({

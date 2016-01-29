@@ -1,28 +1,20 @@
 import Relay from 'react-relay';
 
-export default class MasterConceptMutation extends Relay.Mutation {
-
-  static fragments = {
-    concept: () => Relay.QL`
-      fragment on Concept {
-        id
-      }
-    `
-  };
+export default class MasterConceptsMutation extends Relay.Mutation {
 
   getMutation() {
     return Relay.QL`mutation{masterConcept}`;
   }
 
   getVariables() {
-    const {concept, mastered} = this.props;
-    return {conceptID: concept.id, mastered};
+    const {conceptIDs, mastered} = this.props;
+    return {conceptIDs, mastered};
   }
 
   getFatQuery() {
     return Relay.QL`
       fragment on MasterConceptPayload {
-        concept {
+        concepts {
           mastered
         }
       }
@@ -30,18 +22,16 @@ export default class MasterConceptMutation extends Relay.Mutation {
   }
 
   getConfigs() {
-    return [{
+    return this.props.conceptIDs.map((id) => ({
       type: 'FIELDS_CHANGE',
-      fieldIDs: {concept: this.props.concept.id}
-    }];
+      fieldIDs: {concepts: id}
+    }));
   }
 
   getOptimisticResponse() {
-
+    const {mastered} = this.props;
     return {
-      concept: {
-        mastered: this.props.mastered
-      }
+      concepts: this.props.conceptIDs.map(() => ({mastered}))
     };
   }
 

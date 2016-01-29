@@ -100,13 +100,13 @@ type LogoutPayload {
 }
 
 input MasterConceptInput {
-  conceptID: ID!
+  conceptIDs: [ID]
   mastered: Boolean!
   clientMutationId: String!
 }
 
 type MasterConceptPayload {
-  concept: Concept
+  concepts: [Concept]
   user: User
   clientMutationId: String!
 }
@@ -193,7 +193,7 @@ type Viewer {
   conceptRoot: Concept
   concept(id: String, fetchContainerIfEmpty: Boolean): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
-  learnPath(targetId: String): [Concept]
+  learnPath(targetId: String, mastered: Boolean): [Concept]
 }
 
 input VoteExplanationInput {

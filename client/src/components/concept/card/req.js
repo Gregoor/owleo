@@ -4,7 +4,7 @@ import Relay from 'react-relay';
 import clamp from 'clamp-js';
 
 import createConceptURL from '../../../helpers/create-concept-url';
-import MasterConceptButton from '../master-button';
+import {Mastered} from '../../icons';
 
 class Req extends React.Component {
 
@@ -31,7 +31,7 @@ class Req extends React.Component {
           <h3 style={{fontSize: 22, margin: 0}}>
             <Link to={createConceptURL(concept)}>{name}</Link>
           </h3>
-          <MasterConceptButton concept={concept} mini style={{margin: '0 10'}}/>
+          {mastered ? <Mastered style={{margin: '5 10'}}/> : ''}
         </div>
         <div ref="summary" style={{whiteSpace: 'pre-wrap',
                                    opacity: mastered ? 0 : 1,
@@ -60,7 +60,6 @@ export default Relay.createContainer(Req, {
         path {
           name
         }
-        ${MasterConceptButton.getFragment('concept')}
       }
     `
   }

@@ -3,7 +3,7 @@ import Relay from 'react-relay';
 import {Link} from 'react-router';
 
 import createConceptURL from '../../../helpers/create-concept-url';
-import MasterConceptButton from '../../concept/master-button';
+import {Mastered} from '../../icons';
 import {PRIMARY} from '../../../colors';
 
 import './mdl-list.scss';
@@ -17,7 +17,7 @@ class ConceptSimpleListItem extends React.Component {
 
   render() {
     const {concept, selectedID} = this.props;
-    const {id, name, conceptsCount} = concept;
+    const {id, name, conceptsCount, mastered} = concept;
     const isSelected = selectedID == id;
     return (
       <li className="mdl-list__item">
@@ -30,7 +30,8 @@ class ConceptSimpleListItem extends React.Component {
                           borderStyle: 'solid', borderWidth: 2,
                           borderColor: isSelected ? PRIMARY : 'rgba(0, 0, 0, .2)',
                           marginRight: 10, borderRadius: 100}}>
-              <span style={{display: 'inline-block', marginTop: 2, fontSize: 14, fontWeight: 600}}>
+              <span style={{display: 'inline-block', marginTop: 2, fontSize: 14,
+                            fontWeight: 600}}>
                 {conceptsCount || ''}
               </span>
             </span>
@@ -41,7 +42,7 @@ class ConceptSimpleListItem extends React.Component {
           </Link>
         </span>
         <span className="mdl-list__item-secondary-action">
-            <MasterConceptButton concept={concept} mini raised={false}/>
+          {mastered ? <Mastered/> : ''}
         </span>
       </li>
     );
@@ -63,9 +64,9 @@ export default Relay.createContainer(ConceptSimpleListItem, {
       fragment on Concept {
         id
         name
+        mastered
         path { name }
         conceptsCount
-        ${MasterConceptButton.getFragment('concept')}
       }
     `
   }

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 import classnames from 'classnames';
-import {Card, Cell, FABButton, Grid, Icon, Spinner, Textfield} from 'react-mdl';
+import {Card, Cell, Grid, Spinner, Textfield} from 'react-mdl';
 
 import history from '../../../history';
 import createConceptURL from '../../../helpers/create-concept-url';
@@ -70,7 +70,7 @@ class ConceptPage extends React.Component {
     } else if (this.props.children) {
       content = React.cloneElement(this.props.children, {viewer});
     } else if (hasSelection) {
-      content = <ConceptCard key={selectedConcept.id}
+      content = <ConceptCard key={selectedConcept.id} showReqs
                              {...{viewer, concept: selectedConcept}}/>;
       animateContent = true;
     } else {
@@ -79,8 +79,6 @@ class ConceptPage extends React.Component {
     }
 
     if (animateContent) content = <CardAnimation>{content}</CardAnimation>;
-
-    const isLearnable = selectedConcept.reqs && selectedConcept.reqs.length;
 
     return (
       <div className="concept-nav-container">
@@ -113,24 +111,13 @@ class ConceptPage extends React.Component {
           </Card>
 
           <div className="card-container concept-scroller">
-            <div style={{marginTop: 10}}>
+            <div style={{marginTop: 10, marginBottom: 15}}>
               {contentLoading}
               {content}
             </div>
           </div>
 
         </div>
-
-
-        <span style={{position: 'fixed', right: 30, bottom: 30, zIndex: 1}}
-              className={classnames('fab-hideable', {'fab-hidden': !isLearnable})}
-              title="Start mastering this concept!">
-          <Link to={'/learn/' + selectedConcept.id}>
-            <FABButton id="learn" disabled={!isLearnable} colored ripple>
-                <Icon name="school"/>
-            </FABButton>
-          </Link>
-        </span>
 
       </div>
 

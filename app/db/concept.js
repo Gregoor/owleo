@@ -353,10 +353,10 @@ export default {
     .then(() => id);
   },
 
-  master(id, userID, mastered) {
+  master(ids, userID, mastered) {
     return query(
       `
-        MATCH (c:Concept {id: {id}})
+        MATCH (c:Concept) WHERE c.id IN {ids}
         MATCH (u:User {id: {userID}})
       ` +
         (mastered ?
@@ -366,7 +366,7 @@ export default {
             DELETE r
           `
         ),
-      {id, userID}
+      {ids, userID}
     );
   },
 

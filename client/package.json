@@ -36,6 +36,7 @@
     "classnames": "^2.2.3",
     "cola": "tgdwyer/WebCola#master",
     "d3": "^3.5.12",
+    "dialog-polyfill": "^0.4.2",
     "history": "^1.9.1",
     "lodash": "^3.10.1",
     "pluralize": "^1.2.1",

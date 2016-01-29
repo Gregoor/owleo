@@ -11,6 +11,7 @@ import history from '../../../history';
 import DeleteConceptMutation from '../../../mutations/concept/delete';
 import Req from './req';
 import ConceptBreadcrumbs from './../breadcrumbs';
+import LearnConceptButton from '../learn-button';
 import MasterConceptButton from '../master-button';
 import ConceptForm from './../form';
 import ExplanationList from '../../explanation/list';
@@ -24,7 +25,7 @@ class ConceptCard extends React.Component {
   }
 
   render() {
-    const {viewer, concept} = this.props;
+    const {viewer, concept, showMasterButton, showReqs} = this.props;
     const {user} = viewer;
     if (this.props.relay.variables.includeForm) {
       return <ConceptForm {...{viewer, concept}}
@@ -53,8 +54,13 @@ class ConceptCard extends React.Component {
               }
             </CardTitle>
             <CardMenu>
-              <MasterConceptButton concept={concept} style={{marginTop: -45}}
-                                   onMaster={this.props.onMaster}/>
+              {showMasterButton ?
+                <MasterConceptButton {...{concept}}
+                                     onMaster={this.props.onMaster}
+                                     style={{marginTop: -45}}/>:
+                <LearnConceptButton {...{concept, viewer}}
+                                    style={{marginTop: -45}}/>
+              }
               {user && user.admin ? (
                 <div>
                   <IconButton name="more_vert" id="concept-menu"
@@ -70,7 +76,7 @@ class ConceptCard extends React.Component {
                 </div>
               ) : ''}
             </CardMenu>
-            {!this.props.includeReqs || _.isEmpty(reqs) ? '' :
+            {!showReqs || _.isEmpty(reqs) ? '' :
               <div style={{paddingTop: 5}}>
                 <div className="section-title">Requirements</div>
                 {reqs.map((concept, i) => (
@@ -123,7 +129,7 @@ class ConceptCard extends React.Component {
 }
 
 ConceptCard.defaultProps = {
-  includeReqs: true, nameAsLink: false, onMaster: _.noop
+  showReqs: false, showMasterButton: false, nameAsLink: false, onMaster: _.noop
 };
 
 export default Relay.createContainer(ConceptCard, {
@@ -138,6 +144,7 @@ export default Relay.createContainer(ConceptCard, {
           admin
           ${ExplanationList.getFragment('user')}
         }
+        ${LearnConceptButton.getFragment('viewer')}
         ${ConceptForm.getFragment('viewer').if(variables.includeForm)}
       }
     `,
@@ -154,6 +161,7 @@ export default Relay.createContainer(ConceptCard, {
         },
         ${ConceptBreadcrumbs.getFragment('concept')}
         ${ConceptForm.getFragment('concept').if(variables.includeForm)}
+        ${LearnConceptButton.getFragment('concept')}
         ${MasterConceptButton.getFragment('concept')}
         ${ExplanationList.getFragment('concept')}
         ${DeleteConceptMutation.getFragment('concept')}

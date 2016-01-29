@@ -100,24 +100,29 @@ let ViewerType = new GraphQLObjectType({
     },
     learnPath: {
       type: new GraphQLList(ConceptGQL.type),
-      args: {targetId: {type: GraphQLString}},
-      resolve(root, {targetId}, context) {
-        if (targetId) {
-          return findLearnPath(fromGlobalId(targetId).id)
-            .then(ids => {
-              const fields = getFieldList(context);
-              return context.rootValue.getUser()
-                .then(({id: userID}) => Concept.find({ids}, fields, userID))
-                .then(concepts => {
-                  let orderedConcepts = [];
-                  for (let concept of concepts) {
-                    orderedConcepts[ids.indexOf(concept.id)] = concept;
-                  }
-                  return orderedConcepts;
-                })
-            });
-        }
-        return null;
+      args: {
+        targetId: {type: GraphQLString},
+        mastered: {type: GraphQLBoolean}
+      },
+      resolve(root, {targetId, mastered}, context) {
+        if (!targetId) return null;
+
+        return findLearnPath(fromGlobalId(targetId).id).then(ids => {
+          const fields = getFieldList(context);
+          const filterMastered = mastered !== undefined;
+          if (filterMastered) fields.mastered = true;
+          return context.rootValue.getUser()
+            .then(({id: userID}) => Concept.find({ids}, fields, userID))
+            .then(concepts => {
+              let orderedConcepts = [];
+              for (const concept of concepts) {
+                if (!filterMastered || concept.mastered == mastered) {
+                  orderedConcepts[ids.indexOf(concept.id)] = concept;
+                }
+              }
+              return orderedConcepts;
+            })
+        });
       }
     }
   }
