@@ -16,6 +16,7 @@ import MasterConceptButton from '../master-button';
 import ConceptForm from './../form';
 import ExplanationList from '../../explanation/list';
 import CardAnimation from '../../card-animation';
+import {Mastered} from '../../icons';
 import shortenURL from '../../../helpers/shorten-url';
 
 class ConceptCard extends React.Component {
@@ -31,7 +32,7 @@ class ConceptCard extends React.Component {
       return <ConceptForm {...{viewer, concept}}
           onAbort={() => this.props.relay.setVariables({includeForm: false})}/>;
     }
-    const {id, name, summary, summarySource, reqs} = concept;
+    const {id, name, mastered, summary, summarySource, reqs} = concept;
     return (
       <div style={{margin: '0 auto'}}>
         {concept.path.length < 2 ? <div style={{height: 28}}/> : (
@@ -42,16 +43,16 @@ class ConceptCard extends React.Component {
         <div style={{height: 25}}/>
         <CardAnimation>
           <Card key="concept" style={{overflow: 'visible'}}>
-            <CardTitle style={{paddingBottom: 0}}>
+            <CardTitle style={{paddingBottom: 0, fontSize: 28}}>
               {this.props.nameAsLink ?
                 (
-                  <Link to="/concepts" query={{id: atob(id).split(':')[1]}}
-                        style={{fontSize: 28}}>
+                  <Link to="/concepts" query={{id: atob(id).split(':')[1]}}>
                     {name}
                   </Link>
                 ) :
                 name
               }
+              {mastered ? <Mastered style={{marginLeft: 10}}/> : ''}
             </CardTitle>
             <CardMenu>
               {showMasterButton ?
@@ -154,6 +155,7 @@ export default Relay.createContainer(ConceptCard, {
         name
         summary
         summarySource
+        mastered
         path {name}
         reqs {
           id
