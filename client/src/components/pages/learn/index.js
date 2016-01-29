@@ -29,7 +29,7 @@ class ConceptLearnPage extends React.Component {
 
     let masteredAllIcon;
     if (masteredAll) masteredAllIcon = (
-      <Icon name="done_all" className="accent-color"/>
+      <Icon name="done_all" className="color-text--valid"/>
     ) ;
 
     let content;
