@@ -8,6 +8,11 @@ import MasterConceptsMutation from '../../mutations/concept/master';
 
 class MasterConceptButton extends React.Component {
 
+  componentWillMount() {
+    const {id} = this.props.concept;
+    this.props.relay.setVariables({id});
+  }
+
   render() {
     const {concept} = this.props;
     const {mastered} = concept;
@@ -22,19 +27,31 @@ class MasterConceptButton extends React.Component {
 
     return (
       <FABButton className={classnames({'color--valid': mastered})} {...props}
-                 ripple>
+                 ripple disabled={!this.props.relay.variables.id}>
         <Icon name="check"/>
       </FABButton>
     );
   }
 
   _handleClick() {
+    const {learnPath} = this.props.viewer;
+    const unmasteredReqNames = _(learnPath)
+      .slice(0, -1)
+      .filter(({mastered}) => !mastered)
+      .map(({name}) => `"${name}"`)
+      .value();
+
+    const message = 'If you remark this concept as mastered its ' +
+      'requirements ' + unmasteredReqNames + ' will be marked as well.';
+
     const {concept} = this.props;
     const mastered = !concept.mastered;
-    Relay.Store.update(
-      new MasterConceptsMutation({conceptIDs: [concept.id], mastered})
-    );
-    if (mastered) this.props.onMaster();
+    if (!unmasteredReqNames.length || confirm(message)) {
+      Relay.Store.update(new MasterConceptsMutation({
+        conceptIDs: learnPath.map(({id}) => id), mastered
+      }));
+      if (mastered) this.props.onMaster();
+    }
   }
 
 }
@@ -43,13 +60,27 @@ MasterConceptButton.defaultProps = {onMaster: _.noop};
 
 export default Relay.createContainer(MasterConceptButton, {
 
+  initialVariables: {id: null},
+
   fragments: {
-    concept: (variables) =>  Relay.QL`
+
+    viewer: () => Relay.QL`
+      fragment on Viewer {
+        learnPath(targetId: $id) {
+          id
+          name
+          mastered
+        }
+      }
+    `,
+
+    concept: () =>  Relay.QL`
       fragment on Concept {
         id
         mastered
       }
     `
+
   }
 
 });

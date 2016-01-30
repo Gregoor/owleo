@@ -32,6 +32,9 @@ class ConceptCard extends React.Component {
       return <ConceptForm {...{viewer, concept}}
           onAbort={() => this.props.relay.setVariables({includeForm: false})}/>;
     }
+
+    const fabProps = {concept, viewer, style: {marginTop: -45}};
+
     const {id, name, mastered, summary, summarySource, reqs} = concept;
     return (
       <div style={{margin: '0 auto'}}>
@@ -56,11 +59,9 @@ class ConceptCard extends React.Component {
             </CardTitle>
             <CardMenu>
               {showMasterButton ?
-                <MasterConceptButton {...{concept}}
-                                     onMaster={this.props.onMaster}
-                                     style={{marginTop: -45}}/>:
-                <LearnConceptButton {...{concept, viewer}}
-                                    style={{marginTop: -45}}/>
+                <MasterConceptButton {...fabProps}
+                                     onMaster={this.props.onMaster}/>:
+                <LearnConceptButton {...fabProps}/>
               }
               {user && user.admin ? (
                 <div>
@@ -146,6 +147,7 @@ export default Relay.createContainer(ConceptCard, {
           ${ExplanationList.getFragment('user')}
         }
         ${LearnConceptButton.getFragment('viewer')}
+        ${MasterConceptButton.getFragment('viewer')}
         ${ConceptForm.getFragment('viewer').if(variables.includeForm)}
       }
     `,
