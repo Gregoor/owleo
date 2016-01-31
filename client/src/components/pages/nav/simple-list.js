@@ -2,6 +2,7 @@ import React, {PropTypes} from 'react';
 import Relay from 'react-relay';
 import {Spinner} from 'react-mdl';
 
+import fromGlobalID from '../../../helpers/from-global-id';
 import ConceptBreadcrumbs from '../../concept/breadcrumbs';
 import ConceptSimpleListItem from './simple-list-item';
 
@@ -60,7 +61,7 @@ class ConceptSimpleList extends React.Component {
   _fetchConcept({selectedID}) {
     this.setState({isLoading: true});
     this.props.relay.setVariables(
-      {id: selectedID ? atob(selectedID).split(':')[1] : ''},
+      {id: selectedID ? fromGlobalID(selectedID) : ''},
       (readyState) => {
         if (readyState.done) {
           this.setState({isLoading: false});

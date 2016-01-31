@@ -4,13 +4,13 @@ import _ from 'lodash';
 import classnames from 'classnames';
 import {FABButton, Icon} from 'react-mdl';
 
+import fromGlobalID from '../../helpers/from-global-id';
 import MasterConceptsMutation from '../../mutations/concept/master';
 
 class MasterConceptButton extends React.Component {
 
   componentWillMount() {
-    const {id} = this.props.concept;
-    this.props.relay.setVariables({id});
+    this.props.relay.setVariables({id: fromGlobalID(this.props.concept.id)});
   }
 
   render() {
@@ -37,12 +37,11 @@ class MasterConceptButton extends React.Component {
     const {learnPath} = this.props.viewer;
     const unmasteredReqNames = _(learnPath)
       .slice(0, -1)
-      .filter(({mastered}) => !mastered)
       .map(({name}) => `"${name}"`)
       .value();
 
     const message = 'If you remark this concept as mastered its ' +
-      'requirements ' + unmasteredReqNames + ' will be marked as well.';
+      `requirements ${unmasteredReqNames} will be marked as well.`;
 
     const {concept} = this.props;
     const mastered = !concept.mastered;
@@ -66,10 +65,9 @@ export default Relay.createContainer(MasterConceptButton, {
 
     viewer: () => Relay.QL`
       fragment on Viewer {
-        learnPath(targetId: $id) {
+        learnPath(targetID: $id, mastered: false) {
           id
           name
-          mastered
         }
       }
     `,

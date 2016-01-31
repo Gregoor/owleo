@@ -9,6 +9,7 @@ import {
 
 import history from '../../../history';
 import DeleteConceptMutation from '../../../mutations/concept/delete';
+import fromGlobalID from '../../../helpers/from-global-id';
 import Req from './req';
 import ConceptBreadcrumbs from './../breadcrumbs';
 import LearnConceptButton from '../learn-button';
@@ -49,7 +50,7 @@ class ConceptCard extends React.Component {
             <CardTitle style={{paddingBottom: 0, fontSize: 28}}>
               {this.props.nameAsLink ?
                 (
-                  <Link to="/concepts" query={{id: atob(id).split(':')[1]}}>
+                  <Link to="/concepts" query={{id: fromGlobalID(id)}}>
                     {name}
                   </Link>
                 ) :

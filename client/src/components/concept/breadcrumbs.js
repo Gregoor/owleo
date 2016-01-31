@@ -2,6 +2,8 @@ import React from 'react';
 import {Link} from 'react-router';
 import Relay from 'react-relay';
 
+import fromGlobalID from '../../helpers/from-global-id';
+
 class ConceptBreadcrumbs extends React.Component {
 
   render() {
@@ -22,7 +24,7 @@ class ConceptBreadcrumbs extends React.Component {
           const isLast = (hideLeaf || leafAsLink) && i + 1 == reversedPath.length;
           return (
             <span key={concept.id} style={{display: 'inline-block'}}>
-              <Link to="/concepts" query={{id: atob(concept.id).split(':')[1]}}
+              <Link to="/concepts" query={{id: fromGlobalID(concept.id)}}
                     style={!hideLeaf && isLast ? leafStyle : null}>
                 {concept.name}
               </Link>

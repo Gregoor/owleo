@@ -1,42 +1,48 @@
 import React from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
-import {Icon} from 'react-mdl';
+import {Icon, Spinner} from 'react-mdl';
 
+import history from '../../../history';
+import fromGlobalID from '../../../helpers/from-global-id';
 import ConceptBreadcrumbs from '../../concept/breadcrumbs';
 import ConceptFlow from './flow';
 import ConceptCard from '../../concept/card/';
 import CardAnimation from '../../card-animation';
+import {Mastered} from '../../icons';
+import createConceptURL from '../../../helpers/create-concept-url';
 
 class ConceptLearnPage extends React.Component {
 
   state = {};
 
   componentWillMount() {
-    const {learnPath} = this.props.viewer;
-    let i = 0;
-    while (i + 1 < learnPath.length && learnPath[i].mastered) i += 1;
-    this.setState({selectedConcept: learnPath[i]});
+    const {id} = this.props.location.query;
+    this.props.relay.setVariables({id});
+  }
+
+  componentWillReceiveProps({viewer, location}) {
+    const {learnPath} = viewer;
+    if (learnPath && !location.query.selectedID) this._initSelected(viewer);
   }
 
   render() {
-    const {viewer} = this.props;
-    const {learnPath} = viewer;
-    const target = _.last(learnPath);
-    const {selectedConcept} = this.state;
+    const {viewer, location} = this.props;
+    const {learnPath, target} = viewer;
+
+    if (!learnPath) return <Spinner/>;
+    const selectedConcept = learnPath
+      .find(({id}) => fromGlobalID(id) == location.query.selectedID);
 
     const masteredAll = learnPath.every(c => c.mastered);
 
     let masteredAllIcon;
-    if (masteredAll) masteredAllIcon = (
-      <Icon name="done_all" className="color-text--valid"/>
-    ) ;
+    if (masteredAll) masteredAllIcon = <Mastered/>;
 
     let content;
     if (selectedConcept) content = (
       <ConceptCard key={selectedConcept.id} concept={selectedConcept}
-                   nameAsLink showMasterButton
-                   {...{viewer}}
+                   nameAsLink showMasterButton {...{viewer}}
                    onMaster={this._handleSelectNext.bind(this)}/>
     );
     const contentLoading = null;
@@ -72,18 +78,32 @@ class ConceptLearnPage extends React.Component {
     );
   }
 
-  _handleSelect(conceptId) {
-    this.setState({selectedConcept:
-      _.find(this.props.viewer.learnPath, ({id}) => id == conceptId)})
+  _initSelected({learnPath, target}) {
+    let i = 0;
+    while (i + 1 < learnPath.length && learnPath[i].mastered) i += 1;
+
+    this._setSelected(target, learnPath[i].id)
+  }
+
+  _setSelected(target, selectedID) {
+    history.pushState(null, createConceptURL(target, {
+      root: 'learn', query: {selectedID}
+    }))
+  }
+
+  _handleSelect(conceptID) {
+    this._setSelected(this.props.viewer.target, conceptID);
   }
 
   _handleSelectNext() {
-    const {learnPath} = this.props.viewer;
-    const {selectedConcept} = this.state;
-    const index = _.findIndex(learnPath, ({id}) => id == selectedConcept.id);
+    const {viewer, location} = this.props;
+    const {learnPath, target} = viewer;
+    const index = _.findIndex(learnPath, ({id}) => {
+      return fromGlobalID(id) == location.query.selectedID;
+    });
 
     if (index + 1 < learnPath.length) {
-      this.setState({selectedConcept: learnPath[index + 1]});
+      this._setSelected(target, learnPath[index + 1].id);
     }
   }
 
@@ -91,19 +111,27 @@ class ConceptLearnPage extends React.Component {
 
 export default Relay.createContainer(ConceptLearnPage, {
 
-  initialVariables: {targetId: null},
+  initialVariables: {id: null, includeContained: false},
 
   fragments: {
-    viewer: (vars) => Relay.QL`
+    viewer: () => Relay.QL`
       fragment on Viewer {
-        learnPath(targetId: $targetId) {
+
+        target: concept(id: $id) {
+          id
+          name
+          path { name }
+          ${ConceptBreadcrumbs.getFragment('concept')}
+        }
+
+        learnPath(targetID: $id, includeContained: $includeContained) {
           id
           name
           mastered
-          ${ConceptBreadcrumbs.getFragment('concept')}
           ${ConceptCard.getFragment('concept')}
           ${ConceptFlow.getFragment('concepts')}
         }
+
         ${ConceptCard.getFragment('viewer')}
       }
     `

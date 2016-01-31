@@ -4,7 +4,9 @@ import {Link} from 'react-router';
 import {DataTable, Button, Spinner} from 'react-mdl';
 import _ from 'lodash';
 
+import createConceptURL from '../../helpers/create-concept-url';
 import MasterConceptsMutation from '../../mutations/concept/master';
+import fromGlobalID from '../../helpers/from-global-id';
 import ConceptBreadcrumbs from './breadcrumbs';
 import 'dialog-polyfill';
 
@@ -52,12 +54,11 @@ class LearnConceptDialog extends React.Component {
           </Button>
         </div>
       );
-    } else if (!mastered) {
+    } else if (!mastered && learnPath.length > 0) {
       const rows = (learnPath || [])
         .map((concept) => ({
           name: (
-            <Link to="/concepts" query={{id: atob(concept.id).split(':')[1]}}
-                  style={{fontSize: 17}}>
+            <Link to={createConceptURL(concept)} style={{fontSize: 17}}>
               {concept.name}
             </Link>
           ),
@@ -104,7 +105,7 @@ class LearnConceptDialog extends React.Component {
               style={{maxWidth: 700, width: '100%', fontSize: 19}}>
         <div className="mdl-dialog__content">
           <div style={{display: 'flex', justifyContent: 'center'}}>
-            <Link to={'/learn/' + concept.id}>
+            <Link to={createConceptURL(concept, {root: 'learn'})}>
               <Button primary>
                 {mastered ? 'Learn again about' : 'Start learning about'}&nbsp;
                 <b>{concept.name}</b>
@@ -146,7 +147,7 @@ export default Relay.createContainer(LearnConceptDialog, {
 
     viewer: () => Relay.QL`
       fragment on Viewer {
-        learnPath(targetId: $id, mastered: false) {
+        learnPath(targetID: $id, mastered: false) {
           id
           name
           path { name }
@@ -160,6 +161,7 @@ export default Relay.createContainer(LearnConceptDialog, {
         id
         name
         mastered
+        path { name }
       }
     `
 

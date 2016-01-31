@@ -45,7 +45,7 @@ export default () => (
         <Route path="new" component={CreateConceptForm}/>
         <Route path=":path*"/>
       </Route>
-      <Route path="learn/:targetId" component={ConceptLearnPage} {...commonProps}/>
+      <Route path="learn/:path*" component={ConceptLearnPage} {...commonProps}/>
       <Route path="auth" component={AuthPage} {...commonProps}/>
       <Route path="about" component={AboutPage}/>
     </Route>

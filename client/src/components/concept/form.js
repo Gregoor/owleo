@@ -5,7 +5,7 @@ import {
   Button, Card, CardActions, CardText, CardTitle, ProgressBar, Textfield
 } from 'react-mdl';
 
-import history from '../../history';
+import fromGlobalID from '../../helpers/from-global-id';
 import ConceptSelect from './select/select';
 import CreateConceptMutation from '../../mutations/concept/create';
 import UpdateConceptMutation from '../../mutations/concept/update';
@@ -99,7 +99,7 @@ class ConceptForm extends React.Component {
       {
         onSuccess: t => {
           window.location = '/concepts?id=' +
-            atob(isNew ? t.createConcept.conceptID : concept.id).split(':')[1];
+            fromGlobalID(isNew ? t.createConcept.conceptID : concept.id);
         },
         onFailure: t => {
           console.error(t.getError().source.errors);

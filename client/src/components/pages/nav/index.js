@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import {Card, Cell, Grid, Spinner, Textfield} from 'react-mdl';
 
 import history from '../../../history';
+import fromGlobalID from '../../../helpers/from-global-id';
 import createConceptURL from '../../../helpers/create-concept-url';
 import ConceptSimpleList from './simple-list';
 import ConceptDeepList from './deep-list';
@@ -159,7 +160,7 @@ class ConceptPage extends React.Component {
     const {selectedConcept} = viewer;
     const {id} = location.query;
 
-    if (id && selectedConcept && id == atob(selectedConcept.id).split(':')[1]) {
+    if (id && selectedConcept && id == fromGlobalID(selectedConcept.id)) {
       const url = createConceptURL(selectedConcept);
       const {pathname, search} = this.props.location;
       if (pathname + search != url) this.props.history.replaceState('', url);

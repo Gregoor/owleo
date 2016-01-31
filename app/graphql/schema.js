@@ -101,27 +101,30 @@ let ViewerType = new GraphQLObjectType({
     learnPath: {
       type: new GraphQLList(ConceptGQL.type),
       args: {
-        targetId: {type: GraphQLString},
+        targetID: {type: GraphQLString},
+        includeContained: {type: GraphQLBoolean},
         mastered: {type: GraphQLBoolean}
       },
-      resolve(root, {targetId, mastered}, context) {
-        if (!targetId) return null;
+      resolve(root, {targetID, includeContained, mastered}, context) {
+        if (!targetID) return;
 
-        return findLearnPath(fromGlobalId(targetId).id).then(ids => {
+        return findLearnPath({id: targetID, includeContained}).then((ids) => {
           const fields = getFieldList(context);
-          const filterMastered = mastered !== undefined;
-          if (filterMastered) fields.mastered = true;
-          return context.rootValue.getUser()
-            .then(({id: userID}) => Concept.find({ids}, fields, userID))
-            .then(concepts => {
-              let orderedConcepts = [];
-              for (const concept of concepts) {
-                if (!filterMastered || concept.mastered == mastered) {
-                  orderedConcepts[ids.indexOf(concept.id)] = concept;
-                }
+        const filterMastered = mastered !== undefined;
+        if (filterMastered) fields.mastered = true;
+        return context.rootValue.getUser()
+          .then(({id: userID}) => {
+            return Concept.find({ids: _.uniq(ids)}, fields, userID);
+          })
+          .then(concepts => {
+            let orderedConcepts = [];
+            for (const concept of concepts) {
+              if (!filterMastered || concept.mastered == mastered) {
+                orderedConcepts[ids.indexOf(concept.id)] = concept;
               }
-              return orderedConcepts;
-            })
+            }
+            return orderedConcepts;
+          })
         });
       }
     }
