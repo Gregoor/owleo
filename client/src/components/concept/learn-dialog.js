@@ -1,13 +1,14 @@
 import React from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
-import {DataTable, Button, Spinner} from 'react-mdl';
+import {DataTable, Button} from 'react-mdl';
 import _ from 'lodash';
 
 import createConceptURL from '../../helpers/create-concept-url';
 import MasterConceptsMutation from '../../mutations/concept/master';
 import fromGlobalID from '../../helpers/from-global-id';
 import ConceptBreadcrumbs from './breadcrumbs';
+import {CenteredSpinner} from '../icons';
 import 'dialog-polyfill';
 
 import './mdl-dialog.scss';
@@ -36,16 +37,11 @@ class LearnConceptDialog extends React.Component {
   render() {
     const {concept, viewer} = this.props;
     const {learnPath} = viewer;
-    const {mastered} = concept;
+    const {conceptsCount, mastered} = concept;
 
     let content;
     if (this.state.isLoadingReqs) {
-      content = (
-        <div style={{display: 'flex', justifyContent: 'center',
-                     overflow: 'hidden'}}>
-          <Spinner/>
-        </div>
-      );
+      content = <CenteredSpinner/>;
     } else if (learnPath && learnPath.length == 1) {
       content = (
         <div style={{display: 'flex', justifyContent: 'center'}}>
@@ -104,13 +100,22 @@ class LearnConceptDialog extends React.Component {
       <dialog ref="dialog" className="mdl-dialog"
               style={{maxWidth: 700, width: '100%', fontSize: 19}}>
         <div className="mdl-dialog__content">
-          <div style={{display: 'flex', justifyContent: 'center'}}>
+          <div style={{display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
             <Link to={createConceptURL(concept, {root: 'learn'})}>
-              <Button primary>
+              <Button primary raised>
                 {mastered ? 'Learn again about' : 'Start learning about'}&nbsp;
                 <b>{concept.name}</b>
               </Button>
             </Link>
+            {conceptsCount == 0 ? '' :
+              <Link to={createConceptURL(concept, {root: 'learn', query:
+                                                     {includeContained: true}})}
+                    style={{margin: 5}}>
+                <Button raised>
+                  Learn about all the {conceptsCount} contained concepts
+                </Button>
+              </Link>
+            }
           </div>
           <br/>
           {content}
@@ -162,6 +167,7 @@ export default Relay.createContainer(LearnConceptDialog, {
         name
         mastered
         path { name }
+        conceptsCount
       }
     `
 

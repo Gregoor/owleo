@@ -10,7 +10,7 @@ import MasterConceptsMutation from '../../mutations/concept/master';
 class MasterConceptButton extends React.Component {
 
   componentWillMount() {
-    this.props.relay.setVariables({id: fromGlobalID(this.props.concept.id)});
+    this.props.relay.forceFetch({id: fromGlobalID(this.props.concept.id)});
   }
 
   render() {
@@ -47,7 +47,8 @@ class MasterConceptButton extends React.Component {
     const mastered = !concept.mastered;
     if (!unmasteredReqNames.length || confirm(message)) {
       Relay.Store.update(new MasterConceptsMutation({
-        conceptIDs: learnPath.map(({id}) => id), mastered
+        conceptIDs: mastered ? learnPath.map(({id}) => id) : [concept.id],
+        mastered
       }));
       if (mastered) this.props.onMaster();
     }

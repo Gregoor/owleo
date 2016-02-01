@@ -1,7 +1,7 @@
 import React from 'react';
 import Relay from 'react-relay';
 import _ from 'lodash';
-import {Icon, Spinner} from 'react-mdl';
+import {Icon} from 'react-mdl';
 
 import history from '../../../history';
 import fromGlobalID from '../../../helpers/from-global-id';
@@ -9,7 +9,7 @@ import ConceptBreadcrumbs from '../../concept/breadcrumbs';
 import ConceptFlow from './flow';
 import ConceptCard from '../../concept/card/';
 import CardAnimation from '../../card-animation';
-import {Mastered} from '../../icons';
+import {CenteredSpinner, Mastered} from '../../icons';
 import createConceptURL from '../../../helpers/create-concept-url';
 
 class ConceptLearnPage extends React.Component {
@@ -17,8 +17,10 @@ class ConceptLearnPage extends React.Component {
   state = {};
 
   componentWillMount() {
-    const {id} = this.props.location.query;
-    this.props.relay.setVariables({id});
+    const {id, includeContained} = this.props.location.query;
+    this.props.relay.setVariables({
+      id, includeContained: includeContained == 'true'
+    });
   }
 
   componentWillReceiveProps({viewer, location}) {
@@ -30,14 +32,15 @@ class ConceptLearnPage extends React.Component {
     const {viewer, location} = this.props;
     const {learnPath, target} = viewer;
 
-    if (!learnPath) return <Spinner/>;
+    if (!learnPath) return <CenteredSpinner/>;
     const selectedConcept = learnPath
       .find(({id}) => fromGlobalID(id) == location.query.selectedID);
 
     const masteredAll = learnPath.every(c => c.mastered);
+    const {includeContained} = this.props.relay.variables;
 
     let masteredAllIcon;
-    if (masteredAll) masteredAllIcon = <Mastered/>;
+    if (masteredAll) masteredAllIcon = includeContained ? <Icon name="check_all"/>  : <Mastered/>;
 
     let content;
     if (selectedConcept) content = (
@@ -55,6 +58,7 @@ class ConceptLearnPage extends React.Component {
           <div className="mdl-card concept-nav">
             <div style={{padding: 5, borderBottom: '1px solid black'}}>
               {masteredAll ? 'You have mastered' : 'You are mastering'}
+              {includeContained ? ' every concept in' : ''}
               <br/>
               <h3 style={{margin: 0}}>
                 {target.name} {masteredAllIcon}
@@ -62,7 +66,7 @@ class ConceptLearnPage extends React.Component {
               <ConceptBreadcrumbs concept={target}/>
             </div>
             <ConceptFlow concepts={learnPath} {...{selectedConcept}}
-                         onSelect={this._handleSelect.bind(this)} />
+                         onSelect={this._setSelected.bind(this)} />
           </div>
 
           <div className="card-container concept-scroller">
@@ -82,28 +86,39 @@ class ConceptLearnPage extends React.Component {
     let i = 0;
     while (i + 1 < learnPath.length && learnPath[i].mastered) i += 1;
 
-    this._setSelected(target, learnPath[i].id)
+    const {includeContained} = this.props.location.query;
+    history.replaceState(null, createConceptURL(target, {
+      root: 'learn',
+      query: {selectedID: fromGlobalID(learnPath[i].id), includeContained}
+    }));
   }
 
-  _setSelected(target, selectedID) {
-    history.pushState(null, createConceptURL(target, {
-      root: 'learn', query: {selectedID}
+  _setSelected(selectedID) {
+    const {includeContained} = this.props.location.query;
+    history.pushState(null, createConceptURL(this.props.viewer.target, {
+      root: 'learn',
+      query: {selectedID: fromGlobalID(selectedID), includeContained}
     }))
-  }
-
-  _handleSelect(conceptID) {
-    this._setSelected(this.props.viewer.target, conceptID);
   }
 
   _handleSelectNext() {
     const {viewer, location} = this.props;
-    const {learnPath, target} = viewer;
-    const index = _.findIndex(learnPath, ({id}) => {
-      return fromGlobalID(id) == location.query.selectedID;
-    });
+    const {learnPath} = viewer;
+    const {selectedID} = location.query;
+    let index = _.findIndex(learnPath, ({id}) => fromGlobalID(id) == selectedID);
 
-    if (index + 1 < learnPath.length) {
-      this._setSelected(target, learnPath[index + 1].id);
+    do {
+      index++;
+    } while (index < learnPath.length && learnPath[index].mastered);
+
+    if (index < learnPath.length) {
+      this._setSelected(learnPath[index].id);
+    } else {
+      const unmasteredConcept = learnPath.find(({id, mastered}) => {
+        return !mastered && fromGlobalID(id) !== selectedID;
+      });
+      if (unmasteredConcept) this._setSelected(unmasteredConcept.id);
+      else this._setSelected(this.props.viewer.target.id);
     }
   }
 

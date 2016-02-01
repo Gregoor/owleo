@@ -3,7 +3,8 @@ import Relay from 'react-relay';
 import cola from 'webcola';
 import d3 from 'd3';
 import _ from 'lodash';
-import {Spinner} from 'react-mdl';
+
+import {CenteredSpinner} from '../../icons';
 
 import './flow.scss';
 
@@ -14,7 +15,7 @@ class ConceptFlow extends React.Component {
   componentDidMount() {
     const self = this;
     self.navState = {x: 0, y: 0};
-    const d3cola = cola.d3adaptor().convergenceThreshold(0.1);
+    const d3cola = this.cola = cola.d3adaptor().convergenceThreshold(0.1);
 
     const {svg} = this.refs;
     const width = this.width =  svg.offsetWidth;
@@ -150,11 +151,15 @@ class ConceptFlow extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this.cola.on('end', null).stop();
+  }
+
   render() {
     const {isLoading}  = this.state;
     return (
       <div>
-        {isLoading ? <Spinner/> : ''}
+        {isLoading ? <CenteredSpinner/> : ''}
         <svg ref="svg" className="flow"
              style={{visibility: isLoading ? 'hidden' : 'visible'}}/>
       </div>

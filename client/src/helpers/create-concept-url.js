@@ -9,7 +9,7 @@ export default ({id, path}, options) => {
 
   const queryParts = ['id=' + fromGlobalID(id)];
   if (query) for (const key of Object.keys(query)) {
-    queryParts.push(`${key}=${fromGlobalID(query[key])}`);
+    queryParts.push(`${key}=${query[key]}`);
   }
 
   return `${pathname}?${queryParts.join('&')}`;
