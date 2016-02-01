@@ -40,7 +40,10 @@ class ConceptLearnPage extends React.Component {
     const {includeContained} = this.props.relay.variables;
 
     let masteredAllIcon;
-    if (masteredAll) masteredAllIcon = includeContained ? <Icon name="check_all"/>  : <Mastered/>;
+    if (masteredAll) {
+      masteredAllIcon = includeContained ?
+        <Icon name="done_all" className="color-text--valid"/> : <Mastered/>;
+    }
 
     let content;
     if (selectedConcept) content = (
