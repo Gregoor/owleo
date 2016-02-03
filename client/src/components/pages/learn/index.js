@@ -21,6 +21,12 @@ class ConceptLearnPage extends React.Component {
     this.props.relay.setVariables({
       id, includeContained: includeContained == 'true'
     });
+    window._mfq = window._mfq || [];
+      (function () {
+      var mf = document.createElement("script"); mf.type = "text/javascript"; mf.async = true;
+      mf.src = "//cdn.mouseflow.com/projects/3a38138b-1af2-4f38-8258-41eead3cc7d9.js";
+      document.getElementsByTagName("head")[0].appendChild(mf);
+    })();
   }
 
   componentWillReceiveProps({viewer, location}) {
