@@ -43,10 +43,14 @@ class ExplanationForm extends React.Component {
           <CardText>
             <RadioGroup name="type" value="text"
                         style={{display: 'flex', justifyContent: 'space-around'}}>
-              <Radio ref="textRadio" ripple defaultChecked value="text">
+              <Radio ref="textRadio" ripple defaultChecked value="text"
+                     onClick={this._handleChangeType.bind(this)}>
                 Text
               </Radio>
-              <Radio ref="linkRadio" ripple value="link">Link</Radio>
+              <Radio ref="linkRadio" ripple value="link"
+                     onClick={this._handleChangeType.bind(this)}>
+                Link
+              </Radio>
             </RadioGroup>
             <ReactQuill ref="quill" label="Explanation text" theme="snow"
                         modules={{'image-tooltip': true}}
@@ -74,6 +78,10 @@ class ExplanationForm extends React.Component {
         </form>
       </Card>
     );
+  }
+
+  _handleChangeType(event) {
+    this.setState({type: event.target.value});
   }
 
   _handleSubmit(event) {
