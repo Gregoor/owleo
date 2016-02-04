@@ -20,7 +20,7 @@ Relay.injectNetworkLayer(
   })
 );
 
-if (!['simpleList', 'deepList', 'map'].includes(localStorage.navType)) {
+if (['simpleList', 'deepList', 'map'].indexOf(localStorage.navType) == -1) {
   localStorage.removeItem('navType');
 }
 
