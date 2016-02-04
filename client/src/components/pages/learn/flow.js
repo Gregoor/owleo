@@ -121,7 +121,18 @@ class ConceptFlow extends React.Component {
     };
 
     d3cola.start(50, 100, 200).on('end', function() {
-      node.each(function(d) { d.innerBounds = d.bounds.inflate(-margin); })
+      let minX = 0, maxX = 0, minY = 0, maxY = 0;
+      node
+        .each(function(d) {
+          d.innerBounds = d.bounds.inflate(-margin);
+          const {x, y} = d.innerBounds;
+          const width = d.innerBounds.width();
+          const height = d.innerBounds.height();
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        })
         .attr({
           'x': d => d.innerBounds.x, 'y': d => d.innerBounds.y,
           'width': d => d.innerBounds.width(), 'height': d => d.innerBounds.height()
@@ -135,11 +146,10 @@ class ConceptFlow extends React.Component {
       label.attr({'x': d => d.x, 'y': d => d.y + (margin + pad) / 2});
 
       routeEdges();
-
       self.hasRendered = true;
-      self._focus(self.props.selectedConcept);
       self._redraw();
-      self.setState({isLoading: false});
+      self.setState({isLoading: false, minX, maxX, minY, maxY});
+      self._focus(self.props.selectedConcept);
     });
   }
 
@@ -180,8 +190,17 @@ class ConceptFlow extends React.Component {
   }
 
   _setPosition(x, y) {
-    this.navState = {x, y};
-    this.vis.style('transform', `translate(${x}px, ${y}px)`);
+    let {minX, maxX, minY, maxY} = this.state;
+    const halfWidth = this.width / 2;
+    const halfHeight = this.height / 2;
+    minX += halfWidth;
+    maxX += halfWidth;
+    minY += halfHeight * 1.5;
+    maxY += halfHeight * .5;
+    const newX = Math.min(maxX, Math.max(minX, x));
+    const newY = Math.min(maxY, Math.max(minY, y));
+    this.navState = {x: newX, y: newY};
+    this.vis.style('transform', `translate(${newX}px, ${newY}px)`);
   }
 
   _redraw() {
