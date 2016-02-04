@@ -45,13 +45,13 @@ class MasterConceptButton extends React.Component {
 
     const {concept} = this.props;
     const mastered = !concept.mastered;
-    if (!unmasteredReqNames.length || confirm(message)) {
-      Relay.Store.update(new MasterConceptsMutation({
+    if (!unmasteredReqNames.length || confirm(message)) Relay.Store.update(
+      new MasterConceptsMutation({
         conceptIDs: mastered ? learnPath.map(({id}) => id) : [concept.id],
         mastered
-      }));
-      if (mastered) this.props.onMaster();
-    }
+      }),
+      {onSuccess: () => mastered && this.props.onMaster()}
+    );
   }
 
 }
