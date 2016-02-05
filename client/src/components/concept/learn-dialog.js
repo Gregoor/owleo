@@ -107,7 +107,7 @@ class LearnConceptDialog extends React.Component {
                 <b>{concept.name}</b>
               </Button>
             </Link>
-            {conceptsCount == 0 ? '' :
+            {conceptsCount == 0 || conceptsCount > 10 ? '' :
               <Link to={createConceptURL(concept, {root: 'learn', query:
                                                      {includeContained: true}})}
                     style={{margin: 5}}>
