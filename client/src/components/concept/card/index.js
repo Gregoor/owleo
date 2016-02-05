@@ -34,7 +34,7 @@ class ConceptCard extends React.Component {
           onAbort={() => this.props.relay.setVariables({includeForm: false})}/>;
     }
 
-    const fabProps = {concept, viewer, style: {marginTop: -45}};
+    const fabProps = {concept, viewer, style: {marginTop: -79, marginLeft: 628}};
 
     const {id, name, mastered, summary, summarySource, reqs} = concept;
     return (
@@ -58,12 +58,12 @@ class ConceptCard extends React.Component {
               }
               {mastered ? <Mastered style={{marginLeft: 10}}/> : ''}
             </CardTitle>
+            {showMasterButton ?
+              <MasterConceptButton {...fabProps}
+                onMaster={this.props.onMaster}/>:
+              <LearnConceptButton {...fabProps}/>
+            }
             <CardMenu>
-              {showMasterButton ?
-                <MasterConceptButton {...fabProps}
-                                     onMaster={this.props.onMaster}/>:
-                <LearnConceptButton {...fabProps}/>
-              }
               {user && user.admin ? (
                 <div>
                   <IconButton name="more_vert" id="concept-menu"

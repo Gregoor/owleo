@@ -31,7 +31,7 @@ class LearnConceptDialog extends React.Component {
     const {dialog} = this.refs;
     if (!dialog.showModal) window.dialogPolyfill.registerDialog(dialog);
     dialog.showModal();
-    dialog.onclose = this._handleClose.bind(this);
+    dialog.addEventListener('close', this._handleClose.bind(this));
   }
 
   render() {
