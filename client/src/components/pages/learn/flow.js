@@ -202,7 +202,6 @@ class ConceptFlow extends React.Component {
     const newX = Math.min(maxX, Math.max(minX, x));
     const newY = Math.min(maxY, Math.max(minY, y));
     this.navState = {x: newX, y: newY};
-    console.log(`translate(${newX}px, ${newY}px)`);
     this.vis.style('transform', `translate(${newX}px, ${newY}px)`);
   }
 
