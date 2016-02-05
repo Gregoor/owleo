@@ -18,8 +18,9 @@ class ConceptFlow extends React.Component {
     const d3cola = this.cola = cola.d3adaptor().convergenceThreshold(0.1);
 
     const {svg} = this.refs;
-    const width = this.width =  svg.offsetWidth;
-    const height = this.height = svg.offsetHeight;
+    const {width, height} = svg.getBoundingClientRect();
+    this.width = width;
+    this.height = height;
 
     const outer = d3.select(svg).attr({width, height, 'pointer-events': 'all'});
 
@@ -84,6 +85,7 @@ class ConceptFlow extends React.Component {
       .data(edges)
       .enter().append('path')
       .attr('class', d => `link ${d.isContainer? 'is-container' : ''}`)
+      .style('marker-end', 'url(#end-arrow)')
       .each(function({sourceID, targetID}) {
         //idsToEls.get(sourceID).links.push(this);
         idsToEls.get(targetID).links.push(this);
@@ -168,7 +170,7 @@ class ConceptFlow extends React.Component {
   render() {
     const {isLoading}  = this.state;
     return (
-      <div>
+      <div {...this.props}>
         {isLoading ? <CenteredSpinner/> : ''}
         <svg ref="svg" className="flow"
              style={{visibility: isLoading ? 'hidden' : 'visible'}}/>
@@ -200,6 +202,7 @@ class ConceptFlow extends React.Component {
     const newX = Math.min(maxX, Math.max(minX, x));
     const newY = Math.min(maxY, Math.max(minY, y));
     this.navState = {x: newX, y: newY};
+    console.log(`translate(${newX}px, ${newY}px)`);
     this.vis.style('transform', `translate(${newX}px, ${newY}px)`);
   }
 
