@@ -24,6 +24,10 @@
     h2 {
       color: black;
     }
+
+    a {
+      display: block;
+    }
   </style>
   <link rel="stylesheet"
         href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700"
@@ -32,12 +36,23 @@
 <body>
 <div>
   <div>
-    <h2>Mathematik</h2>
+    <a href="#Mathematik">Mathematik</a>
+    <a href="#Graph">Graph</a>
+    <a href="#Weg">Weg</a>
+    <a href="#Zyklus">Zyklus</a>
+    <a href="#Zusammenhang">Zusammenhang</a>
+    <a href="#Baum">Baum</a>
+    <a href="#Teilgraph">Teilgraph</a>
+    <a href="#Spannbaum">Spannbaum</a>
+    <a href="#Grad">Grad</a>
+  </div>
+  <div>
+    <h2 id="Mathematik">Mathematik</h2>
     <div>Eine Wissenschaft die abstrakte Strukturen definiert und deren
       Eigenschaften mittels logischer Schlüsse untersucht.<br><br></div>
   </div>
   <div>
-    <h2>Graph</h2>
+    <h2 id="Graph">Graph</h2>
     <div>Ein Graph besteht aus einer Menge von Knoten und Kanten.<br><br>
       <div>Oft werden die Knoten als Kreise dargestellt und deren Kanten als
         Linien dazwischen.
@@ -53,7 +68,7 @@
     </div>
   </div>
   <div>
-    <h2>Weg</h2>
+    <h2 id="Weg">Weg</h2>
     <div>Eine Folge von Knoten, in welcher jeweils zwei aufeinander folgende
       Knoten durch eine Kante verbunden sind.<br><br>
       <div>In diesem Graph gibt es die Wege [<b>a</b>, <b>c</b>], [<b>c</b>,
@@ -64,7 +79,7 @@
     </div>
   </div>
   <div>
-    <h2>Zyklus</h2>
+    <h2 id="Zyklus">Zyklus</h2>
     <div>Ein Weg in einem Graphen, bei dem Start- und Endknoten gleich sind,
       jedoch keine Kante zweimal vor kommt.<br><br>
       <div>Der folgende Graph enthält keinen Zyklus, da es nicht möglich ist
@@ -82,7 +97,7 @@
     </div>
   </div>
   <div>
-    <h2>Zusammenhang</h2>
+    <h2 id="Zusammenhang">Zusammenhang</h2>
     <div>Ein Graph ist zusammenhängend, wenn es zwischen allen Knoten einen Weg
       gibt.<br><br>
       <div>Dieser Graph ist zusammenhängend, da zwischen allen Knoten ein Weg
@@ -98,7 +113,7 @@
     </div>
   </div>
   <div>
-    <h2>Baum</h2>
+    <h2 id="Baum">Baum</h2>
     <div>Ein Graph ist ein Baum, wenn alle Knoten durch genau einen Weg
       verbunden sind.<br><br>
       <div>Dieser Graph ist ein Baum. Zwischen allen Knoten existiert genau
@@ -117,7 +132,7 @@
     </div>
   </div>
   <div>
-    <h2>Teilgraph</h2>
+    <h2 id="Teilgraph">Teilgraph</h2>
     <div>Ein Graph H ist Teilgraph des Graphen G, wenn alle Knoten und Kanten
       von H auch in G enthalten sind.<br><br>
       <div>Sei dies ein Graph <b>G</b>:</div>
@@ -139,7 +154,7 @@
     </div>
   </div>
   <div>
-    <h2>Spannbaum</h2>
+    <h2 id="Spannbaum">Spannbaum</h2>
     <div>Ein Teilgraph eines Graphen, der ein Baum ist und alle Knoten dieses
       Graphen enthält.<br><br>
       <div>Folgender Graph besitzt mehrere Spannbaeume:</div>
@@ -151,7 +166,7 @@
     </div>
   </div>
   <div>
-    <h2>Grad</h2>
+    <h2 id="Grad">Grad</h2>
     <div>Der Grad eines Knoten ist die Anzahl der Kanten, die ihn mit anderen
       Knoten verbinden.<br><br>
       <div>Im folgenden Graph sind die Knoten mit ihrem Grad beschriftet.
