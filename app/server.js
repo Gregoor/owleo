@@ -56,13 +56,6 @@ app.use('/graphql', graphqlHTTP(({user}) => {
 app.use(favicon(__dirname + '/../client/favicon.ico'));
 app.use('/study', express.static(__dirname + '/study'));
 
-const STUDY_URL1 = 'https://docs.google.com/forms/d/1UtJQ9YvJzvIDnLWOMeRzUJkXYnTnReI3cwEe7d16IYI/viewform';
-const STUDY_URL2 = 'https://docs.google.com/forms/d/1cR6_PZXdhkr4Z-T3W1pf1_4lvLbra4mL6TrwQph9iX8/viewform';
-let redirectToFirst = true;
-app.get('/study', (req, res) => {
-  res.redirect(redirectToFirst ? STUDY_URL1 : STUDY_URL2);
-  redirectToFirst = !redirectToFirst;
-});
 app.use('/static', express.static(__dirname + '/../client/dist/'));
 app.use('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/index.prod.html'));
