@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import uuid from 'node-uuid';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt-nodejs';
 
 import {db, query} from './connection';
 

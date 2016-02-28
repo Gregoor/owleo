@@ -11,7 +11,7 @@
   "dependencies": {
     "assert": "^1.3.0",
     "babel": "^5.8.23",
-    "bcrypt": "~0.8.3",
+    "bcrypt-nodejs": "shaneGirish/bcrypt-nodejs#cd03e34",
     "body-parser": "^1.14.1",
     "client-sessions": "~0.7.0",
     "compression": "^1.5.2",
