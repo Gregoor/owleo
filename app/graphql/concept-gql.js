@@ -36,8 +36,7 @@ let ExplanationType = new GraphQLObjectType({
       type: GraphQLBoolean,
       resolve: ({hasDownvoted}) => Boolean(hasDownvoted)
     },
-    author: {type: UserGQL.type},
-
+    author: {type: UserGQL.type}
   })
 });
 
@@ -45,7 +44,7 @@ let {connectionType: explanationConnection, edgeType: explanationEdge} =
   connectionDefinitions({name: 'Explanation', nodeType: ExplanationType});
 
 
-let ConceptType = new GraphQLObjectType({
+const ConceptType = new GraphQLObjectType({
   name: 'Concept',
   fields: () => ({
     id: globalIdField('Concept'),
@@ -90,6 +89,63 @@ const assertUser = (root) => root.rootValue.getUser().then(({isGuest}) => {
 
 export default {
   type: ConceptType,
+  queries: {
+    concept: {
+      type: ConceptType,
+      args: {
+        id: {type: GraphQLString},
+        fetchContainerIfEmpty: {type: GraphQLBoolean}
+      },
+      resolve(root, args, context) {
+        const {id, fetchContainerIfEmpty} = args;
+        if (!_.isString(id) && !id) return null;
+
+        let fields = getFieldList(context);
+
+        return context.rootValue.getUser()
+          .then(({id: userID}) => {
+
+            if (id.length == 0) {
+              return Concept.find({container: ''}, fields.concepts, userID)
+                .then(concepts => ({concepts}));
+            }
+
+            if (fetchContainerIfEmpty) {
+              Object.assign(fields, {conceptsCount: true, container: {id: true}});
+            }
+
+            return Concept.find({id}, fields, userID)
+              .then(([concept]) => {
+                if (!(fetchContainerIfEmpty && concept.conceptsCount == 0)) {
+                  return concept;
+                }
+                  return (concept.container ?
+                    Concept.find({id: concept.container.id}, fields, userID) :
+                    Concept.find({container: ''}, fields.concepts, userID)
+                ).then(([c]) => c)
+              });
+          });
+      }
+    },
+    concepts: {
+      type: new GraphQLList(ConceptType),
+      args: {
+        query: {type: GraphQLString},
+        limit: {type: GraphQLInt},
+        exclude: {type: new GraphQLList(GraphQLString)}
+      },
+      resolve(root, args, context) {
+        if (args.exclude) {
+          args.exclude = args.exclude.map(id => fromGlobalId(id).id);
+        }
+        const fields = getFieldList(context);
+        return args.query ?
+          context.rootValue.getUser()
+            .then(({id: userID}) => Concept.find(args, fields, userID)) :
+          [];
+      }
+    }
+  },
   mutations: {
     createConcept: mutationWithClientMutationId({
       name: 'CreateConcept',

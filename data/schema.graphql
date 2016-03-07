@@ -190,10 +190,9 @@ type User implements Node {
 type Viewer {
   user: User
   userExists(name: String!): Boolean
-  conceptRoot: Concept
+  learnPath(targetID: String, includeContained: Boolean, mastered: Boolean): [Concept]
   concept(id: String, fetchContainerIfEmpty: Boolean): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
-  learnPath(targetID: String, includeContained: Boolean, mastered: Boolean): [Concept]
 }
 
 input VoteExplanationInput {

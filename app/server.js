@@ -12,7 +12,7 @@ import bodyParser from 'body-parser';
 
 let config = require('./configs/config');
 try {
-  config = _.defaults(require('./configs/config.custom'), config);
+  config = _.defaults(require('./configs/config.custom').default, config);
 } catch (e) {
   if (!(e instanceof Error && e.code === 'MODULE_NOT_FOUND')) throw e;
 }
@@ -44,7 +44,7 @@ app.use('/graphql', graphqlHTTP(({user}) => {
     User.createGuest().then(id => (user.id = id))
   ).then((id => User.find({id})));
   return {
-    schema: require('./graphql/schema'),
+    schema: require('./graphql/schema').Schema,
     graphiql: true,
     rootValue: {
       getUser: () => userPromise,

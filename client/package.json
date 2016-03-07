@@ -5,17 +5,22 @@
   "description": "",
   "scripts": {
     "start": "babel-node dev-server.js",
-    "update-schema": "babel-node ./build/updateSchema.js",
     "lint": "eslint src",
     "deploy": "NODE_ENV=production webpack -p --config webpack.config.prod.babel.js"
   },
   "devDependencies": {
-    "babel-core": "^5.8.25",
-    "babel-eslint": "^4.1.0",
-    "babel-loader": "^5.1.2",
-    "babel-plugin-react-transform": "^1.1.1",
+    "babel-cli": "^6.6.5",
+    "babel-core": "^6.6.5",
+    "babel-eslint": "^5.0.0",
+    "babel-loader": "^6.2.4",
+    "babel-plugin-syntax-async-functions": "^6.5.0",
+    "babel-plugin-transform-async-to-generator": "^6.5.0",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-relay-plugin": "^0.7.3",
     "css-loader": "^0.23.1",
-    "eslint-plugin-react": "^3.2.3",
+    "eslint-plugin-react": "^4.2.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.5",
     "node-sass": "^3.3.3",
@@ -31,7 +36,6 @@
     "webpack-hot-middleware": "^2.2.1"
   },
   "dependencies": {
-    "babel-relay-plugin": "^0.4.1",
     "clamp-js": "^0.7.0",
     "classnames": "^2.2.3",
     "cola": "tgdwyer/WebCola#master",
@@ -47,7 +51,7 @@
     "react-mdl": "^1.2.0",
     "react-motion": "^0.2.7",
     "react-quill": "^0.3.0",
-    "react-relay": "^0.5.0",
+    "react-relay": "^0.7.3",
     "react-router": "^1.0.3",
     "react-router-relay": "^0.8.0",
     "react-select": "daviferreira/react-select"

@@ -24,13 +24,13 @@ class ConceptSimpleListItem extends React.Component {
         <span className="mdl-list__item-primary-content">
           <Link to={createConceptURL(concept)}
                 onClick={this._maybeDontShowSpinner.bind(this, conceptsCount)}
-                style={{textDecoration: 'none', color: 'black'}}>
+                style={{ textDecoration: 'none', color: 'black'}}>
             <span style={{display: 'inline-block', width: 26, height: 26,
                           textAlign: 'center', verticalAlign: 'middle',
                           borderStyle: 'solid', borderWidth: 2,
                           borderColor: isSelected ? PRIMARY : 'rgba(0, 0, 0, .2)',
                           marginRight: 10, borderRadius: 100}}>
-              <span style={{display: 'inline-block', marginTop: 2, fontSize: 14,
+              <span style={{display: 'inline-block', marginTop: 6, fontSize: 14,
                             fontWeight: 600}}>
                 {conceptsCount || ''}
               </span>

@@ -27,7 +27,7 @@ import ConceptGQL from './concept-gql';
 
 let ViewerType = new GraphQLObjectType({
   name: 'Viewer',
-  fields: {
+  fields: Object.assign({
     user: {
       type: UserGQL.type,
       resolve: (parent, context, root) => {
@@ -38,65 +38,6 @@ let ViewerType = new GraphQLObjectType({
       type: GraphQLBoolean,
       args: {name: {type: new GraphQLNonNull(GraphQLString)}},
       resolve: (root, {name}) => User.find({name}).then(u => Boolean(u))
-    },
-    conceptRoot: {
-      type: ConceptGQL.type,
-      resolve: () => ({})
-    },
-    concept: {
-      type: ConceptGQL.type,
-      args: {
-        id: {type: GraphQLString},
-        fetchContainerIfEmpty: {type: GraphQLBoolean}
-      },
-      resolve(root, args, context) {
-        const {id, fetchContainerIfEmpty} = args;
-        if (!_.isString(id) && !id) return null;
-
-        let fields = getFieldList(context);
-
-        return context.rootValue.getUser()
-          .then(({id: userID}) => {
-
-            if (id.length == 0) {
-              return Concept.find({container: ''}, fields.concepts, userID)
-                .then(concepts => ({concepts}));
-            }
-
-            if (fetchContainerIfEmpty) {
-              Object.assign(fields, {conceptsCount: true, container: {id: true}});
-            }
-
-            return Concept.find({id}, fields, userID)
-              .then(([concept]) => {
-                if (!(fetchContainerIfEmpty && concept.conceptsCount == 0)) {
-                  return concept;
-                }
-                return (concept.container ?
-                    Concept.find({id: concept.container.id}, fields, userID) :
-                    Concept.find({container: ''}, fields.concepts, userID)
-                  ).then(([c]) => c)
-              });
-          });
-      }
-    },
-    concepts: {
-      type: new GraphQLList(ConceptGQL.type),
-      args: {
-        query: {type: GraphQLString},
-        limit: {type: GraphQLInt},
-        exclude: {type: new GraphQLList(GraphQLString)}
-      },
-      resolve(root, args, context) {
-        if (args.exclude) {
-          args.exclude = args.exclude.map(id => fromGlobalId(id).id);
-        }
-        const fields = getFieldList(context);
-        return args.query ?
-          context.rootValue.getUser()
-            .then(({id: userID}) => Concept.find(args, fields, userID)) :
-          [];
-      }
     },
     learnPath: {
       type: new GraphQLList(ConceptGQL.type),
@@ -128,10 +69,10 @@ let ViewerType = new GraphQLObjectType({
         });
       }
     }
-  }
+  }, ConceptGQL.queries)
 });
 
-export default new GraphQLSchema({
+export const Schema = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'RootQuery',
     fields: {

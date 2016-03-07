@@ -95,7 +95,7 @@ class ConceptQuery {
     if (exclude) this.params.exclude = exclude;
   }
 
-  withFields(fields: {}, userID) {
+  withFields(fields = {}, userID) {
     let {
       id, name, summary, summarySource, conceptsCount, mastered,
       container, concepts, reqs,  path, explanations, explanationsCount,

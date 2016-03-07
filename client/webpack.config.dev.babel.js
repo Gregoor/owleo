@@ -14,10 +14,6 @@ export default {
         test: /\.js$/,
         loader: 'babel',
         include: path.join(__dirname, 'src'),
-        query: {
-          stage: 0,
-          plugins: ['./build/babel-relay-plugin']
-        }
       },
       {
         test: /\.scss$/,
