@@ -9,8 +9,6 @@ import history from '../../../history';
 import fromGlobalID from '../../../helpers/from-global-id';
 import createConceptURL from '../../../helpers/create-concept-url';
 import ConceptSimpleList from './simple-list';
-import ConceptDeepList from './deep-list';
-import ConceptMap from './map';
 import SearchResults from './../../concept/results';
 import ConceptCard from '../../concept/card/';
 import ConceptForm from '../../concept/form';
@@ -20,7 +18,7 @@ import CardAnimation from '../../card-animation';
 
 class ConceptPage extends React.Component {
 
-  state = {concept: null, query: '', navType: localStorage.navType || 'simpleList'};
+  state = {concept: null, query: ''};
 
   componentWillMount() {
     this._setSelected(this.props);
@@ -36,7 +34,7 @@ class ConceptPage extends React.Component {
     const {
       selectedID, includeDeepList, includeSimpleList, includeMap
       } = relay.variables;
-    const {query, navType} = this.state;
+    const {query} = this.state;
 
     const hasSelection = selectedConcept && selectedID && this.state.selectedID;
 
@@ -51,15 +49,10 @@ class ConceptPage extends React.Component {
     if (query) {
       list = <SearchResults {...{viewer, query}} selectedID={selectedConcept.id}
                             onSelect={this._clearSearch.bind(this)}/>;
-    } else if (navType == 'simpleList' && includeSimpleList) {
+    } else {
       list = <ConceptSimpleList viewer={viewer}
                                 selectedID={hasSelection ? selectedConcept.id : null}/>;
-    } else if (navType == 'deepList' && includeDeepList) {
-      list = <ConceptDeepList concept={conceptRoot} selectedPath={selectedPath}/>;
-    } else if (navType == 'map' && includeMap) {
-      list = <ConceptMap concept={conceptRoot}
-                         selectedID={hasSelection ? selectedConcept.id : null}/>;
-    } else list = <Spinner style={{left: '50%', top: '5px'}}/>;
+    }
 
     let emptyOwl = false;
     let content;
@@ -89,25 +82,16 @@ class ConceptPage extends React.Component {
           <Card className="concept-nav">
             <Grid style={{backgroundColor: 'white', margin: 0, padding: 0,
                           borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
-              <Cell col={8}>
+              <Cell col={12}>
                 <Textfield ref="search" label="Search for concepts"
                            onChange={this._handleSearchChange.bind(this)}
                            onKeyUp={this._handleSearchKeyUp.bind(this)}
                            style={{margin: '-20px 0', width: '100%'}}/>
               </Cell>
-              <Cell col={4}>
-                <select onChange={this._handleChangeNav.bind(this)}
-                        defaultValue={navType}>
-                  <option value="simpleList">Simple List</option>
-                  <option value="deepList">Deep List</option>
-                  <option value="map">Map</option>
-                </select>
-              </Cell>
             </Grid>
             <Cell col={12} align="stretch"
-                  style={{width: '100%', margin: 0,
-                          overflowY: navType == 'map' ? 'hidden' : 'auto'}}>
-              {list}
+                  style={{width: '100%', margin: 0, overflowY: 'auto'}}>
+            {list}
             </Cell>
           </Card>
 
@@ -144,18 +128,6 @@ class ConceptPage extends React.Component {
     ReactDOM.findDOMNode(search).classList.remove('is-dirty');
   }
 
-  _handleChangeNav(event) {
-    const {value} = event.target;
-
-    this.props.relay.setVariables({
-      includeSimpleList: value == 'simpleList',
-      includeDeepList: value == 'deepList',
-      includeMap: value == 'map'
-    });
-    localStorage.setItem('navType', value);
-    this.setState({navType: value});
-  }
-
   _setSelected({viewer, location}) {
     const {selectedConcept} = viewer;
     const {id} = location.query;
@@ -184,12 +156,7 @@ class ConceptPage extends React.Component {
 
 export default Relay.createContainer(ConceptPage, {
 
-  initialVariables: {
-    selectedID: null,
-    includeSimpleList: !localStorage.navType || localStorage.navType == 'simpleList',
-    includeDeepList: localStorage.navType == 'deepList',
-    includeMap: localStorage.navType == 'map'
-  },
+  initialVariables: {selectedID: null},
 
   fragments: {
     viewer: (vars) => Relay.QL`
@@ -197,10 +164,6 @@ export default Relay.createContainer(ConceptPage, {
         user {
           id
           admin
-        }
-        conceptRoot {
-          ${ConceptDeepList.getFragment('concept').if(vars.includeDeepList)}
-          ${ConceptMap.getFragment('concept').if(vars.includeMap)}
         }
         selectedConcept: concept(id: $selectedID) {
           id
@@ -211,7 +174,7 @@ export default Relay.createContainer(ConceptPage, {
           }
           ${ConceptCard.getFragment('concept')}
         }
-        ${ConceptSimpleList.getFragment('viewer').if(vars.includeSimpleList)}
+        ${ConceptSimpleList.getFragment('viewer')}
         ${SearchResults.getFragment('viewer')}
         ${ConceptForm.getFragment('viewer')}
         ${ConceptCard.getFragment('viewer')}
