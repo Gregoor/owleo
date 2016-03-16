@@ -11,7 +11,7 @@ export default {
     fields: () => ({
       id: globalIdField('User'),
       name: {type: GraphQLString},
-      admin: {type: GraphQLBoolean},
+      isAdmin: {type: GraphQLBoolean},
       isGuest: {type: GraphQLBoolean, resolve: ({isGuest}) => Boolean(isGuest)},
       masteredConceptsCount: {type: GraphQLInt}
     }),

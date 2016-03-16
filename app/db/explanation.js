@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import uuid from 'node-uuid';
+import {camelizeKeys} from 'humps';
 import sanitizeHtml from 'sanitize-html';
 
-import {db, query} from './connection';
+import knex from './knex';
 
 const sanitizeContent = (content) => sanitizeHtml(content, {
   'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u', 'img']
@@ -10,108 +10,31 @@ const sanitizeContent = (content) => sanitizeHtml(content, {
 
 export default {
 
-  find({id}) {
-    let fields = ['id', 'type', 'content', 'paywalled', 'createdAt']
-      .map(f => `e.${f} AS ${f}`).join(', ');
-    return query(
-      `
-        MATCH (e:Explanation {id: {id}})
-        RETURN ${fields}
-      `,
-      {id}
-    )
+  find(params = {}) {
+    return knex('explanations').where(_.pick(params, 'id', 'concept_id'))
+      .then((explanations) => explanations.map(camelizeKeys));
   },
 
-  create(data) {//, userID) {
-    const attrs = Object.assign({
-      id: uuid.v4(),
-      content: sanitizeContent(data.content),
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    }, _.pick(data, 'type', 'paywalled'));
-    return query(
-      `
-        MATCH (u:User {name: "gregor"})
-        MATCH (c:Concept {id: {conceptID}})
-
-        CREATE u-[:CREATED]->(e:Explanation {attrs})-[:EXPLAINS]->c
-      `,
-      {attrs, conceptID: data.conceptID}//, userID}
-    ).then(() => attrs.id);
+  findOne(...args) {
+    return this.find(...args).then(([explanation]) => explanation);
   },
 
-  update(id, data) {
-    const attrs = Object.assign({
-      content: sanitizeContent(data.content),
-      updatedAt: Date.now()
-    }, _.pick(data, 'type', 'paywalled'));
-    return query(
-      'MATCH (e:Explanation {id: {id}}) SET e += {attrs}',
-      {id, attrs}
-    );
+  create({conceptID, content, type}, userID) {
+    let q =  knex('explanations').insert({
+      concept_id: conceptID,
+      author_id: userID,
+      content: sanitizeContent(content),
+      is_link: type == 'link'
+    }).returning('id');
+    return q;
   },
 
-  vote(id, voteType, userID) {
-    const params = {id, userID};
-
-    let queries = [{
-      query: `
-          MATCH (e:Explanation {id: {id}}), (u:User {id: {userID}})
-          OPTIONAL MATCH u-[upvote:UPVOTED]->e
-          OPTIONAL MATCH u-[downvote:DOWNVOTED]->e
-          DELETE upvote, downvote
-        `,
-      params
-    }];
-
-    if (['UP', 'DOWN'].includes(voteType)) queries.push({
-      query: `
-        MATCH (e:Explanation {id: {id}}), (u:User {id: {userID}})
-        CREATE u-[:${voteType}VOTED]->e
-      `,
-      params
-    });
-
-    queries.push({
-      query: `
-        MATCH (e:Explanation {id: {id}}), (u:User {id: {userID}})
-
-        OPTIONAL MATCH u-[upvote:UPVOTED]->e
-        WITH e, u, COUNT(DISTINCT upvote) AS hasUpvoted
-        OPTIONAL MATCH u-[downvote:DOWNVOTED]->e
-        WITH e, hasUpvoted, COUNT(DISTINCT downvote) AS hasDownvoted
-
-        OPTIONAL MATCH (:User)-[upvotes:UPVOTED]->e
-        OPTIONAL MATCH (:User)-[downvotes:DOWNVOTED]->e
-        WITH e, hasUpvoted, hasDownvoted,
-          COUNT(upvotes) - COUNT(downvotes) AS votes
-
-        RETURN {
-          id: e.id, type: e.type, content: e.content, votes: votes,
-          hasUpvoted: hasUpvoted, hasDownvoted: hasDownvoted
-        } AS explanation
-      `,
-      params
-    });
-
-
-    return new Promise((resolve, reject) => db.cypher(queries, (error, results) => {
-      if (error) {
-        console.error(error);
-        reject();
-      } else resolve(results[results.length - 1][0].explanation);
-    }));
+  update(id, content) {
+    return knex('explanations').update({content}).where({id}).then(() => id);
   },
 
   delete(id) {
-    return query(
-      `
-        MATCH (e:Explanation {id: {id}})
-        OPTIONAL MATCH (e)-[r]-()
-        DELETE e, r
-      `,
-      {id}
-    );
+    return knex('explanations').where({id}).delete();
   }
 
 };

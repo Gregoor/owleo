@@ -6,13 +6,14 @@ import sessions from 'client-sessions';
 import graphqlHTTP from 'express-graphql';
 import cors from 'cors';
 import favicon from 'serve-favicon';
+import 'babel-polyfill';
 
 import User from './db/user';
-import bodyParser from 'body-parser';
 
-let config = require('./configs/config');
+let {config} = require('./configs/config');
+
 try {
-  config = _.defaults(require('./configs/config.custom').default, config);
+  config = _.defaults(require('./configs/config.custom').config, config);
 } catch (e) {
   if (!(e instanceof Error && e.code === 'MODULE_NOT_FOUND')) throw e;
 }

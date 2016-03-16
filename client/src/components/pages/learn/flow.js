@@ -2,8 +2,8 @@ import React from 'react';
 import Relay from 'react-relay';
 import cola from 'webcola';
 import d3 from 'd3';
-import _ from 'lodash';
 
+import fromGlobalID from '../../../helpers/from-global-id';
 import {CenteredSpinner} from '../../icons';
 
 import './flow.scss';
@@ -46,7 +46,7 @@ class ConceptFlow extends React.Component {
 
     const {concepts} = this.props;
 
-    this.conceptsMap = new Map(concepts.map(c => [c.id, c]));
+    this.conceptsMap = new Map(concepts.map(c => [fromGlobalID(c.id), c]));
 
     const idMap = new Map();
 
@@ -77,9 +77,9 @@ class ConceptFlow extends React.Component {
       .links(edges)
       .jaccardLinkLengths(distance);
 
-    const idsToEls = this.idsToEls = new Map(concepts.map(({id}) => [id, {
-      rect: null, label: null, links: []
-    }]));
+    const idsToEls = this.idsToEls = new Map(concepts.map(({id}) => [
+      fromGlobalID(id), {rect: null, label: null, links: []}
+    ]));
 
     const link = this.vis.selectAll('.link')
       .data(edges)
@@ -88,7 +88,7 @@ class ConceptFlow extends React.Component {
       .style('marker-end', 'url(#end-arrow)')
       .each(function({sourceID, targetID}) {
         //idsToEls.get(sourceID).links.push(this);
-        idsToEls.get(targetID).links.push(this);
+        idsToEls.get(fromGlobalID(targetID)).links.push(this);
       });
 
     const node = this.vis.selectAll('.node')
@@ -97,7 +97,7 @@ class ConceptFlow extends React.Component {
       .classed('node', true)
       .attr({rx: 5, ry: 5})
       .on('click', d => self.props.onSelect(d.realID))
-      .each(function({realID}) { idsToEls.get(realID).rect = this; });
+      .each(function({realID}) { idsToEls.get(fromGlobalID(realID)).rect = this; });
 
     const margin = 5, pad = 6;
     const label = this.vis.selectAll('.label')
@@ -107,7 +107,7 @@ class ConceptFlow extends React.Component {
       .text(d => d.name)
       .on('click', d => self.props.onSelect(d.realID))
       .each(function(d) {
-        idsToEls.get(d.realID).label = this;
+        idsToEls.get(fromGlobalID(d.realID)).label = this;
         const {width, height} = this.getBBox();
         const extra = 2 * margin + 2 * pad;
         d.width = width + extra;
@@ -151,14 +151,14 @@ class ConceptFlow extends React.Component {
       self.hasRendered = true;
       self._redraw();
       self.setState({isLoading: false, minX, maxX, minY, maxY});
-      self._focus(self.props.selectedConcept);
+      self._focus(self.props.selectedID);
     });
   }
 
-  componentWillReceiveProps({concepts, selectedConcept}) {
-    this.conceptsMap = new Map(concepts.map(c => [c.id, c]));
+  componentWillReceiveProps({concepts, selectedID}) {
+    this.conceptsMap = new Map(concepts.map(c => [fromGlobalID(c.id), c]));
     if (this.hasRendered) {
-      this._focus(selectedConcept);
+      this._focus(selectedID);
       this._redraw();
     }
   }
@@ -178,7 +178,7 @@ class ConceptFlow extends React.Component {
     );
   }
 
-  _focus({id}) {
+  _focus(id) {
     const {rect, links} = this.idsToEls.get(id);
     let {x, y, width, height} = rect.getBBox();
     this.vis.classed('in-transition', true);

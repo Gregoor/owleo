@@ -1,6 +1,5 @@
 import React from 'react';
 import Relay from 'react-relay';
-import classnames from 'classnames';
 import {
   Button, Card, CardActions, CardMenu, CardText, Icon, IconButton,
   Menu, MenuItem
@@ -27,7 +26,7 @@ class ExplanationCard extends React.Component {
     const {explanation, user} = this.props;
 
     if (this.state.isEditing) return (
-      <ExplanationForm {...{explanation}} concept={null}
+      <ExplanationForm {...{explanation}} concept={null} hideSwitch
                        onDone={() => this.setState({isEditing: false})}/>
     );
     const {type, content, hasUpvoted, hasDownvoted} = explanation;
@@ -70,7 +69,7 @@ class ExplanationCard extends React.Component {
                  style={{margin: 8}}/>
           }
         </CardText>
-        {!user.admin ? '' : (
+        {!user.isAdmin ? '' : (
           <CardMenu>
             <IconButton name="more_vert" id={'explanation-menu' + rand} />
             <Menu target={'explanation-menu' + rand}>
@@ -84,7 +83,7 @@ class ExplanationCard extends React.Component {
   }
 
   _commitVote(voteType) {
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       new VoteExplanationMutation({explanation: this.props.explanation, voteType}),
       {
         onSuccess: t => {
@@ -101,7 +100,7 @@ class ExplanationCard extends React.Component {
   _handleDelete() {
     if (!confirm('Do you really want to delete this explanation?')) return;
     const {explanation} = this.props;
-    Relay.Store.update(new DeleteExplanationMutation({explanation}),
+    Relay.Store.commitUpdate(new DeleteExplanationMutation({explanation}),
       {
         onSuccess: t => {
           location.reload();
@@ -132,7 +131,7 @@ export default Relay.createContainer(ExplanationCard, {
     user: () => Relay.QL`
       fragment on User {
         id
-        admin
+        isAdmin
       }
     `
   }

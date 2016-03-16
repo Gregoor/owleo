@@ -1,5 +1,5 @@
 import uuid from 'node-uuid';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt-nodejs';
 
 import {db} from '../connection';
 

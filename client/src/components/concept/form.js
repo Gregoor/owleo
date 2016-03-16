@@ -94,7 +94,7 @@ class ConceptForm extends React.Component {
     const isNew = !concept;
     if (!isNew) input.id = concept.id;
     this.setState({isLoading: true});
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       isNew ? new CreateConceptMutation(input) : new UpdateConceptMutation(input),
       {
         onSuccess: t => {

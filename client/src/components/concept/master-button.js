@@ -4,14 +4,9 @@ import _ from 'lodash';
 import classnames from 'classnames';
 import {FABButton, Icon} from 'react-mdl';
 
-import fromGlobalID from '../../helpers/from-global-id';
 import MasterConceptsMutation from '../../mutations/concept/master';
 
 class MasterConceptButton extends React.Component {
-
-  componentWillMount() {
-    this.props.relay.forceFetch({id: fromGlobalID(this.props.concept.id)});
-  }
 
   render() {
     const {concept} = this.props;
@@ -27,16 +22,17 @@ class MasterConceptButton extends React.Component {
 
     return (
       <FABButton className={classnames({'color--valid': mastered})} {...props}
-                 ripple disabled={!this.props.relay.variables.id}>
+                 ripple>
         <Icon name="check"/>
       </FABButton>
     );
   }
 
   _handleClick() {
-    const {learnPath} = this.props.viewer;
+    const {learnPath} = this.props.concept;
     const unmasteredReqNames = _(learnPath)
       .slice(0, -1)
+      .filter(({mastered}) => !mastered)
       .map(({name}) => `"${name}"`)
       .value();
 
@@ -45,7 +41,7 @@ class MasterConceptButton extends React.Component {
 
     const {concept} = this.props;
     const mastered = !concept.mastered;
-    if (!unmasteredReqNames.length || confirm(message)) Relay.Store.update(
+    if (!unmasteredReqNames.length || confirm(message)) Relay.Store.commitUpdate(
       new MasterConceptsMutation({
         conceptIDs: mastered ? learnPath.map(({id}) => id) : [concept.id],
         mastered
@@ -60,26 +56,18 @@ MasterConceptButton.defaultProps = {onMaster: _.noop};
 
 export default Relay.createContainer(MasterConceptButton, {
 
-  initialVariables: {id: null},
-
   fragments: {
-
-    viewer: () => Relay.QL`
-      fragment on Viewer {
-        learnPath(targetID: $id, mastered: false) {
-          id
-          name
-        }
-      }
-    `,
-
     concept: () =>  Relay.QL`
       fragment on Concept {
         id
         mastered
+        learnPath(mastered: false) {
+          id
+          name
+          mastered
+        }
       }
     `
-
   }
 
 });

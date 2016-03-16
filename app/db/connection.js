@@ -1,5 +1,5 @@
 import neo4j from 'neo4j';
-import config from '../configs/config.custom';
+import {config} from '../configs/config.custom';
 
 const db = new neo4j.GraphDatabase({
     'url': config.dbHost || 'http://localhost:7474'

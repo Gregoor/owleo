@@ -104,53 +104,6 @@
               "deprecationReason": null
             },
             {
-              "name": "learnPath",
-              "description": null,
-              "args": [
-                {
-                  "name": "targetID",
-                  "description": null,
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "includeContained",
-                  "description": null,
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Boolean",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "mastered",
-                  "description": null,
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Boolean",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "Concept",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "concept",
               "description": null,
               "args": [
@@ -166,6 +119,16 @@
                 },
                 {
                   "name": "fetchContainerIfEmpty",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "returnEmpty",
                   "description": null,
                   "type": {
                     "kind": "SCALAR",
@@ -274,7 +237,7 @@
               "deprecationReason": null
             },
             {
-              "name": "admin",
+              "name": "isAdmin",
               "description": null,
               "args": [],
               "type": {
@@ -393,22 +356,6 @@
               "deprecationReason": null
             },
             {
-              "name": "path",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "Concept",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "summary",
               "description": null,
               "args": [],
@@ -457,7 +404,7 @@
               "deprecationReason": null
             },
             {
-              "name": "reqs",
+              "name": "path",
               "description": null,
               "args": [],
               "type": {
@@ -484,6 +431,34 @@
                   "name": "Concept",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "reqs",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Concept",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "explanationsCount",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -542,18 +517,6 @@
               "deprecationReason": null
             },
             {
-              "name": "explanationsCount",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "mastered",
               "description": null,
               "args": [],
@@ -561,6 +524,43 @@
                 "kind": "SCALAR",
                 "name": "Boolean",
                 "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "learnPath",
+              "description": null,
+              "args": [
+                {
+                  "name": "includeContained",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "mastered",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Concept",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -1952,16 +1952,6 @@
                   "name": "ID",
                   "ofType": null
                 }
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "type",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
               },
               "defaultValue": null
             },

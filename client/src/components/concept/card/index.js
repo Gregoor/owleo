@@ -29,17 +29,18 @@ class ConceptCard extends React.Component {
   render() {
     const {viewer, concept, showMasterButton, showReqs} = this.props;
     const {user} = viewer;
+
     if (this.props.relay.variables.includeForm) {
       return <ConceptForm {...{viewer, concept}}
           onAbort={() => this.props.relay.setVariables({includeForm: false})}/>;
     }
 
-    const fabProps = {concept, viewer, style: {marginTop: -79, marginLeft: 628}};
+    const fabProps = {concept, style: {marginTop: -79, marginLeft: 628}};
 
     const {id, name, mastered, summary, summarySource, reqs} = concept;
     return (
       <div style={{margin: '0 auto'}}>
-        {concept.path.length < 2 ? <div style={{height: 28}}/> : (
+        {concept.path.length < 1 ? <div style={{height: 28}}/> : (
           <Cell col={12}>
             <ConceptBreadcrumbs concept={concept}/>
           </Cell>
@@ -64,7 +65,7 @@ class ConceptCard extends React.Component {
               <LearnConceptButton {...fabProps}/>
             }
             <CardMenu>
-              {user && user.admin ? (
+              {user && user.isAdmin ? (
                 <div>
                   <IconButton name="more_vert" id="concept-menu"
                               style={{marginLeft: 24}}/>
@@ -80,7 +81,7 @@ class ConceptCard extends React.Component {
               ) : ''}
             </CardMenu>
             {!showReqs || _.isEmpty(reqs) ? '' :
-              <div style={{paddingTop: 5}}>
+              <div>
                 <div className="section-title">Requirements</div>
                 {reqs.map((concept, i) => (
                   <Req key={concept.id} concept={concept}
@@ -88,7 +89,7 @@ class ConceptCard extends React.Component {
                 ))}
               </div>
             }
-            <CardText style={{paddingTop: 5}}>
+            <CardText>
               <div className="section-title">Summary</div>
               {summarySource ?
                 <div>
@@ -114,7 +115,7 @@ class ConceptCard extends React.Component {
     const {concept} = this.props;
     if (!confirm(`Do you really want to delete "${concept.name}"?`)) return;
 
-    Relay.Store.update(new DeleteConceptMutation({concept}),
+    Relay.Store.commitUpdate(new DeleteConceptMutation({concept}),
       {
         onSuccess: (t) => {
           history.pushState(null, '/concepts');
@@ -144,11 +145,9 @@ export default Relay.createContainer(ConceptCard, {
       fragment on Viewer {
         user {
           id
-          admin
+          isAdmin
           ${ExplanationList.getFragment('user')}
         }
-        ${LearnConceptButton.getFragment('viewer')}
-        ${MasterConceptButton.getFragment('viewer')}
         ${ConceptForm.getFragment('viewer').if(variables.includeForm)}
       }
     `,

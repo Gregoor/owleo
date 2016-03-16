@@ -11,7 +11,7 @@ class LearnConceptButton extends React.Component {
   state = {showDialog: false};
 
   render() {
-    const {concept, viewer} = this.props;
+    const {concept} = this.props;
     const {mastered} = concept;
 
     const props = Object.assign(
@@ -23,7 +23,7 @@ class LearnConceptButton extends React.Component {
     );
 
     const dialog = this.state.showDialog ?
-      <LearnConceptDialog {...{concept, viewer}}
+      <LearnConceptDialog {...{concept}}
                           onClose={() => this.setState({showDialog: false})}/> :
       '';
 
@@ -47,12 +47,6 @@ class LearnConceptButton extends React.Component {
 export default Relay.createContainer(LearnConceptButton, {
 
   fragments: {
-
-    viewer: () => Relay.QL`
-      fragment on Viewer {
-        ${LearnConceptDialog.getFragment('viewer')}
-      }
-    `,
 
     concept: () =>  Relay.QL`
       fragment on Concept {

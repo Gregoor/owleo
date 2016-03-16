@@ -8,7 +8,6 @@ import fromGlobalID from '../../../helpers/from-global-id';
 import ConceptBreadcrumbs from '../../concept/breadcrumbs';
 import ConceptFlow from './flow';
 import ConceptCard from '../../concept/card/';
-import CardAnimation from '../../card-animation';
 import {CenteredSpinner, Mastered} from '../../icons';
 import createConceptURL from '../../../helpers/create-concept-url';
 
@@ -17,31 +16,25 @@ class ConceptLearnPage extends React.Component {
   state = {};
 
   componentWillMount() {
-    const {id, includeContained} = this.props.location.query;
+    const {id, includeContained, selectedID} = this.props.location.query;
     this.props.relay.setVariables({
-      id, includeContained: includeContained == 'true'
+      id, selectedID, includeContained: includeContained == 'true'
     });
-    window._mfq = window._mfq || [];
-      (function () {
-      var mf = document.createElement("script"); mf.type = "text/javascript"; mf.async = true;
-      mf.src = "//cdn.mouseflow.com/projects/3a38138b-1af2-4f38-8258-41eead3cc7d9.js";
-      document.getElementsByTagName("head")[0].appendChild(mf);
-    })();
   }
 
-  componentWillReceiveProps({viewer, location}) {
-    const {learnPath} = viewer;
-    if (learnPath && !location.query.selectedID) this._initSelected(viewer);
+  componentWillReceiveProps({viewer: {target}, location}) {
+    if (!this._selecting && target && !location.query.selectedID) {
+      this._initSelected(target);
+    }
   }
 
   render() {
-    const {viewer, location} = this.props;
-    const {learnPath, target} = viewer;
+    const {viewer, location: {query: {selectedID}}} = this.props;
+    const {target, selected} = viewer;
 
-    if (!learnPath) return <CenteredSpinner/>;
-    const selectedConcept = learnPath
-      .find(({id}) => fromGlobalID(id) == location.query.selectedID);
+    if (!target || !selected) return <CenteredSpinner style={{marginTop: 10}}/>;
 
+    const {learnPath} = target;
     const masteredAll = learnPath.every(c => c.mastered);
     const {includeContained} = this.props.relay.variables;
 
@@ -50,14 +43,6 @@ class ConceptLearnPage extends React.Component {
       masteredAllIcon = includeContained ?
         <Icon name="done_all" className="color-text--valid"/> : <Mastered/>;
     }
-
-    let content;
-    if (selectedConcept) content = (
-      <ConceptCard key={selectedConcept.id} concept={selectedConcept}
-                   nameAsLink showMasterButton {...{viewer}}
-                   onMaster={this._handleSelectNext.bind(this)}/>
-    );
-    const contentLoading = null;
 
     return (
       <div className="concept-nav-container">
@@ -74,14 +59,18 @@ class ConceptLearnPage extends React.Component {
               </h3>
               <ConceptBreadcrumbs concept={target}/>
             </div>
-            <ConceptFlow concepts={learnPath} {...{selectedConcept}}
+            <ConceptFlow concepts={learnPath} selectedID={selectedID}
                          onSelect={this._setSelected.bind(this)} style={{height: '100%'}} />
           </div>
 
           <div className="card-container concept-scroller">
             <div style={{marginTop: 10}}>
-              {contentLoading}
-              {content}
+              {selected.id != selectedID ?
+                <ConceptCard key={selected.id} concept={selected}
+                             nameAsLink showMasterButton {...{viewer}}
+                             onMaster={this._handleSelectNext.bind(this)}/> :
+                <CenteredSpinner/>
+              }
             </div>
           </div>
 
@@ -91,28 +80,34 @@ class ConceptLearnPage extends React.Component {
     );
   }
 
-  _initSelected({learnPath, target}) {
+  _initSelected(target) {
+    const {learnPath} = target;
     let i = 0;
     while (i + 1 < learnPath.length && learnPath[i].mastered) i += 1;
 
     const {includeContained} = this.props.location.query;
+    const selectedID = fromGlobalID(learnPath[i].id);
+
+    this._selecting = true;
     history.replaceState(null, createConceptURL(target, {
       root: 'learn',
-      query: {selectedID: fromGlobalID(learnPath[i].id), includeContained}
+      query: {selectedID, includeContained}
     }));
+    this.props.relay.setVariables({selectedID});
   }
 
   _setSelected(selectedID) {
     const {includeContained} = this.props.location.query;
+    selectedID = fromGlobalID(selectedID);
+    this.props.relay.setVariables({selectedID});
     history.pushState(null, createConceptURL(this.props.viewer.target, {
-      root: 'learn',
-      query: {selectedID: fromGlobalID(selectedID), includeContained}
+      root: 'learn', query: {selectedID, includeContained}
     }))
   }
 
   _handleSelectNext() {
     const {viewer, location} = this.props;
-    const {learnPath} = viewer;
+    const {learnPath} = viewer.target;
     const {selectedID} = location.query;
     let index = _.findIndex(learnPath, ({id}) => fromGlobalID(id) == selectedID);
 
@@ -135,7 +130,7 @@ class ConceptLearnPage extends React.Component {
 
 export default Relay.createContainer(ConceptLearnPage, {
 
-  initialVariables: {id: null, includeContained: false},
+  initialVariables: {id: null, selectedID: null, includeContained: false},
 
   fragments: {
     viewer: () => Relay.QL`
@@ -146,14 +141,17 @@ export default Relay.createContainer(ConceptLearnPage, {
           name
           path { name }
           ${ConceptBreadcrumbs.getFragment('concept')}
+          learnPath(includeContained: $includeContained) {
+            id
+            name
+            mastered
+            ${ConceptFlow.getFragment('concepts')}
+          }
         }
-
-        learnPath(targetID: $id, includeContained: $includeContained) {
+        
+        selected: concept(id: $selectedID) {
           id
-          name
-          mastered
           ${ConceptCard.getFragment('concept')}
-          ${ConceptFlow.getFragment('concepts')}
         }
 
         ${ConceptCard.getFragment('viewer')}

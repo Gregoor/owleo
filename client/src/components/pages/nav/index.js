@@ -1,11 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Relay from 'react-relay';
-import {Link} from 'react-router';
-import classnames from 'classnames';
 import {Card, Cell, Grid, Spinner, Textfield} from 'react-mdl';
 
-import history from '../../../history';
 import fromGlobalID from '../../../helpers/from-global-id';
 import createConceptURL from '../../../helpers/create-concept-url';
 import ConceptSimpleList from './simple-list';
@@ -36,6 +33,11 @@ class ConceptPage extends React.Component {
       } = relay.variables;
     const {query} = this.state;
 
+    const hasQuery = Boolean(query);
+    if (hasQuery != this.props.relay.variables.includeResults) {
+      this.props.relay.setVariables({includeResults: hasQuery});
+    }
+
     const hasSelection = selectedConcept && selectedID && this.state.selectedID;
 
     if (!hasSelection) {
@@ -46,7 +48,7 @@ class ConceptPage extends React.Component {
     const selectedPath = (selectedConcept.path || []).map(({id}) => id).reverse();
 
     let list;
-    if (query) {
+    if (hasQuery) {
       list = <SearchResults {...{viewer, query}} selectedID={selectedConcept.id}
                             onSelect={this._clearSearch.bind(this)}/>;
     } else {
@@ -132,7 +134,7 @@ class ConceptPage extends React.Component {
     const {selectedConcept} = viewer;
     const {id} = location.query;
 
-    if (id && selectedConcept && id == fromGlobalID(selectedConcept.id)) {
+    if (id && selectedConcept && selectedConcept.id && id == fromGlobalID(selectedConcept.id)) {
       const url = createConceptURL(selectedConcept);
       const {pathname, search} = this.props.location;
       if (pathname + search != url) this.props.history.replaceState('', url);
@@ -156,17 +158,17 @@ class ConceptPage extends React.Component {
 
 export default Relay.createContainer(ConceptPage, {
 
-  initialVariables: {selectedID: null},
+  initialVariables: {selectedID: null, includeResults: false},
 
   fragments: {
     viewer: (vars) => Relay.QL`
       fragment on Viewer {
         user {
           id
-          admin
         }
         selectedConcept: concept(id: $selectedID) {
           id
+          name
           reqs { id }
           path {
             id
@@ -175,7 +177,7 @@ export default Relay.createContainer(ConceptPage, {
           ${ConceptCard.getFragment('concept')}
         }
         ${ConceptSimpleList.getFragment('viewer')}
-        ${SearchResults.getFragment('viewer')}
+        ${SearchResults.getFragment('viewer').if(vars.includeResults)}
         ${ConceptForm.getFragment('viewer')}
         ${ConceptCard.getFragment('viewer')}
       }

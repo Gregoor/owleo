@@ -10,10 +10,10 @@ import {
 } from 'graphql';
 import {
   fromGlobalId, toGlobalId, globalIdField, mutationWithClientMutationId,
-  connectionDefinitions, connectionFromArray, connectionArgs
+  connectionDefinitions, connectionFromPromisedArray, connectionArgs
 } from 'graphql-relay';
-import _ from 'lodash';
 
+import findLearnPath from '../db/learn-path';
 import Concept from '../db/concept';
 import User from '../db/user';
 import Explanation from '../db/explanation';
@@ -21,11 +21,15 @@ import getFieldList from './get-field-list';
 import NodeGQL from './node-gql';
 import UserGQL from './user-gql';
 
+
 let ExplanationType = new GraphQLObjectType({
   name: 'Explanation',
   fields: () => ({
     id: globalIdField('Explanation'),
-    type: {type: GraphQLString},
+    type: {
+      type: GraphQLString,
+      resolve: ({isLink}) => isLink ? 'link' : 'text'
+    },
     content: {type: GraphQLString},
     votes: {type: GraphQLInt},
     hasUpvoted: {
@@ -49,36 +53,52 @@ const ConceptType = new GraphQLObjectType({
   fields: () => ({
     id: globalIdField('Concept'),
     name: {type: GraphQLString},
-    path: {type: new GraphQLList(ConceptType)},
     summary: {type: GraphQLString},
     summarySource: {type: GraphQLString},
     conceptsCount: {type: GraphQLInt},
-    container: {type: ConceptType},
-    reqs: {type: new GraphQLList(ConceptType)},
+    container: {
+      type: ConceptType,
+      resolve: ({containerId}) => Concept.findOne({id: containerId})
+    },
+    path: {
+      type: new GraphQLList(ConceptType),
+      resolve: ({containerId}) => Concept.retrievePath(containerId)
+    },
     concepts: {
       type: new GraphQLList(ConceptType),
-      resolve(root, args, context) {
-        if (root.concepts) return root.concepts;
-        args.container = '';
-        if (root[0] && root[0].id) args.container = root[0].id;
-        const fields = getFieldList(context);
-        return context.rootValue.getUser().then(({id}) => {
-          return Concept.find(args, fields, id)
-        });
-      }
+      resolve: ({id}) => Concept.find({container_id: id})
     },
+    reqs: {
+      type: new GraphQLList(ConceptType),
+      resolve: ({id}) => id ? Concept.find({requiredBy: id}) : null
+    },
+    explanationsCount: {type: GraphQLInt},
     explanations: {
       type: explanationConnection,
       args: connectionArgs,
-      resolve(concept, args) {
-        return connectionFromArray(
-          _(concept.explanations).sortBy('votes').reverse().value(),
-          args
+      resolve: ({id}, args) => connectionFromPromisedArray(
+        Explanation.find({concept_id: id}),
+        args
+      )
+  },
+    mastered: {
+      type: GraphQLBoolean,
+      resolve: ({id}, context, root) => {
+        return root.rootValue.getUser().then(({id: userID}) =>
+          Concept.isMasteredBy(id, userID)
         );
       }
     },
-    explanationsCount: {type: GraphQLInt},
-    mastered: {type: GraphQLBoolean, resolve: ({mastered}) => Boolean(mastered)}
+    learnPath: {
+      type: new GraphQLList(ConceptType),
+      args: {
+        includeContained: {type: GraphQLBoolean},
+        mastered: {type: GraphQLBoolean}
+      },
+      resolve({id}, {includeContained, mastered}) {
+        return id ? findLearnPath(id, {includeContained, mastered}) : null;
+      }
+    }
   }),
   interfaces: [NodeGQL.interface]
 });
@@ -94,37 +114,18 @@ export default {
       type: ConceptType,
       args: {
         id: {type: GraphQLString},
-        fetchContainerIfEmpty: {type: GraphQLBoolean}
+        fetchContainerIfEmpty: {type: GraphQLBoolean},
+        returnEmpty: {type: GraphQLBoolean}
       },
-      resolve(root, args, context) {
-        const {id, fetchContainerIfEmpty} = args;
-        if (!_.isString(id) && !id) return null;
-
-        let fields = getFieldList(context);
-
-        return context.rootValue.getUser()
-          .then(({id: userID}) => {
-
-            if (id.length == 0) {
-              return Concept.find({container: ''}, fields.concepts, userID)
-                .then(concepts => ({concepts}));
-            }
-
-            if (fetchContainerIfEmpty) {
-              Object.assign(fields, {conceptsCount: true, container: {id: true}});
-            }
-
-            return Concept.find({id}, fields, userID)
-              .then(([concept]) => {
-                if (!(fetchContainerIfEmpty && concept.conceptsCount == 0)) {
-                  return concept;
-                }
-                  return (concept.container ?
-                    Concept.find({id: concept.container.id}, fields, userID) :
-                    Concept.find({container: ''}, fields.concepts, userID)
-                ).then(([c]) => c)
-              });
-          });
+      resolve(root, args) {
+        const {id, returnEmpty} = args;
+        if (!id) return returnEmpty ? {id: null} : null;
+        return Concept.findOne(args).then((concept) => {
+          if (concept.conceptsCount == 0 && args.fetchContainerIfEmpty) {
+            const {containerId} = concept;
+            return containerId ? Concept.findOne({id: containerId}) : {id: null};
+          } else return concept;
+        });
       }
     },
     concepts: {
@@ -134,15 +135,11 @@ export default {
         limit: {type: GraphQLInt},
         exclude: {type: new GraphQLList(GraphQLString)}
       },
-      resolve(root, args, context) {
+      resolve(root, args) {
         if (args.exclude) {
           args.exclude = args.exclude.map(id => fromGlobalId(id).id);
         }
-        const fields = getFieldList(context);
-        return args.query ?
-          context.rootValue.getUser()
-            .then(({id: userID}) => Concept.find(args, fields, userID)) :
-          [];
+        return Concept.find(args);
       }
     }
   },
@@ -165,7 +162,8 @@ export default {
           input.reqs = input.reqs.map(req => fromGlobalId(req).id);
         }
         return assertUser(root)
-          .then(() => Concept.create(input))
+          .then(() => root.rootValue.getUser())
+          .then((user) => Concept.create(input, user.id))
           .then(id => ({conceptID: toGlobalId('Concept', id)}));
 }
     }),
@@ -217,12 +215,13 @@ export default {
         const {conceptIDs, mastered} = input;
         const ids = conceptIDs.map((id) => fromGlobalId(id).id);
         return root.rootValue.getUser().then(({id: userID}) => {
-            const fields = getFieldList(root);
-            return Concept.master(ids, userID, mastered)
-              .then(() => Promise.all([
-                Concept.find({ids}, fields.concepts, userID),
-                User.find({id: userID}, fields.user)
-              ]));
+            return (mastered ?
+              Concept.master(ids, userID) :
+              Concept.unmaster(ids, userID)
+            ).then(() => Promise.all([
+              Concept.find({ids}),
+              User.find({id: userID})
+            ]));
           })
           .then(([concepts, user]) => ({concepts, user}));
       }
@@ -237,8 +236,10 @@ export default {
       outputFields: {success: {type: GraphQLBoolean}},
       mutateAndGetPayload(input, root) {
         input.conceptID = fromGlobalId(input.conceptID).id;
+
         return assertUser(root)
-          .then(() => Explanation.create(input))
+          .then(() => root.rootValue.getUser())
+          .then((user) => Explanation.create(input, user.id))
           .then(() => ({success: true}));
       }
     }),
@@ -246,15 +247,13 @@ export default {
       name: 'UpdateExplanation',
       inputFields: {
         explanationID: {type: new GraphQLNonNull(GraphQLID)},
-        type: {type: GraphQLString},
         content: {type: GraphQLString}
       },
       outputFields: {explanation: {type: ExplanationType}},
       mutateAndGetPayload(input, root) {
         const explanationID = fromGlobalId(input.explanationID).id;
-        const data = _.pick(input, 'type', 'content');
         return assertUser(root)
-          .then(() => Explanation.update(explanationID, data))
+          .then(() => Explanation.update(explanationID, input.content))
           .then(() => Explanation.find({id: explanationID}))
           .then(([explanation]) => ({explanation}));
       }

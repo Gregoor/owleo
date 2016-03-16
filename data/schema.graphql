@@ -1,16 +1,17 @@
 type Concept implements Node {
   id: ID!
   name: String
-  path: [Concept]
   summary: String
   summarySource: String
   conceptsCount: Int
   container: Concept
-  reqs: [Concept]
+  path: [Concept]
   concepts: [Concept]
-  explanations(after: String, first: Int, before: String, last: Int): ExplanationConnection
+  reqs: [Concept]
   explanationsCount: Int
+  explanations(after: String, first: Int, before: String, last: Int): ExplanationConnection
   mastered: Boolean
+  learnPath(includeContained: Boolean, mastered: Boolean): [Concept]
 }
 
 input CreateConceptInput {
@@ -169,7 +170,6 @@ type UpdateConceptPayload {
 
 input UpdateExplanationInput {
   explanationID: ID!
-  type: String
   content: String
   clientMutationId: String!
 }
@@ -182,7 +182,7 @@ type UpdateExplanationPayload {
 type User implements Node {
   id: ID!
   name: String
-  admin: Boolean
+  isAdmin: Boolean
   isGuest: Boolean
   masteredConceptsCount: Int
 }
@@ -190,8 +190,7 @@ type User implements Node {
 type Viewer {
   user: User
   userExists(name: String!): Boolean
-  learnPath(targetID: String, includeContained: Boolean, mastered: Boolean): [Concept]
-  concept(id: String, fetchContainerIfEmpty: Boolean): Concept
+  concept(id: String, fetchContainerIfEmpty: Boolean, returnEmpty: Boolean): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
 }
 

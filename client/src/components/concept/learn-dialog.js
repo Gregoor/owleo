@@ -35,9 +35,8 @@ class LearnConceptDialog extends React.Component {
   }
 
   render() {
-    const {concept, viewer} = this.props;
-    const {learnPath} = viewer;
-    const {conceptsCount, mastered} = concept;
+    const {concept} = this.props;
+    const {learnPath, conceptsCount, mastered} = concept;
 
     let content;
     if (this.state.isLoadingReqs) {
@@ -128,8 +127,8 @@ class LearnConceptDialog extends React.Component {
   }
 
   _handleMasterAll() {
-    Relay.Store.update(new MasterConceptsMutation({
-      conceptIDs: _.pluck(this.props.viewer.learnPath, 'id'),
+    Relay.Store.commitUpdate(new MasterConceptsMutation({
+      conceptIDs: _.pluck(this.props.learnPath, 'id'),
       mastered: true
     }));
   }
@@ -150,17 +149,6 @@ export default Relay.createContainer(LearnConceptDialog, {
 
   fragments: {
 
-    viewer: () => Relay.QL`
-      fragment on Viewer {
-        learnPath(targetID: $id, mastered: false) {
-          id
-          name
-          path { name }
-          ${ConceptBreadcrumbs.getFragment('concept')}
-        }
-      }
-    `,
-
     concept: () => Relay.QL`
       fragment on Concept {
         id
@@ -168,6 +156,12 @@ export default Relay.createContainer(LearnConceptDialog, {
         mastered
         path { name }
         conceptsCount
+        learnPath(mastered: false) {
+          id
+          name
+          path { name }
+          ${ConceptBreadcrumbs.getFragment('concept')}
+        }
       }
     `
 

@@ -8,9 +8,12 @@ class ConceptBreadcrumbs extends React.Component {
 
   render() {
     const {concept, showHome, hideLeaf, leafAsLink, leafStyle} = this.props;
-    const {name, path} = concept;
+    const {id, name, path} = concept;
 
-    const reversedPath = path.slice(!hideLeaf && leafAsLink ? 0 : 1).reverse();
+    let leaf;
+    if (!hideLeaf) leaf = leafAsLink ?
+      this._renderLink({id, name}, leafStyle, false) :
+      <em style={leafStyle}>{name}</em>;
 
     return (
       <span style={{margin: 0, fontSize: 17}}>
@@ -20,22 +23,21 @@ class ConceptBreadcrumbs extends React.Component {
             {this._renderArrow()}
           </span>
         ) : ''}
-        {reversedPath.map((concept, i) => {
-          const isLast = (hideLeaf || leafAsLink) && i + 1 == reversedPath.length;
-          return (
-            <span key={concept.id} style={{display: 'inline-block'}}>
-              <Link to="/concepts" query={{id: fromGlobalID(concept.id)}}
-                    style={!hideLeaf && isLast ? leafStyle : null}>
-                {concept.name}
-              </Link>
-              {isLast ? '' : this._renderArrow()}
-          </span>
-          )
-        })}
-        {hideLeaf || leafAsLink ? '' : <em style={leafStyle}>{name}</em>}
+        {path.map(({id, name}) => this._renderLink({id, name}))}
+        {leaf}
       </span>
     );
   }
+
+  _renderLink = ({id, name}, style, showArrow = true) => (
+    <span key={id} style={{display: 'inline-block'}}>
+      <Link to="/concepts" query={{id: fromGlobalID(id)}}
+            style={style}>
+        {name}
+      </Link>
+      {showArrow ? this._renderArrow() : ''}
+    </span>
+  );
 
   _renderArrow = () => <span style={{padding: 5, color: 'grey'}}>></span>;
 
@@ -48,6 +50,7 @@ export default Relay.createContainer(ConceptBreadcrumbs, {
   fragments: {
     concept: (variables) =>  Relay.QL`
       fragment on Concept {
+        id
         name,
         path {
           id,

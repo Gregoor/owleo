@@ -1,10 +1,10 @@
 import fromGlobalID from './from-global-id';
 
-export default ({id, path}, options) => {
+export default ({id, name, path}, options) => {
   options = Object.assign({root: 'concepts', query: null}, options);
   const {root, query} = options;
-
-  let parts = path.map(({name}) => name.split(' ').join('-'));
+  
+  let parts = [{name}, ...path].map(({name}) => name.split(' ').join('-'));
   const pathname =  `/${root}/${parts.reverse().join('/')}`;
 
   const queryParts = ['id=' + fromGlobalID(id)];

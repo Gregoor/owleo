@@ -50,7 +50,7 @@
     "react-dom": "^0.14.6",
     "react-mdl": "^1.2.0",
     "react-motion": "^0.2.7",
-    "react-quill": "^0.3.0",
+    "react-quill": "^0.4.1",
     "react-relay": "^0.7.3",
     "react-router": "^1.0.3",
     "react-router-relay": "^0.8.0",

@@ -8,11 +8,11 @@ const Mastered = ({style}) => (
         title="You mastered this concept!"
         style={Object.assign({cursor: 'default'}, style)}/>
 );
-const CenteredSpinner = () => (
+const CenteredSpinner = ({style = {}}) => (
   <div style={{display: 'flex', justifyContent: 'center',
-                     overflow: 'hidden'}}>
+                     overflow: 'hidden', ...style}}>
     <Spinner/>
   </div>
 );
 
-export default {CenteredSpinner, Check, Cross, Mastered};
+export {CenteredSpinner, Check, Cross, Mastered};

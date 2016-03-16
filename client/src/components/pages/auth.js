@@ -183,7 +183,7 @@ class AuthPage extends React.Component {
     event.preventDefault();
     const {name, password} = this.refs;
     this.setState({isAuthenticating: true});
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       new LoginMutation({
         name: name.refs.input.value, password: password.refs.input.value
       }),

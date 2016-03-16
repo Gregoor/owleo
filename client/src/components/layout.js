@@ -17,7 +17,7 @@ class AppLayout extends React.Component {
 
     const links = [];
 
-    if (user && user.admin) links.push(
+    if (user && user.isAdmin) links.push(
       <Link key="new" to="/concepts/new" className="mdl-navigation__link"
             activeClassName="is-active">
         New Concept
@@ -73,7 +73,7 @@ class AppLayout extends React.Component {
 
   _handleLogout(event) {
     event.preventDefault();
-    Relay.Store.update(new LogoutMutation(),
+    Relay.Store.commitUpdate(new LogoutMutation(),
       {
         onSuccess: (t) => location.reload(),
         onFailure: (t) => console.error(t.getError().source.errors)
@@ -90,7 +90,7 @@ export default Relay.createContainer(AppLayout, {
       fragment on Viewer {
         user {
           name
-          admin
+          isAdmin
           isGuest
         }
       }

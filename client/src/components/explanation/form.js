@@ -34,24 +34,26 @@ class ExplanationForm extends React.Component {
   }
 
   render() {
-    const {explanation} = this.props;
+    const {explanation, hideSwitch} = this.props;
     const defaultContent = explanation ? explanation.content : '';
     const isLink = this.state.type == 'link';
     return (
       <Card shadow={2} style={{marginBottom: 8}}>
         <form onSubmit={this._handleSubmit.bind(this)}>
           <CardText>
-            <RadioGroup name="type" value="text"
-                        style={{display: 'flex', justifyContent: 'space-around'}}>
-              <Radio ref="textRadio" ripple defaultChecked value="text"
-                     onClick={this._handleChangeType.bind(this)}>
-                Text
-              </Radio>
-              <Radio ref="linkRadio" ripple value="link"
-                     onClick={this._handleChangeType.bind(this)}>
-                Link
-              </Radio>
-            </RadioGroup>
+            {hideSwitch ? '' :
+              <RadioGroup name="type" value="text"
+                          style={{display: 'flex', justifyContent: 'space-around'}}>
+                <Radio ref="textRadio" ripple defaultChecked value="text"
+                       onClick={this._handleChangeType.bind(this)}>
+                  Text
+                </Radio>
+                <Radio ref="linkRadio" ripple value="link"
+                       onClick={this._handleChangeType.bind(this)}>
+                  Link
+                </Radio>
+              </RadioGroup>
+            }
             <ReactQuill ref="quill" label="Explanation text" theme="snow"
                         modules={{'image-tooltip': true}}
                         toolbar={toolbar}
@@ -93,7 +95,7 @@ class ExplanationForm extends React.Component {
     const content = type == 'link' ?
       link.refs.input.value : quill.getEditor().getHTML();
 
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       concept ?
         new CreateExplanationMutation({concept, type, content}) :
         new UpdateExplanationMutation({explanation, type, content})

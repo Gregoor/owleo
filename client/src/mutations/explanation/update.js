@@ -16,8 +16,8 @@ export default class UpdateExplanationMutation extends Relay.Mutation {
   }
 
   getVariables() {
-    return Object.assign({explanationID: this.props.explanation.id},
-      _.pick(this.props, 'type', 'content'));
+    const {content} = this.props;
+    return {explanationID: this.props.explanation.id, content};
   }
 
   getFatQuery() {
@@ -25,7 +25,6 @@ export default class UpdateExplanationMutation extends Relay.Mutation {
       fragment on UpdateExplanationPayload {
         explanation {
           content
-          type
         }
       }
     `;

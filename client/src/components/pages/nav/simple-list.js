@@ -61,7 +61,7 @@ class ConceptSimpleList extends React.Component {
   _fetchConcept({selectedID}) {
     this.setState({isLoading: true});
     this.props.relay.setVariables(
-      {id: selectedID ? fromGlobalID(selectedID) : ''},
+      {id: selectedID ? fromGlobalID(selectedID) : null, returnEmpty: !selectedID},
       (readyState) => {
         if (readyState.done) {
           this.setState({isLoading: false});
@@ -75,12 +75,12 @@ class ConceptSimpleList extends React.Component {
 
 export default Relay.createContainer(ConceptSimpleList, {
 
-  initialVariables: {id: null},
+  initialVariables: {id: null, returnEmpty: false},
 
   fragments: {
     viewer: () =>  Relay.QL`
       fragment on Viewer {
-        concept(id: $id, fetchContainerIfEmpty: true) {
+        concept(id: $id, fetchContainerIfEmpty: true, returnEmpty: $returnEmpty) {
           id
           name
           concepts {

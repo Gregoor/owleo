@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 
-import createConceptURL from '../../../helpers/create-concept-url';
+import fromGlobalID from '../../../helpers/from-global-id';
 import {Mastered} from '../../icons';
 import {PRIMARY} from '../../../colors';
 
@@ -22,7 +22,7 @@ class ConceptSimpleListItem extends React.Component {
     return (
       <li className="mdl-list__item">
         <span className="mdl-list__item-primary-content">
-          <Link to={createConceptURL(concept)}
+          <Link to="/concepts" query={{id: fromGlobalID(id)}}
                 onClick={this._maybeDontShowSpinner.bind(this, conceptsCount)}
                 style={{ textDecoration: 'none', color: 'black'}}>
             <span style={{display: 'inline-block', width: 26, height: 26,
@@ -65,7 +65,6 @@ export default Relay.createContainer(ConceptSimpleListItem, {
         id
         name
         mastered
-        path { name }
         conceptsCount
       }
     `
