@@ -10,6 +10,7 @@ import SearchResults from './../../concept/results';
 import ConceptCard from '../../concept/card/';
 import ConceptForm from '../../concept/form';
 import OwlPlaceholder from '../../owl-placeholder/';
+import {CenteredSpinner} from '../../icons';
 import CardAnimation from '../../card-animation';
 
 
@@ -46,6 +47,8 @@ class ConceptPage extends React.Component {
     if (this.props.relay.variables.includeResults && query) {
       list = <SearchResults {...{viewer, query, selectedID}}
                             onSelect={this._clearSearch.bind(this)}/>;
+    } else if (query) {
+      list = <CenteredSpinner/>;
     } else {
       list = <ConceptSimpleList viewer={viewer}
                                 selectedID={hasSelection ? selectedConcept.id : null}/>;

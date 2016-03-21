@@ -35,13 +35,18 @@ export default {
       .orderBy('concepts_count', 'desc');
 
     if (params.ids) query.whereIn('id', params.ids);
-    if (params.query) query.where('name', 'LIKE', `%${params.query}%`);
+    if (_.isString(params.query)) {
+      if (params.query.length == 0) {
+        query.where(1, '=', 0);
+      } else {
+        query.where('name', 'LIKE', `%${params.query.toLowerCase()}%`);
+      }
+    }
     if (params.requiredBy) query
       .leftJoin('requirements', 'c.id', 'requirement_id')
       .where({'requirements.concept_id': params.requiredBy});
-    if (params.query) query.where('c.name', 'like', `%${params.query}%`);
     if (params.exclude) query.whereNotIn('c.id', params.exclude);
-    if (params.limit) query.limit(params.limit);
+    query.limit(Math.max(params.limit || 30, 30));
 
     return query.then((concepts) => concepts.map(camelizeKeys));
   },

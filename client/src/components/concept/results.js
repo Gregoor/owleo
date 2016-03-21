@@ -2,9 +2,9 @@ import React from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 import clamp from 'clamp-js'
-import {Spinner} from 'react-mdl';
 
 import createConceptURL from '../../helpers/create-concept-url';
+import {CenteredSpinner} from '../icons';
 
 class ConceptResult extends React.Component {
 
@@ -87,7 +87,7 @@ class SearchResults extends React.Component {
     const {viewer, onSelect} = this.props;
     const {concepts} = viewer;
 
-    if (this.state.isLoading) return <Spinner/>;
+    if (this.state.isLoading) return <CenteredSpinner/>;
 
     if (!concepts || concepts.length == 0) {
       return this._renderMessage(
@@ -107,7 +107,7 @@ class SearchResults extends React.Component {
 
 export default Relay.createContainer(SearchResults, {
 
-  initialVariables: {query: null},
+  initialVariables: {query: ''},
 
   fragments: {
     viewer: () =>  Relay.QL`
