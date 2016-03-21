@@ -8,8 +8,8 @@ import {
 import _ from 'lodash';
 import pluralize from 'pluralize';
 
-import history from '../../history';
 import LoginMutation from '../../mutations/user/login';
+import RegisterMutation from '../../mutations/user/register';
 import {Check, Cross} from './../icons';
 
 class AuthPage extends React.Component {
@@ -184,7 +184,7 @@ class AuthPage extends React.Component {
     const {name, password} = this.refs;
     this.setState({isAuthenticating: true});
     Relay.Store.commitUpdate(
-      new LoginMutation({
+      new (this.state.loginMode ? LoginMutation: RegisterMutation)({
         name: name.refs.input.value, password: password.refs.input.value
       }),
       {

@@ -20,9 +20,9 @@ export default {
   },
 
   registerGuest(id, {name, password}) {
-    return this.find({name}).then((user) => {
+    return this.findOne({name}).then((user) => {
       if (user) throw 'exists';
-      const password_hash = bcrypt.hashSync(password, 12);
+      const password_hash = bcrypt.hashSync(password, bcrypt.genSaltSync(12));
       return users().where({id}).update({name, password_hash, is_guest: false});
     });
   },

@@ -30,7 +30,9 @@ let ViewerType = new GraphQLObjectType({
     userExists: {
       type: GraphQLBoolean,
       args: {name: {type: new GraphQLNonNull(GraphQLString)}},
-      resolve: (root, {name}) => User.findOne({name}).then(u => console.log(u) || Boolean(u))
+      resolve(root, {name}) {
+        return User.findOne({name}).then((user) => Boolean(user));
+      }
     }
   }, ConceptGQL.queries)
 });

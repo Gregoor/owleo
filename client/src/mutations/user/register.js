@@ -23,7 +23,7 @@ class RegisterMutation extends Relay.Mutation {
     return [{
       type: 'REQUIRED_CHILDREN',
       children: [Relay.QL`
-        fragment on LoginPayload {
+        fragment on RegisterPayload {
           success
         }
       `]
@@ -32,4 +32,4 @@ class RegisterMutation extends Relay.Mutation {
 
 }
 
-export default RegisterMutationMutation;
+export default RegisterMutation;
