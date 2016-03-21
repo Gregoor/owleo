@@ -174,7 +174,7 @@ ConceptSelect.defaultProps = {multi: false};
 
 export default Relay.createContainer(ConceptSelect, {
 
-  initialVariables: {query: null, exclude: []},
+  initialVariables: {query: '', exclude: []},
 
   fragments: {
     viewer: () =>  Relay.QL`

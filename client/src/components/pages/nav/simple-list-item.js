@@ -18,7 +18,7 @@ class ConceptSimpleListItem extends React.Component {
   render() {
     const {concept, selectedID} = this.props;
     const {id, name, conceptsCount, mastered} = concept;
-    const isSelected = selectedID == id;
+    const isSelected = selectedID == fromGlobalID(id);
     return (
       <li className="mdl-list__item">
         <span className="mdl-list__item-primary-content">

@@ -118,10 +118,10 @@ export default {
         returnEmpty: {type: GraphQLBoolean}
       },
       resolve(root, args) {
-        const {id, returnEmpty} = args;
+        const {id, returnEmpty, fetchContainerIfEmpty} = args;
         if (!id) return returnEmpty ? {id: null} : null;
-        return Concept.findOne(args).then((concept) => {
-          if (concept.conceptsCount == 0 && args.fetchContainerIfEmpty) {
+        return Concept.findOne({id}).then((concept) => {
+          if (concept.conceptsCount == 0 && fetchContainerIfEmpty) {
             const {containerId} = concept;
             return containerId ? Concept.findOne({id: containerId}) : {id: null};
           } else return concept;

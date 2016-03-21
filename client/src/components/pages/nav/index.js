@@ -27,11 +27,8 @@ class ConceptPage extends React.Component {
   }
 
   render() {
-    const {viewer, relay} = this.props;
+    const {location, viewer, relay: {variables: {selectedID}}} = this.props;
     let {selectedConcept} = viewer;
-    const {
-      selectedID, includeDeepList, includeSimpleList, includeMap
-      } = relay.variables;
     const {query} = this.state;
 
     const hasSelection = selectedConcept && selectedID && this.state.selectedID;
@@ -41,17 +38,14 @@ class ConceptPage extends React.Component {
       document.title = 'Concepts';
     }
 
-    const selectedPath = (selectedConcept.path || []).map(({id}) => id).reverse();
-
     let list;
     if (this.props.relay.variables.includeResults && query) {
       list = <SearchResults {...{viewer, query, selectedID}}
                             onSelect={this._clearSearch.bind(this)}/>;
-    } else if (query) {
-      list = <CenteredSpinner/>;
+    } else if (query || selectedID != location.query.id) {
+      list = <CenteredSpinner style={{marginTop: 10}}/>;
     } else {
-      list = <ConceptSimpleList viewer={viewer}
-                                selectedID={hasSelection ? selectedConcept.id : null}/>;
+      list = <ConceptSimpleList viewer={viewer} id={selectedID}/>;
     }
 
     let emptyOwl = false;
@@ -144,10 +138,9 @@ class ConceptPage extends React.Component {
       this.setState({selectedID: id});
       if (id == this.state.selectedID) return;
       this.setState({isLoading: true});
-      this.props.relay.setVariables({selectedID: id},
-        readyState => {
-          if (readyState.done) this.setState({isLoading: false});
-        });
+      this.props.relay.setVariables({selectedID: id}, (readyState) => {
+        if (readyState.done) this.setState({isLoading: false});
+      });
     } else if (this.state.selectedID) {
       this.setState({selectedID: null});
       this.props.relay.setVariables({selectedID: null});
@@ -176,7 +169,7 @@ export default Relay.createContainer(ConceptPage, {
           }
           ${ConceptCard.getFragment('concept')}
         }
-        ${ConceptSimpleList.getFragment('viewer')}
+        ${ConceptSimpleList.getFragment('viewer', {id: vars.selectedID})}
         ${SearchResults.getFragment('viewer').if(vars.includeResults)}
         ${ConceptForm.getFragment('viewer')}
         ${ConceptCard.getFragment('viewer')}
