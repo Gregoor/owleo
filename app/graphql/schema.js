@@ -54,8 +54,8 @@ export const Schema = new GraphQLSchema({
       register: mutationWithClientMutationId({
         name: 'Register',
         inputFields: {
-          name: {type: GraphQLString},
-          password: {type: GraphQLString}
+          name: {type: new GraphQLNonNull(GraphQLString)},
+          password: {type: new GraphQLNonNull(GraphQLString)}
         },
         outputFields: {
           success: {type: GraphQLBoolean}
@@ -69,8 +69,8 @@ export const Schema = new GraphQLSchema({
       login: mutationWithClientMutationId({
         name: 'Login',
         inputFields: {
-          name: {type: GraphQLString},
-          password: {type: GraphQLString}
+          name: {type: new GraphQLNonNull(GraphQLString)},
+          password: {type: new GraphQLNonNull(GraphQLString)}
         },
         outputFields: {
           success: {type: GraphQLBoolean}

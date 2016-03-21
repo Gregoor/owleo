@@ -81,8 +81,8 @@ type ExplanationEdge {
 }
 
 input LoginInput {
-  name: String
-  password: String
+  name: String!
+  password: String!
   clientMutationId: String!
 }
 
@@ -138,8 +138,8 @@ type PageInfo {
 }
 
 input RegisterInput {
-  name: String
-  password: String
+  name: String!
+  password: String!
   clientMutationId: String!
 }
 
