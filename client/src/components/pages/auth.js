@@ -189,8 +189,7 @@ class AuthPage extends React.Component {
       }),
       {
         onSuccess: (t) => {
-          history.pushState(null, '/');
-          location.reload();
+          location.href = '/';
         },
         onFailure: (t) => {
           for (const {message} of t.getError().source.errors) {
