@@ -12,7 +12,7 @@ export default {
       id: globalIdField('User'),
       name: {type: GraphQLString},
       isAdmin: {type: GraphQLBoolean},
-      isGuest: {type: GraphQLBoolean, resolve: ({isGuest}) => Boolean(isGuest)},
+      isGuest: {type: GraphQLBoolean},
       masteredConceptsCount: {type: GraphQLInt}
     }),
     interfaces: [NodeGQL.interface]

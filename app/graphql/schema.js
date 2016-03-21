@@ -23,7 +23,7 @@ let ViewerType = new GraphQLObjectType({
   fields: Object.assign({
     user: {
       type: UserGQL.type,
-      resolve: (parent, context, root) => {
+      resolve(parent, context, root) {
         return root.rootValue.getUser().then(({id}) => User.find({id}));
       }
     },
