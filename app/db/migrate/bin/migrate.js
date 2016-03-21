@@ -62,7 +62,7 @@ const commands = {
     performMigration('down', migrationName);
   },
 
-  create(){
+  create() {
     const curr = Date.now();
     let title = [].slice.call(arguments).join(' ').replace(/\s+/g, '-');
     title = title ? curr + '-' + title : curr;
@@ -72,8 +72,8 @@ const commands = {
 };
 
 const create = (name) => {
-  var path = join('migrations', name + '.js');
-  log('create', join(process.cwd(), path));
+  const path = join(process.cwd(), join('migrations', name + '.js'));
+  log('create', path);
   fs.writeFileSync(path, template);
 };
 
