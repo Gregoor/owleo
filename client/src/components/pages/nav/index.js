@@ -27,16 +27,11 @@ class ConceptPage extends React.Component {
 
   render() {
     const {viewer, relay} = this.props;
-    let {conceptRoot, selectedConcept} = viewer;
+    let {selectedConcept} = viewer;
     const {
       selectedID, includeDeepList, includeSimpleList, includeMap
       } = relay.variables;
     const {query} = this.state;
-
-    const hasQuery = Boolean(query);
-    if (hasQuery != this.props.relay.variables.includeResults) {
-      this.props.relay.setVariables({includeResults: hasQuery});
-    }
 
     const hasSelection = selectedConcept && selectedID && this.state.selectedID;
 
@@ -48,8 +43,8 @@ class ConceptPage extends React.Component {
     const selectedPath = (selectedConcept.path || []).map(({id}) => id).reverse();
 
     let list;
-    if (hasQuery) {
-      list = <SearchResults {...{viewer, query}} selectedID={selectedConcept.id}
+    if (this.props.relay.variables.includeResults && query) {
+      list = <SearchResults {...{viewer, query, selectedID}}
                             onSelect={this._clearSearch.bind(this)}/>;
     } else {
       list = <ConceptSimpleList viewer={viewer}
@@ -112,7 +107,9 @@ class ConceptPage extends React.Component {
   }
 
   _handleSearchChange(event) {
-    this.setState({query: event.target.value});
+    const {value: query} = event.target;
+    this.props.relay.setVariables({includeResults: Boolean(query)});
+    this.setState({query});
   }
 
   _handleSearchKeyUp(event) {

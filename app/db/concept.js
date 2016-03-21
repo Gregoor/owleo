@@ -35,6 +35,7 @@ export default {
       .orderBy('concepts_count', 'desc');
 
     if (params.ids) query.whereIn('id', params.ids);
+    if (params.query) query.where('name', 'LIKE', `%${params.query}%`);
     if (params.requiredBy) query
       .leftJoin('requirements', 'c.id', 'requirement_id')
       .where({'requirements.concept_id': params.requiredBy});
