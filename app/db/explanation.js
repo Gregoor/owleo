@@ -4,6 +4,8 @@ import sanitizeHtml from 'sanitize-html';
 
 import knex from './knex';
 
+const explanations = () => knex('explanations');
+
 const sanitizeContent = (content) => sanitizeHtml(content, {
   'allowedTags': ['ul', 'li', 'div', 'br', 'ol', 'b', 'i', 'u', 'img']
 });
@@ -11,7 +13,7 @@ const sanitizeContent = (content) => sanitizeHtml(content, {
 export default {
 
   find(params = {}) {
-    return knex('explanations').where(_.pick(params, 'id', 'concept_id'))
+    return explanations().where(_.pick(params, 'id', 'concept_id'))
       .then((explanations) => explanations.map(camelizeKeys));
   },
 
@@ -30,11 +32,38 @@ export default {
   },
 
   update(id, content) {
-    return knex('explanations').update({content}).where({id}).then(() => id);
+    return explanations().update({content}).where({id}).then(() => id);
   },
 
   delete(id) {
-    return knex('explanations').where({id}).delete();
+    return explanations().where({id}).delete();
+  },
+
+  vote(id, voteType, userID) {
+    const ids = {explanation_id: id, user_id: userID};
+    const voteCount = (type) => knex(`explanation_${type}_votes`)
+      .where({explanation_id: id}).count().toString();
+    return knex.transaction((trx) =>
+      Promise.all([
+        knex('explanation_up_votes').transacting(trx).where(ids).delete(),
+        knex('explanation_down_votes').transacting(trx).where(ids).delete()
+      ]).then(() =>
+        voteType ?
+          knex(`explanation_${voteType.toLowerCase()}_votes`).transacting(trx)
+            .insert(ids) :
+          Promise.resolve()
+      ).then(() =>
+        explanations().transacting(trx).where({id}).update('votes', knex.raw(
+          `(${voteCount('up')}) - (${voteCount('down')})`
+        ))
+      )
+    );
+  },
+
+  hasVotedFor(id, voteType, userID) {
+    return knex(`explanation_${voteType.toLowerCase()}_votes`)
+      .where({explanation_id: id, user_id: userID})
+      .then((explanations) => Boolean(explanations.length));
   }
 
 };

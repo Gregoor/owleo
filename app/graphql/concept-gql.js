@@ -34,11 +34,19 @@ let ExplanationType = new GraphQLObjectType({
     votes: {type: GraphQLInt},
     hasUpvoted: {
       type: GraphQLBoolean,
-      resolve: ({hasUpvoted}) => Boolean(hasUpvoted)
+      resolve({id}, context, root) {
+        return root.rootValue.getUser().then(({id: userID}) => {
+          return Explanation.hasVotedFor(id, 'UP', userID);
+        });
+      }
     },
     hasDownvoted: {
       type: GraphQLBoolean,
-      resolve: ({hasDownvoted}) => Boolean(hasDownvoted)
+      resolve({id}, context, root) {
+        return root.rootValue.getUser().then(({id: userID}) => {
+          return Explanation.hasVotedFor(id, 'DOWN', userID);
+        });
+      }
     },
     author: {type: UserGQL.type}
   })
@@ -287,7 +295,7 @@ export default {
         return assertUser(root)
           .then(root.rootValue.getUser)
           .then(({id: userID}) => Explanation.vote(explanationID, voteType, userID))
-          .then((explanation) => ({explanation}));
+          .then(() => ({explanation: Explanation.findOne({id: explanationID})}));
       }
     })
   }
