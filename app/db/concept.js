@@ -39,7 +39,7 @@ export default {
       if (params.query.length == 0) {
         query.where(1, '=', 0);
       } else {
-        query.where('name', 'LIKE', `%${params.query.toLowerCase()}%`);
+        query.where('name', 'ILIKE', `%${params.query}%`);
       }
     }
     if (params.requiredBy) query
