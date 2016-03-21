@@ -40,6 +40,7 @@ app.use(sessions({
 app.use(compression());
 app.use(require('body-parser').json());
 app.use('/graphql', graphqlHTTP(({user}) => {
+  if (user.id.length > 3) user.id = null;
   const userPromise = (user.id ?
     Promise.resolve(user.id) :
     User.createGuest().then(id => (user.id = id))

@@ -38,7 +38,6 @@
   "dependencies": {
     "clamp-js": "^0.7.0",
     "classnames": "^2.2.3",
-    "cola": "tgdwyer/WebCola#master",
     "d3": "^3.5.12",
     "dialog-polyfill": "^0.4.2",
     "history": "^1.9.1",
@@ -54,6 +53,7 @@
     "react-relay": "^0.7.3",
     "react-router": "^1.0.3",
     "react-router-relay": "^0.8.0",
-    "react-select": "daviferreira/react-select"
+    "react-select": "daviferreira/react-select",
+    "webcola": "^3.1.3"
   }
 }
