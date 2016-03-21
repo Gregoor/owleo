@@ -51,6 +51,13 @@ app.use('/graphql', graphqlHTTP(({user}) => {
     rootValue: {
       getUser: () => userPromise,
       setUser: (id) => (user.id = id)
+    },
+    formatError(error) {
+      return config.dev ? {
+        message: error.message,
+        locations: error.locations,
+        stack: error.stack
+      } : {message: 'Error in der Hose'};
     }
   }
 }));
