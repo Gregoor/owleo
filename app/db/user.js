@@ -10,7 +10,7 @@ export default {
 
   authenticate({name, password}) {
     return users().select('id', 'password_hash').where({name}).limit(1)
-      .then(([{id, password_hash}]) => 
+      .then(([{id, password_hash}]) =>
         bcrypt.compareSync(password, password_hash) ? {id, name} : null
       );
   },
@@ -27,8 +27,8 @@ export default {
     });
   },
 
-  find(params) {
-    return users().select().where(_.pick(params, 'id', 'user')).limit(1)
+  findOne(params) {
+    return users().select().where(_.pick(params, 'id', 'name')).limit(1)
       .then(([u]) => camelizeKeys(u));
   }
 

@@ -44,7 +44,7 @@ app.use('/graphql', graphqlHTTP(({user}) => {
   const userPromise = (user.id ?
     Promise.resolve(user.id) :
     User.createGuest().then(id => (user.id = id))
-  ).then((id => User.find({id})));
+  ).then((id => User.findOne({id})));
   return {
     schema: require('./graphql/schema').Schema,
     graphiql: true,

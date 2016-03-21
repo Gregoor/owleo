@@ -24,13 +24,13 @@ let ViewerType = new GraphQLObjectType({
     user: {
       type: UserGQL.type,
       resolve(parent, context, root) {
-        return root.rootValue.getUser().then(({id}) => User.find({id}));
+        return root.rootValue.getUser().then(({id}) => User.findOne({id}));
       }
     },
     userExists: {
       type: GraphQLBoolean,
       args: {name: {type: new GraphQLNonNull(GraphQLString)}},
-      resolve: (root, {name}) => User.find({name}).then(u => Boolean(u))
+      resolve: (root, {name}) => User.findOne({name}).then(u => console.log(u) || Boolean(u))
     }
   }, ConceptGQL.queries)
 });

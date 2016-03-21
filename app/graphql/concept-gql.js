@@ -220,7 +220,7 @@ export default {
               Concept.unmaster(ids, userID)
             ).then(() => Promise.all([
               Concept.find({ids}),
-              User.find({id: userID})
+              User.findOne({id: userID})
             ]));
           })
           .then(([concepts, user]) => ({concepts, user}));
