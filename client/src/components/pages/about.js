@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 import DocumentTitle from 'react-document-title';
 
 let sections = new Map([
@@ -61,7 +60,7 @@ for (let [headline, text] of sections) {
 
 export default () => (
   <DocumentTitle title="About">
-    <div className="mdl-demo mdl-grid" style={{maxWidth: 700}}>
+    <div className="mdl-grid" style={{maxWidth: 700}}>
       {sectionsHTML}
     </div>
   </DocumentTitle>

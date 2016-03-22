@@ -2,11 +2,22 @@ import React from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 import classnames from 'classnames';
-import {Content, Drawer, Header, Layout, Navigation} from 'react-mdl';
+import {
+  Content, Drawer, Header, IconButton, Layout, Menu, MenuItem, Navigation
+} from 'react-mdl';
 
 import LogoutMutation from '../mutations/user/logout';
 
 import './layout.scss';
+
+const MenuLink = ({children, to}) => (
+  <MenuItem>
+    <Link to={to} style={{color: 'rgba(0,0,0, 0.87)', fontWeight: 400,
+                          textDecoration: 'none'}}>
+      {children}
+    </Link>
+  </MenuItem>
+);
 
 class AppLayout extends React.Component {
 
@@ -16,13 +27,6 @@ class AppLayout extends React.Component {
     const isConceptRoute = root == 'concepts' && next != 'new';
 
     const links = [];
-
-    if (user && user.isAdmin) links.push(
-      <Link key="new" to="/concepts/new" className="mdl-navigation__link"
-            activeClassName="is-active">
-        New Concept
-      </Link>
-    );
 
     links.push(
       <Link key="concepts" to="/concepts"
@@ -52,6 +56,15 @@ class AppLayout extends React.Component {
     return (
       <Layout fixedHeader>
         <Header title={this._renderTitle()}>
+          {user && user.isAdmin ?
+            <div style={{position: 'relative'}}>
+              <IconButton name="more_vert" id="admin-menu" />
+              <Menu target="admin-menu">
+                <MenuLink to="/concepts/new">New Concept</MenuLink>
+                <MenuLink to="/unapproved">Unapproved</MenuLink>
+              </Menu>
+            </div>
+          : ''}
           <Navigation>{links}</Navigation>
         </Header>
         <Drawer>

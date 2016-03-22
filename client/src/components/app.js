@@ -13,6 +13,7 @@ import ConceptLearnPage from './pages/learn/';
 import ConceptForm from './concept/form';
 import AuthPage from './pages/auth';
 import AboutPage from './pages/about';
+import UnapprovedPage from './pages/unapproved';
 
 Relay.injectNetworkLayer(
   new Relay.DefaultNetworkLayer(BACKEND_URL + 'graphql', {
@@ -36,18 +37,19 @@ const commonProps = {
 const CreateConceptForm = ({viewer}) => (
   <ConceptForm viewer={viewer} concept={null}/>
 );
-
 export default () => (
   <RelayRouter history={history}>
     <Redirect from="/" to="/concepts"/>
     <Route path="/" component={Layout} {...commonProps}>
+      <Route path="auth" component={AuthPage} {...commonProps}/>
       <Route path="concepts" component={ConceptPage} {...commonProps}>
         <Route path="new" component={CreateConceptForm}/>
         <Route path=":path*"/>
       </Route>
       <Route path="learn/:path*" component={ConceptLearnPage} {...commonProps}/>
-      <Route path="auth" component={AuthPage} {...commonProps}/>
+      <Route path="unapproved" component={UnapprovedPage} {...commonProps}/>
       <Route path="about" component={AboutPage}/>
     </Route>
   </RelayRouter>
 );
+

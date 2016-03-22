@@ -12,8 +12,19 @@ const sanitizeContent = (content) => sanitizeHtml(content, {
 
 export default {
 
-  find(params = {}) {
-    return explanations().where(_.pick(params, 'id', 'concept_id'))
+  find(params = {}, userID) {
+    const query = explanations()
+      .where(_.pick(params, 'id', 'concept_id'));
+
+    if (params.approved === false) {
+      query.where({approved: false});
+    } else {
+      query.where(function() {
+        this.where({approved: true}).orWhere({author_id: userID});
+      });
+    }
+
+    return query.orderByRaw('votes DESC, created_at')
       .then((explanations) => explanations.map(camelizeKeys));
   },
 
@@ -26,13 +37,16 @@ export default {
       concept_id: conceptID,
       author_id: userID,
       content: sanitizeContent(content),
-      is_link: type == 'link'
+      is_link: type == 'link',
+      approved: knex('users').select('is_admin').where({id: userID})
     }).returning('id');
     return q;
   },
 
-  update(id, content) {
-    return explanations().update({content}).where({id}).then(() => id);
+  update(id, columns) {
+    return explanations()
+      .update(_.pick(columns, 'content', 'approved'))
+      .where({id}).then(() => id);
   },
 
   delete(id) {
@@ -43,21 +57,19 @@ export default {
     const ids = {explanation_id: id, user_id: userID};
     const voteCount = (type) => knex(`explanation_${type}_votes`)
       .where({explanation_id: id}).count().toString();
-    return knex.transaction((trx) =>
-      Promise.all([
-        knex('explanation_up_votes').transacting(trx).where(ids).delete(),
-        knex('explanation_down_votes').transacting(trx).where(ids).delete()
-      ]).then(() =>
-        voteType ?
-          knex(`explanation_${voteType.toLowerCase()}_votes`).transacting(trx)
-            .insert(ids) :
-          Promise.resolve()
-      ).then(() =>
-        explanations().transacting(trx).where({id}).update('votes', knex.raw(
-          `(${voteCount('up')}) - (${voteCount('down')})`
-        ))
-      )
-    );
+    return knex.transaction((trx) => Promise.all([
+      knex('explanation_up_votes').transacting(trx).where(ids).delete(),
+      knex('explanation_down_votes').transacting(trx).where(ids).delete()
+    ]).then(() =>
+      voteType ?
+        knex(`explanation_${voteType.toLowerCase()}_votes`).transacting(trx)
+          .insert(ids) :
+        Promise.resolve()
+    ).then(() =>
+      explanations().transacting(trx).where({id}).update('votes', knex.raw(
+        `(${voteCount('up')}) - (${voteCount('down')})`
+      ))
+    ));
   },
 
   hasVotedFor(id, voteType, userID) {

@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Relay from 'react-relay';
 import {
   Button, Card, CardActions, CardText, Radio, RadioGroup, Textfield
@@ -98,7 +97,7 @@ class ExplanationForm extends React.Component {
     Relay.Store.commitUpdate(
       concept ?
         new CreateExplanationMutation({concept, type, content}) :
-        new UpdateExplanationMutation({explanation, type, content})
+        new UpdateExplanationMutation({explanation, content})
       ,
       {
         onSuccess: t => {

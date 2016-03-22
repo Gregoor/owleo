@@ -1,7 +1,7 @@
 import React from 'react';
 import Relay from 'react-relay';
 import {
-  Button, Card, CardActions, CardMenu, CardText, Icon, IconButton,
+  Button, Card, CardMenu, CardText, Icon, IconButton,
   Menu, MenuItem
 } from 'react-mdl';
 import '../../../lib/embedly';
@@ -9,7 +9,7 @@ import '../../../lib/embedly';
 import VoteExplanationMutation from '../../mutations/explanation/vote';
 import DeleteExplanationMutation from '../../mutations/explanation/delete';
 import ExplanationForm from './form';
-import shortenURL from '../../helpers/shorten-url';
+import ExplanationContent from './content';
 
 const VOTE_ICON_STYLE = {fontSize: 40, marginLeft: -8};
 
@@ -29,7 +29,7 @@ class ExplanationCard extends React.Component {
       <ExplanationForm {...{explanation}} concept={null} hideSwitch
                        onDone={() => this.setState({isEditing: false})}/>
     );
-    const {type, content, hasUpvoted, hasDownvoted} = explanation;
+    const {hasUpvoted, hasDownvoted} = explanation;
     const {isGuest} = user;
 
     const rand = Math.random();
@@ -56,18 +56,7 @@ class ExplanationCard extends React.Component {
               <Icon name="arrow_drop_down" style={VOTE_ICON_STYLE}/>
             </Button>
           </div>
-
-          {type == 'link' ?
-            <div className="explanation" style={{marginLeft: 8}}>
-              <a href={content} className="embedly-card"
-                 data-card-controls="0" data-card-chrome="0"
-                 style={{wordWrap: 'break-word'}}>
-                {content.length > 50 ? shortenURL(content) : content}
-              </a>
-            </div> :
-            <div dangerouslySetInnerHTML={{__html: content}}
-                 style={{margin: 8}}/>
-          }
+          <ExplanationContent explanation={explanation}/>
         </CardText>
         {!user.isAdmin ? '' : (
           <CardMenu>
@@ -118,14 +107,13 @@ export default Relay.createContainer(ExplanationCard, {
     explanation: () => Relay.QL`
       fragment on Explanation {
         id
-        content
-        type
         votes
         hasUpvoted
         hasDownvoted
+        ${ExplanationForm.getFragment('explanation')}
+        ${ExplanationContent.getFragment('explanation')}
         ${VoteExplanationMutation.getFragment('explanation')}
         ${DeleteExplanationMutation.getFragment('explanation')}
-        ${ExplanationForm.getFragment('explanation')}
       }
     `,
     user: () => Relay.QL`

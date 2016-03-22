@@ -68,6 +68,8 @@ type Explanation {
   hasUpvoted: Boolean
   hasDownvoted: Boolean
   author: User
+  approved: Boolean
+  concept: Concept
 }
 
 type ExplanationConnection {
@@ -153,6 +155,10 @@ type RootQuery {
   node(id: ID!): Node
 }
 
+type Unapproved {
+  explanations: [Explanation]
+}
+
 input UpdateConceptInput {
   id: ID
   name: String
@@ -171,6 +177,7 @@ type UpdateConceptPayload {
 input UpdateExplanationInput {
   explanationID: ID!
   content: String
+  approved: Boolean
   clientMutationId: String!
 }
 
@@ -192,6 +199,7 @@ type Viewer {
   userExists(name: String!): Boolean
   concept(id: String, fetchContainerIfEmpty: Boolean, returnEmpty: Boolean): Concept
   concepts(query: String, limit: Int, exclude: [String]): [Concept]
+  unapproved: Unapproved
 }
 
 input VoteExplanationInput {
