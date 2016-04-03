@@ -7,7 +7,7 @@ let {nodeInterface, nodeField} = nodeDefinitions(
     const {type, id} = fromGlobalId(globalId);
     return type == 'Concept' ? Concept.findOne({id}) : null;
   },
-  (obj) => require('./concept-gql').type
+  (obj) => require('./concept-gql').default.type
 );
 
 export default {interface: nodeInterface, field: nodeField};
