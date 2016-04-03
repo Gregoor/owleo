@@ -118,8 +118,7 @@ class ConceptCard extends React.Component {
     Relay.Store.commitUpdate(new DeleteConceptMutation({concept}),
       {
         onSuccess: (t) => {
-          history.pushState(null, '/concepts');
-          location.reload();
+          location.href = '/';
         },
         onFailure: (t) => console.error(t.getError().source.errors)
       }
