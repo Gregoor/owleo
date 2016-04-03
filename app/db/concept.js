@@ -27,6 +27,31 @@ const recountConcepts = `
   )
 `;
 
+const filterReqs = ({reqs, container}) => {
+  if (container) reqs = [...reqs, container];
+  return reqs.length == 0 ? Promise.resolve([]) : knex.raw(`
+    WITH RECURSIVE all_requirments AS (
+      SELECT id, ARRAY[]::INT[]
+        AS reqs
+      FROM concepts
+      WHERE id IN (${reqs.map((id) => parseInt(id, 10)).join(',')})
+      UNION
+      SELECT concepts.id, array_append(all_requirments.reqs, concepts.id) AS reqs
+      FROM concepts, requirements, all_requirments
+      WHERE concepts.id = requirements.requirement_id AND
+            requirements.concept_id = all_requirments.id
+    )
+    SELECT array_agg(reqs) AS reqs
+    FROM (
+      SELECT DISTINCT unnest(reqs)
+      FROM all_requirments
+    ) AS dt(reqs);
+  `).then(({rows: [{reqs: allReqs}]}) => allReqs ?
+    reqs.filter((id) => !allReqs.includes(parseInt(id, 10))) :
+    reqs
+  );
+};
+
 export default {
 
   find: (params = {}) => {
@@ -75,8 +100,10 @@ export default {
     return knex.transaction((trx) =>
       concepts().transacting(trx)
         .insert(asColumns(data)).returning('id').then(([id]) => Promise.all([
-          requirements().transacting(trx).insert(
-            data.reqs.map((requirement_id) => ({concept_id: id, requirement_id}))
+          filterReqs(data).then((reqs) =>
+            requirements().transacting(trx).insert(
+              reqs.map((requirement_id) => ({concept_id: id, requirement_id}))
+            )
           ),
           knex.raw(recountConcepts)
         ]).then(() => id))
@@ -88,9 +115,9 @@ export default {
     return knex.transaction((trx) => Promise.all([
       concepts().transacting(trx).update(asColumns(data)).where({id}),
       requirements().transacting(trx).where({concept_id}).delete(),
-      requirements().transacting(trx).insert(
-        data.reqs.map((requirement_id) => ({concept_id, requirement_id}))
-      )
+      filterReqs(data).then((reqs) => requirements().transacting(trx).insert(
+        reqs.map((requirement_id) => ({concept_id, requirement_id}))
+      ))
     ])).then(() => knex.raw(recountConcepts)).then(() => id);
   },
 
