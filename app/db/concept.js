@@ -24,7 +24,7 @@ const recountConcepts = `
     )
     SELECT COUNT(*)
     FROM containers
-  )
+  ) - 1
 `;
 
 const filterReqs = ({reqs, container}) => {
