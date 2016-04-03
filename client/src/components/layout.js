@@ -12,8 +12,8 @@ import './layout.scss';
 
 const MenuLink = ({children, to}) => (
   <MenuItem>
-    <Link to={to} style={{color: 'rgba(0,0,0, 0.87)', fontWeight: 400,
-                          textDecoration: 'none'}}>
+    <Link to={to} style={{display: 'block', color: 'rgba(0,0,0, 0.87)',
+                          fontWeight: 400, textDecoration: 'none'}}>
       {children}
     </Link>
   </MenuItem>
