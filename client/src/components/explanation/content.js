@@ -1,6 +1,8 @@
 import React from 'react';
 import Relay from 'react-relay';
 
+import shortenURL from '../../helpers/shorten-url';
+
 const ExplanationContent = ({explanation: {type, content}}) => (
   type == 'link' ?
     <div className="explanation" style={{marginLeft: 8}}>
@@ -15,7 +17,7 @@ const ExplanationContent = ({explanation: {type, content}}) => (
 );
 
 export default Relay.createContainer(ExplanationContent, {
-  
+
   fragments: {
     explanation: () => Relay.QL`
       fragment on Explanation {
@@ -24,5 +26,5 @@ export default Relay.createContainer(ExplanationContent, {
       }
     `
   }
-  
+
 })
