@@ -5,7 +5,8 @@
   "scripts": {
     "test": "mocha --compilers js:babel-core/register app/__tests__",
     "migrate": "babel-node app/db/migrate/bin/migrate --chdir app/db",
-    "update-schema": "babel-node build/update-schema.js"
+    "update-schema": "babel-node build/update-schema.js",
+    "create-secret": "node app/create-secret.js"
   },
   "author": "",
   "license": "BSD-2-Clause",

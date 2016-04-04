@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import fs from 'fs';
+import path from 'path';
 import express from 'express';
 import compression from 'compression';
 import sessions from 'client-sessions';
@@ -26,13 +28,18 @@ if (config.dev) {
   app.use(corsResponse);
 }
 
+const secretFilePath = path.join(__dirname, 'secret.key');
+if (!fs.existsSync(secretFilePath)) {
+  throw 'Missing secret, run npm task "create-secret"';
+}
+
 app.use(sessions({
   cookieName: 'user',
-  secret: 'soon', //TODO
+  secret: fs.readFileSync(secretFilePath),
   duration: 1000 * 60 * 60 * 24 * 7,
   cookie: {
-    path: '/graphql'
-    //secureProxy: 'DOME' //TODO: Srsly
+    path: '/graphql',
+    secureProxy: true
   }
 }));
 app.use(compression());
