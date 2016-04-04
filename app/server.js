@@ -65,11 +65,6 @@ app.use('/graphql', graphqlHTTP(({user}) => {
 app.use(favicon(__dirname + '/../client/favicon.ico'));
 app.use('/study', express.static(__dirname + '/study'));
 
-app.use('/static', express.static(__dirname + '/../client/dist/'));
-app.use('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/index.prod.html'));
-});
-
 app.listen(config.port);
 
 console.log(`Running on port ${config.port}`);

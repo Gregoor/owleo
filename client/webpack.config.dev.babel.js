@@ -13,7 +13,7 @@ export default {
       {
         test: /\.js$/,
         loader: 'babel',
-        include: path.join(__dirname, 'src'),
+        include: path.join(__dirname, 'src')
       },
       {
         test: /\.scss$/,
@@ -27,8 +27,8 @@ export default {
     new ExtractTextPlugin('styles.css')
   ],
   output: {
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, 'static', 'assets'),
     filename: 'bundle.js',
-    publicPath: '/static/'
+    publicPath: '/assets/'
   }
 };
