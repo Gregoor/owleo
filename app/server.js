@@ -1,11 +1,9 @@
-import path from 'path';
 import _ from 'lodash';
 import express from 'express';
 import compression from 'compression';
 import sessions from 'client-sessions';
 import graphqlHTTP from 'express-graphql';
 import cors from 'cors';
-import favicon from 'serve-favicon';
 import 'babel-polyfill';
 
 import User from './db/user';
@@ -62,7 +60,6 @@ app.use('/graphql', graphqlHTTP(({user}) => {
   }
 }));
 
-app.use(favicon(__dirname + '/../client/favicon.ico'));
 app.use('/study', express.static(__dirname + '/study'));
 
 app.listen(config.port);

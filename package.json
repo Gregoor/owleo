@@ -28,8 +28,7 @@
     "migrate": "git://github.com/Gregoor/node-migrate.git",
     "neo4j": "2.0.0-RC2",
     "pg": "^4.5.1",
-    "sanitize-html": "^1.11.4",
-    "serve-favicon": "^2.3.0"
+    "sanitize-html": "^1.11.4"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
