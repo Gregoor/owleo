@@ -1,24 +1,14 @@
 import React from 'react';
 import Relay from 'react-relay';
 
-import fromGlobalID from '../../../helpers/from-global-id';
-import ConceptBreadcrumbs from '../../concept/breadcrumbs';
 import ConceptSimpleListItem from './simple-list-item';
 
 import './mdl-list.scss';
 
 const ConceptSimpleList = ({relay: {variables: {id}}, viewer: {concept}}) => (
-  <div style={{display: 'flex', flexDirection: 'column', height: '86.5vh',
-               overflowY: 'hidden', marginTop: concept.name ? 0 : -40}}>
-    <div style={{minHeight: 20, padding: 10}}>
-      {concept.name ?
-        <ConceptBreadcrumbs concept={concept} showHome
-                            leafAsLink
-                            leafStyle={{fontWeight: fromGlobalID(concept.id) == id ? 800 : 500}}/>
-        : ''}
-    </div>
-    <ul className="mdl-list"
-        style={{height: '100%', margin: 0, overflowY: 'auto'}}>
+  <div style={{display: 'flex', flexDirection: 'column',
+               overflowY: 'hidden'}}>
+    <ul className="mdl-list" style={{margin: 0}}>
       {concept.concepts.map((concept) => (
         <ConceptSimpleListItem key={concept.id} selectedID={id} {...{concept}}/>
       ))}
@@ -41,7 +31,6 @@ export default Relay.createContainer(ConceptSimpleList, {
             id
             ${ConceptSimpleListItem.getFragment('concept')}
           }
-          ${ConceptBreadcrumbs.getFragment('concept').if(vars.id)}
         }
       }
     `

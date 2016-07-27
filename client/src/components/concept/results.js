@@ -2,9 +2,12 @@ import React from 'react';
 import Relay from 'react-relay';
 import {Link} from 'react-router';
 import clamp from 'clamp-js'
+import {Card} from 'react-mdl';
 
 import createConceptURL from '../../helpers/create-concept-url';
 import {CenteredSpinner} from '../icons';
+
+import './results.scss';
 
 class ConceptResult extends React.Component {
 
@@ -20,14 +23,14 @@ class ConceptResult extends React.Component {
     const {concept, onSelect} = this.props;
     const {path, name, summary} = concept;
     return (
-      <li style={{borderBottom: '1px solid rgba(0, 0, 0, 0.1)', padding: 10,
+      <Card style={{marginBottom: 8, borderBottom: '1px solid rgba(0, 0, 0, 0.1)', padding: 10,
                   overflow: 'hidden'}}>
         <Link className="mdl-js-ripple-effect"
               to={createConceptURL(concept)}
               onClick={(event) => { onSelect(); }}
               style={{display: 'block', textDecoration: 'none', color: 'black'}}>
               <span style={{fontWeight: 200}}>
-                {path.slice(1).reverse().map(({name}) =>
+                {path.map(({name}) =>
                   [<span>{name}</span>, ' > ']
                 )}
               </span>
@@ -37,7 +40,7 @@ class ConceptResult extends React.Component {
             {summary}
           </div>
         </Link>
-      </li>
+      </Card>
     );
   }
 
@@ -49,25 +52,28 @@ class ConceptResult extends React.Component {
 
 class SearchResults extends React.Component {
 
-  state = {isTooShort: true, isLoading: false};
+  state = {isLoading: false};
+
+  componentDidMount() {
+    this.props.relay.forceFetch();
+  }
 
   componentWillReceiveProps(props) {
     const {query} = props;
     if (query == this.props.query) return;
-    const isTooShort = query.length < 3;
-    if (!isTooShort) {
+    if (query.length >= 3) {
       this.setState({isLoading: true});
-      this.props.relay.forceFetch({query}, readyState => {
+      this.props.relay.setVariables({query}, readyState => {
         if (readyState.done) this.setState({isLoading: false});
       });
     }
-    this.setState({isTooShort})
   }
 
   render() {
+    const query = this.props.query;
     return (
       <div>
-        {this.state.isTooShort ?
+        {!query || query.length < 3 ?
           this._renderMessage('A search query must be at least 3 characters') :
           this._renderList()
         }
@@ -79,13 +85,14 @@ class SearchResults extends React.Component {
     return (
       <div style={{padding: '5px', paddingLeft: '10px'}}>
         <em>{message}</em>
+        <br/>
+        <Link to="/">Take me back to the navigation</Link>
       </div>
     );
   }
 
   _renderList() {
-    const {viewer, onSelect} = this.props;
-    const {concepts} = viewer;
+    const {viewer: {concepts}, onSelect} = this.props;
 
     if (this.state.isLoading) return <CenteredSpinner/>;
 
@@ -94,13 +101,10 @@ class SearchResults extends React.Component {
         `No concepts with '${this.props.query}' in the title found`
       );
     }
-    return (
-      <ul style={{listStyleType: 'none', margin: 0, padding: '0 5'}}>
-        {concepts.map((concept) => {
-          return <ConceptResult key={concept.id} {...{concept, onSelect}}/>;
-        })}
-      </ul>
-    );
+
+    return concepts.map((concept) => (
+      <ConceptResult key={concept.id} {...{concept, onSelect}}/>
+    ));
   }
 
 }

@@ -25,7 +25,7 @@ class Req extends React.Component {
       <div className="mdl-card__supporting-text"
            style={{borderTop: borderStyle, overflow: 'hidden',
                    borderBottom: isLast ? borderStyle : 'none',
-                   height: mastered ? 40 : 96,
+                   maxHeight: mastered ? 40 : 96,
                    transition: 'height 300ms ease-in-out'}}>
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <h3 style={{fontSize: 22, margin: 0}}>

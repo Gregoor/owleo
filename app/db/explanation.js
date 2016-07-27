@@ -24,8 +24,9 @@ export default {
       });
     }
 
-    return query.orderByRaw('votes DESC, created_at')
-      .then((explanations) => explanations.map(camelizeKeys));
+    return query.orderByRaw('votes DESC, created_at').then((explanations) =>
+      explanations.map((explanation) => camelizeKeys(explanation))
+    );
   },
 
   findOne(...args) {

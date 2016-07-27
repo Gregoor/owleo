@@ -1,22 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Relay from 'react-relay';
-import {Card, Cell, Grid, Spinner, Textfield} from 'react-mdl';
+import {Card, IconButton, Spinner} from 'react-mdl';
 
+import history from '../../../history';
 import fromGlobalID from '../../../helpers/from-global-id';
 import createConceptURL from '../../../helpers/create-concept-url';
 import ConceptSimpleList from './simple-list';
 import SearchResults from './../../concept/results';
+import ConceptBreadcrumbs from '../../concept/breadcrumbs';
 import ConceptCard from '../../concept/card/';
 import ConceptForm from '../../concept/form';
 import OwlPlaceholder from '../../owl-placeholder/';
 import {CenteredSpinner} from '../../icons';
-import CardAnimation from '../../card-animation';
 
 
 class ConceptPage extends React.Component {
 
-  state = {concept: null, query: ''};
+  state = {concept: null, query: '', showSearch: false};
 
   componentWillMount() {
     this._setSelected(this.props);
@@ -27,75 +28,48 @@ class ConceptPage extends React.Component {
   }
 
   render() {
-    const {location, viewer, relay: {variables: {selectedID}}} = this.props;
-    let {selectedConcept} = viewer;
+    const {viewer, relay: {variables: {selectedID}}} = this.props;
     const {query} = this.state;
+    let {selectedConcept} = viewer;
 
     const hasSelection = selectedConcept && selectedID && this.state.selectedID;
 
     if (!hasSelection) {
       selectedConcept = {};
-      document.title = 'Concepts';
+      document.title = 'Owleo';
     }
-
-    let list;
-    if (this.props.relay.variables.includeResults && query) {
-      list = <SearchResults {...{viewer, query, selectedID}}
-                            onSelect={this._clearSearch.bind(this)}/>;
-    } else if (query || selectedID != location.query.id) {
-      list = <CenteredSpinner style={{marginTop: 10}}/>;
-    } else {
-      list = <ConceptSimpleList viewer={viewer} id={selectedID}/>;
-    }
-
-    let emptyOwl = false;
-    let content;
-    let contentLoading;
-    let animateContent = false;
-    if (this.state.isLoading) {
-      contentLoading = <Spinner key="loading" style={{left: '50%', top: '5px'}}/>;
-      animateContent = true;
-    } else if (this.props.children) {
-      content = React.cloneElement(this.props.children, {viewer});
-    } else if (hasSelection) {
-      content = <ConceptCard key={selectedConcept.id} showReqs
-                             {...{viewer, concept: selectedConcept}}/>;
-      animateContent = true;
-    } else {
-      emptyOwl = true;
-      content = <OwlPlaceholder/>
-    }
-
-    if (animateContent) content = <CardAnimation>{content}</CardAnimation>;
 
     return (
-      <div className="concept-nav-container">
+      <div style={{display: 'flex', justifyContent: 'center'}}>
 
-        <div className="nav-negative-margin">
-
-          <Card className="concept-nav">
-            <Grid style={{backgroundColor: 'white', margin: 0, padding: 0,
-                          borderBottom: '1px solid rgba(0,0,0,0.5)'}}>
-              <Cell col={12}>
-                <Textfield ref="search" label="Search for concepts"
-                           onChange={this._handleSearchChange.bind(this)}
-                           onKeyUp={this._handleSearchKeyUp.bind(this)}
-                           style={{margin: '-20px 0', width: '100%'}}/>
-              </Cell>
-            </Grid>
-            <Cell col={12} align="stretch"
-                  style={{width: '100%', margin: 0, overflowY: 'auto'}}>
-            {list}
-            </Cell>
-          </Card>
-
-          <div className="card-container concept-scroller">
-            <div style={{marginTop: 10, marginBottom: 15}}>
-              {contentLoading}
-              {content}
-            </div>
+        <div style={{width: 700}}>
+          <div style={{margin: 10, minHeight: 28}}>
+            {hasSelection && !this.state.showSearch ?
+              <div>
+                <IconButton name="search" raised style={{marginRight: 10}}
+                            onClick={this._showSearch.bind(this)}/>
+                <ConceptBreadcrumbs concept={selectedConcept} showHome/>
+              </div> :
+              <Card>
+                <input placeholder="Search for something you want to learn about"
+                       type="text" defaultValue={this.state.query}
+                       className="search-field"
+                       onChange={this._handleSearchChange.bind(this)}
+                       onKeyUp={this._handleSearchKeyUp.bind(this)}
+                       style={{
+                        margin: '0 10', width: '100%', height: 28,
+                        border: 0, fontSize: 17
+                       }}/>
+              </Card>
+            }
           </div>
-
+          {this.props.relay.variables.includeResults && query ?
+            <div style={{margin: '0 10'}}>
+              <SearchResults {...{viewer, query, selectedID}}
+                             onSelect={this._clearSearch.bind(this)}/>
+            </div> :
+            this._renderNav(hasSelection, selectedConcept)
+          }
         </div>
 
       </div>
@@ -103,10 +77,41 @@ class ConceptPage extends React.Component {
     );
   }
 
+  _renderNav(hasSelection, selectedConcept) {
+    const {children, relay: {variables: {selectedID}}, viewer} = this.props;
+
+    let content;
+    if (this.state.isLoading) {
+      content = <Spinner key="loading" style={{left: '50%', top: '5px'}}/>;
+    } else if (this.props.children) {
+      content = React.cloneElement(children, {viewer});
+    } else if (hasSelection) {
+      content = <ConceptCard key={selectedConcept.id} showReqs
+                             {...{viewer, concept: selectedConcept}}/>;
+    } else {
+      content = <OwlPlaceholder/>
+    }
+
+    return (
+      <div className="concept-nav-container">
+        <div className="nav-negative-margin">
+          <Card className="concept-nav">
+            <ConceptSimpleList viewer={viewer} id={selectedID}/>
+          </Card>
+          <div className="card-container concept-scroller">
+            <div style={{marginBottom: 15}}>
+              {content}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   _handleSearchChange(event) {
     const {value: query} = event.target;
-    this.props.relay.setVariables({includeResults: Boolean(query)});
-    this.setState({query});
+
+    history.push('/search/' + query);
   }
 
   _handleSearchKeyUp(event) {
@@ -117,21 +122,29 @@ class ConceptPage extends React.Component {
     }
   }
 
-  _clearSearch() {
-    this.setState({query: null});
-    const {search} = this.refs;
-    search.refs.input.value = '';
-    ReactDOM.findDOMNode(search).classList.remove('is-dirty');
+  _showSearch() {
+    this.setState({showSearch: true});
   }
 
-  _setSelected({viewer, location}) {
+  _clearSearch() {
+    this.setState({showSearch: false, query: null});
+  }
+
+  _setSelected({params: {query}, viewer, location}) {
     const {selectedConcept} = viewer;
     const {id} = location.query;
+
+    if (this.state.query != query) {
+      this.props.relay.setVariables({includeResults: Boolean(query)});
+      this.setState({query});
+    }
+
+    this.setState({showSearch: false});
 
     if (id && selectedConcept && selectedConcept.id && id == fromGlobalID(selectedConcept.id)) {
       const url = createConceptURL(selectedConcept);
       const {pathname, search} = this.props.location;
-      if (pathname + search != url) this.props.history.replaceState('', url);
+      if (pathname + search != url) history.replace(url);
     }
 
     if (id) {
@@ -167,6 +180,7 @@ export default Relay.createContainer(ConceptPage, {
             id
             name
           }
+          ${ConceptBreadcrumbs.getFragment('concept')}
           ${ConceptCard.getFragment('concept')}
         }
         ${ConceptSimpleList.getFragment('viewer', {id: vars.selectedID})}

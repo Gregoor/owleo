@@ -1,3 +1,4 @@
-import createBrowserHistory from 'history/lib/createBrowserHistory';
+import {useRouterHistory} from 'react-router';
+import {createHistory} from 'history'
 
-export default createBrowserHistory({queryKey: false});
+export default useRouterHistory(createHistory)({queryKey: false});

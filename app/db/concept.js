@@ -73,7 +73,9 @@ export default {
     if (params.exclude) query.whereNotIn('c.id', params.exclude);
     query.limit(Math.max(params.limit || 30, 30));
 
-    return query.then((concepts) => concepts.map(camelizeKeys));
+    return query.then((concepts) =>
+      concepts.map((concept) => camelizeKeys(concept))
+    );
   },
 
   findOne(...args) {

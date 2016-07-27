@@ -131,10 +131,6 @@ $timingFn: cubic-bezier(.62,.28,.23,.99);
   transition: all 700ms $timingFn;
 }
 
-.card-container > * > * > :nth-child(2) {
-  display: none;
-}
-
 .ql-editor > div {
   font-size: $readable-font-size;
 }
@@ -157,16 +153,14 @@ $nav-width: 350px;
 $nav-margin: 10px;
 .nav-negative-margin {
   @media(min-width: 1450px) {
-    display: flex;
     margin-left: -($nav-width + $nav-margin);
   }
 }
 
 .concept-nav {
-  position: fixed;
-  height: 91vh;
+  position: absolute;
   max-width: $nav-width;
-  margin: $nav-margin;
+  margin: 0 $nav-margin $nav-margin;
   background-color: white;
 }
 

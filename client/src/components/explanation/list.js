@@ -1,7 +1,6 @@
 import React from 'react';
 import Relay from 'react-relay';
 
-import CardAnimation from '../card-animation';
 import ExplanationCard from '../explanation/card';
 import ExplanationForm from '../explanation/form';
 
@@ -9,26 +8,22 @@ class ExplanationList extends React.Component {
 
   render() {
     const {user, concept} = this.props;
-    let delay = 0;
     let explanations = _(concept.explanations.edges)
       .map(({node: explanation}) => {
-        return <ExplanationCard key={explanation.id} {...{explanation, user}}
-                                style={{transitionDelay: `${delay += 100}ms`}}/>
+        return <ExplanationCard key={explanation.id} {...{explanation, user}}/>
       })
       .value();
 
     if (user && !user.isGuest) explanations.push(
-      <div key="new" style={{transitionDelay: `${delay += 100}ms`}}>
-        <ExplanationForm {...{concept}} explanation={null}/>
-      </div>
+      <div key="new"><ExplanationForm {...{concept}} explanation={null}/></div>
     );
 
     if (_.isEmpty(explanations)) return <div/>;
 
     return (
-      <CardAnimation delay={delay}>
+      <div>
         <h4>Explanations</h4>{explanations}
-      </CardAnimation>
+      </div>
     );
   }
 

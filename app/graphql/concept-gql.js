@@ -34,16 +34,16 @@ let ExplanationType = new GraphQLObjectType({
     votes: {type: GraphQLInt},
     hasUpvoted: {
       type: GraphQLBoolean,
-      resolve({id}, context, root) {
-        return root.rootValue.getUser().then(({id: userID}) => {
+      resolve({id}, args, context) {
+        return context.getUser().then(({id: userID}) => {
           return Explanation.hasVotedFor(id, 'UP', userID);
         });
       }
     },
     hasDownvoted: {
       type: GraphQLBoolean,
-      resolve({id}, context, root) {
-        return root.rootValue.getUser().then(({id: userID}) => {
+      resolve({id}, args, context) {
+        return context.getUser().then(({id: userID}) => {
           return Explanation.hasVotedFor(id, 'DOWN', userID);
         });
       }
@@ -89,7 +89,7 @@ const ConceptType = new GraphQLObjectType({
     explanations: {
       type: explanationConnection,
       args: connectionArgs,
-      resolve: ({id}, args, root) => root.rootValue.getUser().then((user) =>
+      resolve: ({id}, args, context) => context.getUser().then((user) =>
         connectionFromPromisedArray(
           Explanation.find({concept_id: id}, user.id),
           args
@@ -98,8 +98,8 @@ const ConceptType = new GraphQLObjectType({
   },
     mastered: {
       type: GraphQLBoolean,
-      resolve: ({id}, context, root) => {
-        return root.rootValue.getUser().then(({id: userID}) =>
+      resolve: ({id}, args, context) => {
+        return context.getUser().then(({id: userID}) =>
           Concept.isMasteredBy(id, userID)
         );
       }
@@ -118,10 +118,10 @@ const ConceptType = new GraphQLObjectType({
   interfaces: [NodeGQL.interface]
 });
 
-const assertUser = (root) => root.rootValue.getUser().then(({isGuest}) => {
+const assertUser = (context) => context.getUser().then(({isGuest}) => {
   if (isGuest) throw new Error('unauthorized');
 });
-const assertAdmin = (root) => root.rootValue.getUser().then(({isAdmin}) => {
+const assertAdmin = (context) => context.getUser().then(({isAdmin}) => {
   if (!isAdmin) throw new Error('unauthorized');
 });
 
@@ -188,15 +188,15 @@ export default {
         reqs: {type: new GraphQLList(GraphQLID)}
       },
       outputFields: {conceptID: {type: GraphQLID}},
-      mutateAndGetPayload: (input, root) => {
+      mutateAndGetPayload: (input, context) => {
         if (input.container) {
           input.container = fromGlobalId(input.container).id;
         }
         if (input.reqs) {
           input.reqs = input.reqs.map(req => fromGlobalId(req).id);
         }
-        return assertAdmin(root)
-          .then(() => root.rootValue.getUser())
+        return assertAdmin(context)
+          .then(() => context.getUser())
           .then((user) => Concept.create(input, user.id))
           .then(id => ({conceptID: toGlobalId('Concept', id)}));
 }
@@ -212,7 +212,7 @@ export default {
         reqs: {type: new GraphQLList(GraphQLID)}
       },
       outputFields: {success: {type: GraphQLBoolean}},
-      mutateAndGetPayload: (input, root, context) => {
+      mutateAndGetPayload: (input, context) => {
         input.id = fromGlobalId(input.id).id;
         if (input.container) {
           input.container = fromGlobalId(input.container).id;
@@ -220,7 +220,7 @@ export default {
         if (input.reqs) {
           input.reqs = input.reqs.map(req => fromGlobalId(req).id);
         }
-        return assertAdmin(root)
+        return assertAdmin(context)
           .then(() => Concept.update(input.id, input))
           .then(() => ({success: true}));
       }
@@ -229,9 +229,9 @@ export default {
       name: 'DeleteConcept',
       inputFields: {conceptID: {type: new GraphQLNonNull(GraphQLID)}},
       outputFields: {success: {type: GraphQLBoolean}},
-      mutateAndGetPayload(input, root) {
-        return assertAdmin(root)
-          .then(() =>Concept.delete(fromGlobalId(input.conceptID).id))
+      mutateAndGetPayload(input, context) {
+        return assertAdmin(context)
+          .then(() => Concept.delete(fromGlobalId(input.conceptID).id))
           .then(() => ({success: true}));
       }
     }),
@@ -245,10 +245,10 @@ export default {
         concepts: {type: new GraphQLList(ConceptType)},
         user: {type: UserGQL.type}
       },
-      mutateAndGetPayload(input, root) {
+      mutateAndGetPayload(input, context) {
         const {conceptIDs, mastered} = input;
         const ids = conceptIDs.map((id) => fromGlobalId(id).id);
-        return root.rootValue.getUser().then(({id: userID}) => {
+        return context.getUser().then(({id: userID}) => {
             return (mastered ?
               Concept.master(ids, userID) :
               Concept.unmaster(ids, userID)
@@ -268,11 +268,11 @@ export default {
         content: {type: GraphQLString}
       },
       outputFields: {success: {type: GraphQLBoolean}},
-      mutateAndGetPayload(input, root) {
+      mutateAndGetPayload(input, context) {
         input.conceptID = fromGlobalId(input.conceptID).id;
 
-        return assertUser(root)
-          .then(() => root.rootValue.getUser())
+        return assertUser(context)
+          .then(() => context.getUser())
           .then((user) => Explanation.create(input, user.id))
           .then(() => ({success: true}));
       }
@@ -285,9 +285,9 @@ export default {
         approved: {type: GraphQLBoolean}
       },
       outputFields: {explanation: {type: ExplanationType}},
-      mutateAndGetPayload(input, root) {
+      mutateAndGetPayload(input, context) {
         const explanationID = fromGlobalId(input.explanationID).id;
-        return assertAdmin(root)
+        return assertAdmin(context)
           .then(() =>
             Explanation.update(explanationID, _.pick(input, 'content', 'approved'))
           ).then(() => Explanation.find({id: explanationID}))
@@ -300,8 +300,8 @@ export default {
         explanationID: {type: new GraphQLNonNull(GraphQLID)}
       },
       outputFields: {success: {type: GraphQLBoolean}},
-      mutateAndGetPayload(input, root) {
-        return assertAdmin(root)
+      mutateAndGetPayload(input, context) {
+        return assertAdmin(context)
           .then(() => Explanation.delete(fromGlobalId(input.explanationID).id))
           .then(() => ({success: true}));
       }
@@ -318,10 +318,10 @@ export default {
       outputFields: {
         explanation: {type: new GraphQLNonNull(ExplanationType)}
       },
-      mutateAndGetPayload({explanationID, voteType}, root) {
+      mutateAndGetPayload({explanationID, voteType}, context) {
         explanationID = fromGlobalId(explanationID).id;
-        return assertUser(root)
-          .then(root.rootValue.getUser)
+        return assertUser(context)
+          .then(context.getUser)
           .then(({id: userID}) => {
             return Explanation.vote(explanationID, voteType, userID)
               .then((userID) => ({

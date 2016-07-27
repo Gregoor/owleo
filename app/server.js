@@ -36,26 +36,38 @@ if (!fs.existsSync(secretFilePath)) {
 app.use(sessions({
   cookieName: 'user',
   secret: fs.readFileSync(secretFilePath),
-  duration: 1000 * 60 * 60 * 24 * 7,
+  duration: 1000 * 60 * 60 * 24 * 366,
   cookie: {
-    path: '/graphql',
-    secureProxy: true
+    secureProxy: !config.dev
   }
 }));
 app.use(compression());
 app.use(require('body-parser').json());
-app.use('/graphql', graphqlHTTP(({user}) => {
+
+app.use('/cookie', (req, res) => {
+  const {user} = req;
   if (user.id && user.id.length > 3) user.id = null;
-  const userPromise = (user.id ?
+  (user.id ?
     Promise.resolve(user.id) :
     User.createGuest().then(id => (user.id = id))
-  ).then((id => User.findOne({id})));
+  )
+    .then((id) => User.findOne({id}))
+    .then((user) => {
+      req.user = user;
+      res.end();
+    });
+});
+
+app.use((req, res, next) => req.user.id ? next() : res.status(401).json({
+  error: 'Get yourself a "/cookie" first'
+}));
+app.use('/graphql', graphqlHTTP((req) => {
   return {
     schema: require('./graphql/schema').Schema,
     graphiql: true,
-    rootValue: {
-      getUser: () => userPromise,
-      setUser: (id) => (user.id = id)
+    context: {
+      getUser: () => Promise.resolve(req.user),
+      setUser: (id) => (req.user = {id})
     },
     formatError(error) {
       return config.dev ? {
@@ -66,8 +78,6 @@ app.use('/graphql', graphqlHTTP(({user}) => {
     }
   }
 }));
-
-app.use('/study', express.static(__dirname + '/study'));
 
 app.listen(config.port);
 

@@ -23,8 +23,8 @@ let ViewerType = new GraphQLObjectType({
   fields: Object.assign({
     user: {
       type: UserGQL.type,
-      resolve(parent, context, root) {
-        return root.rootValue.getUser().then(({id}) => User.findOne({id}));
+      resolve(parent, args, context) {
+        return context.getUser().then(({id, name}) => User.findOne({id}));
       }
     },
     userExists: {
@@ -60,8 +60,8 @@ export const Schema = new GraphQLSchema({
         outputFields: {
           success: {type: GraphQLBoolean}
         },
-        mutateAndGetPayload(input, root) {
-          return root.rootValue.getUser()
+        mutateAndGetPayload(input, context) {
+          return context.getUser()
             .then(({id}) => User.registerGuest(id, input))
             .then(() => ({success: true}));
         }
@@ -75,11 +75,11 @@ export const Schema = new GraphQLSchema({
         outputFields: {
           success: {type: GraphQLBoolean}
         },
-        mutateAndGetPayload(input, root) {
+        mutateAndGetPayload(input, context) {
           return User.authenticate(input).then((user) => {
             if (!user) return new Error('unauthorized');
 
-            root.rootValue.setUser(user.id);
+            context.setUser(user.id);
             return {success: true};
           });
         }
@@ -89,8 +89,8 @@ export const Schema = new GraphQLSchema({
         outputFields: {
           success: {type: GraphQLBoolean}
         },
-        mutateAndGetPayload(input, root) {
-          root.rootValue.setUser(null);
+        mutateAndGetPayload(input, context) {
+          context.setUser(null);
           return {success: true};
         }
       })

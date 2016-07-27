@@ -15,7 +15,9 @@ const findLearnPath = (id, {includeContained}) => {
             requirements.concept_id = all_requirments.id
     )
     SELECT * FROM all_requirments;
-  `, [id]).then(({rows}) => rows.reverse().map(camelizeKeys));
+  `, [id]).then(({rows}) =>
+    rows.reverse().map((concept) => camelizeKeys(concept))
+  );
 };
 
 export default findLearnPath;
