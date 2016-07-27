@@ -70,11 +70,16 @@ app.use('/graphql', graphqlHTTP((req) => {
       setUser: (id) => (req.user = {id})
     },
     formatError(error) {
-      return config.dev ? {
-        message: error.message,
-        locations: error.locations,
-        stack: error.stack
-      } : {message: 'Error in der Hose'};
+      if (config.dev) {
+        return {
+          message: error.message,
+          locations: error.locations,
+          stack: error.stack
+        };
+      } else {
+        console.error(error);
+        return {message: 'Error in der Hose'};
+      }
     }
   }
 }));
