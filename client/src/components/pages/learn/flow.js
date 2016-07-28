@@ -197,8 +197,8 @@ class ConceptFlow extends React.Component {
     const halfHeight = this.height / 2;
     minX += halfWidth;
     maxX += halfWidth;
-    minY += halfHeight * 1.5;
-    maxY += halfHeight * .5;
+    minY += halfHeight * 1.1;
+    maxY += halfHeight * .8;
     const newX = Math.min(maxX, Math.max(minX, x));
     const newY = Math.min(maxY, Math.max(minY, y));
     this.navState = {x: newX, y: newY};

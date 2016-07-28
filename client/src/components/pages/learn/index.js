@@ -67,7 +67,7 @@ class ConceptLearnPage extends React.Component {
                   <ConceptBreadcrumbs concept={target}/>
                 </div>
                 <ConceptFlow concepts={learnPath} selectedID={selectedID}
-                             onSelect={this._setSelected.bind(this)} style={{height: '100%'}} />
+                             onSelect={this._setSelected.bind(this)} style={{height: '500px'}} />
               </div>
 
               <div className="card-container concept-scroller">
