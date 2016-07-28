@@ -11,7 +11,7 @@ import SearchResults from './../../concept/results';
 import ConceptBreadcrumbs from '../../concept/breadcrumbs';
 import ConceptCard from '../../concept/card/';
 import ConceptForm from '../../concept/form';
-import OwlPlaceholder from '../../owl-placeholder/';
+import Intro from '../../intro';
 import {CenteredSpinner} from '../../icons';
 
 
@@ -89,7 +89,7 @@ class ConceptPage extends React.Component {
       content = <ConceptCard key={selectedConcept.id} showReqs
                              {...{viewer, concept: selectedConcept}}/>;
     } else {
-      content = <OwlPlaceholder/>
+      content = <Intro/>
     }
 
     return (
