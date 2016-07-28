@@ -17,7 +17,7 @@ class MasterConceptButton extends React.Component {
         title: 'I fully understand this concept',
         onClick: this._handleClick.bind(this)
       },
-      _.omit(this.props, 'relay', 'concept')
+      _.omit(this.props, 'relay', 'concept', 'onMaster')
     );
 
     return (

@@ -56,10 +56,10 @@ class ConceptCard extends React.Component {
                 <IconButton name="more_vert" id="concept-menu"
                             style={{marginLeft: 24}}/>
                 <Menu target="concept-menu">
-                  <MenuItem ripple onClick={this._handleEdit.bind(this)}>
+                  <MenuItem onClick={this._handleEdit.bind(this)}>
                     Edit
                   </MenuItem>
-                  <MenuItem ripple onClick={this._handleDelete.bind(this)}>
+                  <MenuItem onClick={this._handleDelete.bind(this)}>
                     Delete
                   </MenuItem>
                 </Menu>

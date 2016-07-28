@@ -170,7 +170,7 @@ class ConceptFlow extends React.Component {
   render() {
     const {isLoading}  = this.state;
     return (
-      <div {...this.props}>
+      <div {..._.omit(this.props, 'concepts', 'selectedID', 'relay')}>
         {isLoading ? <CenteredSpinner/> : ''}
         <svg ref="svg" className="flow"
              style={{visibility: isLoading ? 'hidden' : 'visible'}}/>

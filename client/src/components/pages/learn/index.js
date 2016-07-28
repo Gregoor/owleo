@@ -45,33 +45,42 @@ class ConceptLearnPage extends React.Component {
     }
 
     return (
-      <div className="concept-nav-container">
+      <div style={{display: 'flex', justifyContent: 'center'}}>
+        <div style={{width: 700}}>
 
-        <div className="nav-negative-margin">
-
-          <div className="mdl-card concept-nav">
-            <div style={{padding: 5, borderBottom: '1px solid black'}}>
-              {masteredAll ? 'You have mastered' : 'You are mastering'}
-              {includeContained ? ' every concept in' : ''}
-              <br/>
-              <h3 style={{margin: 0}}>
-                {target.name} {masteredAllIcon}
-              </h3>
-              <ConceptBreadcrumbs concept={target}/>
-            </div>
-            <ConceptFlow concepts={learnPath} selectedID={selectedID}
-                         onSelect={this._setSelected.bind(this)} style={{height: '100%'}} />
+          <div style={{margin: 10, minHeight: 28}}>
+            <ConceptBreadcrumbs concept={selected} showHome/>
           </div>
 
-          <div className="card-container concept-scroller">
-            <div style={{marginTop: 10}}>
-              {selected.id != selectedID ?
-                <ConceptCard key={selected.id} concept={selected}
-                             nameAsLink showMasterButton {...{viewer}}
-                             onMaster={this._handleSelectNext.bind(this)}/> :
-                <CenteredSpinner/>
-              }
+          <div className="concept-nav-container">
+
+            <div className="nav-negative-margin">
+
+              <div className="mdl-card concept-nav">
+                <div style={{padding: 5, borderBottom: '1px solid black'}}>
+                  {masteredAll ? 'You have mastered' : 'You are mastering'}
+                  {includeContained ? ' every concept in' : ''}
+                  <br/>
+                  <h3 style={{margin: 0}}>
+                    {target.name} {masteredAllIcon}
+                  </h3>
+                  <ConceptBreadcrumbs concept={target}/>
+                </div>
+                <ConceptFlow concepts={learnPath} selectedID={selectedID}
+                             onSelect={this._setSelected.bind(this)} style={{height: '100%'}} />
+              </div>
+
+              <div className="card-container concept-scroller">
+                {selected.id != selectedID ?
+                  <ConceptCard key={selected.id} concept={selected}
+                               nameAsLink showMasterButton {...{viewer}}
+                               onMaster={this._handleSelectNext.bind(this)}/> :
+                  <CenteredSpinner/>
+                }
+              </div>
+
             </div>
+
           </div>
 
         </div>
@@ -151,6 +160,7 @@ export default Relay.createContainer(ConceptLearnPage, {
         
         selected: concept(id: $selectedID) {
           id
+          ${ConceptBreadcrumbs.getFragment('concept')}
           ${ConceptCard.getFragment('concept')}
         }
 
