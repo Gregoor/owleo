@@ -12,12 +12,12 @@ export default {
     loaders: [
       {
         test: /\.js$/,
-        loader: 'babel',
+        loader: 'babel-loader',
         include: path.join(__dirname, 'src')
       },
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract('css?sourceMap!sass?sourceMap')
+        loader: ExtractTextPlugin.extract({use: ['css-loader', 'sass-loader']})
       },
       { test: /\.(png|jpg|svg)$/, loader: 'file-loader?name=images/[name].[ext]' }
     ]

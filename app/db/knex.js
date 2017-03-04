@@ -1,5 +1,5 @@
 import knex from 'knex';
-import {config} from '../configs/config.custom';
+import config from '../configs/config';
 
 
 export default knex({

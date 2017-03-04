@@ -4,7 +4,7 @@ import {Router, Route, Redirect, applyRouterMiddleware} from 'react-router';
 import useRelay from 'react-router-relay';
 import {Spinner} from 'react-mdl';
 
-import {BACKEND_URL, DEV_MODE} from '../config.custom';
+import {BACKEND_URL, DEV_MODE} from '../config';
 import history from '../history';
 import Layout from './layout';
 import ConceptPage from './pages/nav/index';
@@ -15,7 +15,7 @@ import AboutPage from './pages/about';
 import UnapprovedPage from './pages/unapproved';
 
 const fetchOptions = {
-  credentials: DEV_MODE ? 'include' : 'same-origin'
+  credentials: 'include'
 };
 
 Relay.injectNetworkLayer(

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import fs from 'fs';
 import path from 'path';
 import express from 'express';
@@ -8,15 +7,9 @@ import graphqlHTTP from 'express-graphql';
 import cors from 'cors';
 import 'babel-polyfill';
 
+import config from './configs/config';
 import User from './db/user';
 
-let {config} = require('./configs/config');
-
-try {
-  config = _.defaults(require('./configs/config.custom').config, config);
-} catch (e) {
-  if (!(e instanceof Error && e.code === 'MODULE_NOT_FOUND')) throw e;
-}
 let app = express();
 
 if (config.dev) {
@@ -38,6 +31,7 @@ app.use(sessions({
   secret: fs.readFileSync(secretFilePath),
   duration: 1000 * 60 * 60 * 24 * 366,
   cookie: {
+    path: '/graphql',
     secureProxy: !config.dev
   }
 }));
@@ -58,7 +52,7 @@ app.use('/cookie', (req, res) => {
     });
 });
 
-app.use((req, res, next) => req.user.id ? next() : res.status(401).json({
+app.use('/graphql', (req, res, next) => req.user.id ? next() : res.status(401).json({
   error: 'Get yourself a "/cookie" first'
 }));
 app.use('/graphql', graphqlHTTP((req) => {
@@ -79,6 +73,10 @@ app.use('/graphql', graphqlHTTP((req) => {
     }
   }
 }));
+
+const staticPath = path.join(__dirname, '..', 'client', 'static');
+app.use(express.static(staticPath));
+app.use((req, res) => res.sendFile(path.join(staticPath, 'index.html')));
 
 app.listen(config.port);
 

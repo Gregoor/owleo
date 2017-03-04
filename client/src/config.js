@@ -1,5 +1,4 @@
-// Copy and rename to 'config.custom.js'
-const BACKEND_URL = `${location.protocol}//${location.hostname}/`;
+const BACKEND_URL = `${location.protocol}//${location.hostname}:${location.port}/`;
 
 const DEV_MODE = false;
 

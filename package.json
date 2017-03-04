@@ -6,7 +6,9 @@
     "test": "mocha --compilers js:babel-core/register app/__tests__",
     "migrate": "babel-node app/db/migrate/bin/migrate --chdir app/db",
     "update-schema": "babel-node build/update-schema.js",
-    "create-secret": "node app/create-secret.js"
+    "create-secret": "node app/create-secret.js",
+    "postinstall": "node app/create-secret.js && cd client && yarn && yarn run build",
+    "start": "babel-node app/server.js"
   },
   "author": "",
   "license": "BSD-2-Clause",
@@ -28,9 +30,7 @@
     "migrate": "git://github.com/Gregoor/node-migrate.git",
     "neo4j": "2.0.0-RC2",
     "pg": "^4.5.1",
-    "sanitize-html": "^1.11.4"
-  },
-  "devDependencies": {
+    "sanitize-html": "^1.11.4",
     "babel-cli": "^6.6.5",
     "babel-core": "^6.6.5",
     "babel-plugin-syntax-async-functions": "^6.5.0",

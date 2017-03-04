@@ -2,7 +2,7 @@ import knex from '../knex';
 
 const ddl = `CREATE TABLE concepts
 (
-    id INTEGER PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     summary TEXT NOT NULL,
     summary_source TEXT,
@@ -12,21 +12,21 @@ const ddl = `CREATE TABLE concepts
 );
 CREATE TABLE explanation_down_votes
 (
-    id INTEGER PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
     explanation_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT now()
 );
 CREATE TABLE explanation_up_votes
 (
-    id INTEGER PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
     explanation_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT now()
 );
 CREATE TABLE explanations
 (
-    id INTEGER PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
     concept_id INTEGER NOT NULL,
     author_id INTEGER NOT NULL,
     content TEXT NOT NULL,
@@ -37,21 +37,21 @@ CREATE TABLE explanations
 );
 CREATE TABLE mastered_concepts
 (
-    id INTEGER PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
     concept_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT now()
 );
 CREATE TABLE requirements
 (
-    id INTEGER PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
     concept_id INTEGER NOT NULL,
     requirement_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT now()
 );
 CREATE TABLE users
 (
-    id INTEGER PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
     name TEXT,
     password_hash TEXT,
     is_admin BOOLEAN DEFAULT false NOT NULL,
