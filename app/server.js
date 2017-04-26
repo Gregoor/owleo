@@ -32,11 +32,19 @@ app.use(sessions({
   duration: 1000 * 60 * 60 * 24 * 366,
   cookie: {
     path: '/graphql',
-    secureProxy: !config.dev
+    secureProxy: config.forceHTTPS
   }
 }));
 app.use(compression());
 app.use(require('body-parser').json());
+if (config.forceHTTPS) {
+  app.use((req, res, next) => {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect(['https://', req.get('Host'), req.url].join(''));
+    }
+    return next();
+  });
+}
 
 app.use('/cookie', (req, res) => {
   const {user} = req;
