@@ -31,7 +31,7 @@ class ConceptSimpleListItem extends React.Component {
                           borderColor: isSelected ? PRIMARY : 'rgba(0, 0, 0, .2)',
                           marginRight: 10, borderRadius: 100}}>
               <span style={{display: 'inline-block', marginTop: 6, fontSize: 14,
-                            fontWeight: 600}}>
+                            lineHeight: 1, fontWeight: 600}}>
                 {conceptsCount || ''}
               </span>
             </span>
